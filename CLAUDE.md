@@ -34,27 +34,35 @@ samples/              # invoices de teste (NF-e, NFS-e, boletos BR)
 Estas decisões já foram tomadas com justificativa na spec. **Não reverter sem discutir** — tem trade-off documentado por trás.
 
 ### OpenAI único para OCR + LLM (não Google Vision + LLM separada)
+
 GPT-4o aceita imagem direto no prompt. Uma SDK, uma chave, um billing. Não introduzir Google Vision, Tesseract, AWS Textract etc. sem confirmar.
 
 ### SDK direto da OpenAI, não LangChain
+
 Function calling simples (`get_full_document(id)`) com SDK nativo. LangChain é overhead para o escopo. Se for preciso abstrair multi-provider, fazer interface própria leve.
 
 ### Function calling (sumário + texto sob demanda), não RAG/pgvector
+
 Cada documento gera resumo estruturado no banco. Chat recebe os resumos e pode chamar tool `get_full_document(id)` para detalhe. RAG com pgvector está no backlog, **não no core**.
 
 ### Storage no Railway Volume, não R2/S3
+
 Decisão pragmática para case. **Mas** abstrair via storage service no Nest desde o começo, para troca trivial por R2 depois sem mexer em domínio.
 
 ### Auth: NextAuth com Google + GitHub apenas
+
 Sem email/senha (evita reset, validação, captcha). Adicionar provider é trivial; remover esses dois não é. Decisão de localização (Next ou Nest) é livre pela spec — atualmente planejada no Next.
 
 ### shadcn/ui (componentes copiados), não MUI/Chakra
+
 Componentes ficam em `apps/web/components/ui/`, não em `node_modules`. MCP server `shadcn` está habilitado em `.claude/settings.local.json` para auxiliar.
 
 ### Tema customizado Paggo (preto + cobre/conhaque)
+
 Paleta OKLCH definida na spec, dark mode default. Light mode mantém família. Fica em `apps/web/app/globals.css`. **Não alterar paleta sem confirmar** — é parte da identidade do projeto.
 
 ### Estrutura plana de componentes com hooks de domínio (NÃO Atomic Design)
+
 ```
 components/
 ├── ui/                              # primitivos shadcn
@@ -63,15 +71,19 @@ components/
 │   └── use-<feature>.ts             # lógica, fetch, estado
 └── layout/                          # header, sidebar, providers
 ```
+
 Cada feature tem seu hook (`useDocumentUpload`, `useChatStream`, etc.). Atomic Design está no backlog — **não introduzir prematuramente**.
 
 ### Módulos do NestJS
+
 Separados por responsabilidade: `auth`, `users`, `ocr`, `documents`, `chat`. **`chat` é separado de `ocr` de propósito** — ciclos de evolução distintos.
 
 ### i18n desde o dia 0 (mesmo com só pt-BR ativo)
+
 Toda string de UI vai por `t('key')`, mesmo que só tenha `messages/pt-BR.json` por enquanto. Não hardcodar texto em componentes.
 
 ### Squash and merge, conventional commits
+
 Histórico linear na `main`. PRs descritivos.
 
 ## Restrições de segurança que NÃO podem ser ignoradas

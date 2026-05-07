@@ -3,6 +3,7 @@
 OCR + LLM chat sobre invoices — case técnico Paggo.
 
 ## Stack
+
 - Monorepo: npm workspaces + Turborepo
 - `apps/web`: Next.js 16 (App Router, Tailwind)
 - `apps/api`: NestJS 11

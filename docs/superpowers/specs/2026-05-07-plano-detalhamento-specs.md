@@ -27,6 +27,7 @@
 **Spec a escrever:** `2026-05-07-fase-0-setup.md`
 
 Escopo:
+
 - Monorepo `npm workspaces` + Turborepo, layout `apps/web`, `apps/api`, `packages/shared-types`, `samples/`.
 - Tooling dia 0: ESLint, Prettier, Husky, lint-staged, commitlint (conventional commits), `.editorconfig`.
 - GitHub Actions: lint, typecheck, test, build em PRs.
@@ -43,6 +44,7 @@ Escopo:
 **Spec a escrever:** `2026-05-07-fase-1-auth.md`
 
 Escopo:
+
 - Decisão arquitetural: onde mora a sessão (NextAuth no web e Nest valida via JWT/header? Cookie compartilhado? Proxy?). Spec resolve explicitamente.
 - NextAuth com Google + GitHub, `NEXTAUTH_SECRET` forte, cookies httpOnly+secure, expiry 7 dias com renovação por atividade.
 - Modelo `User` completo no Prisma: id, email, name, avatar, role (`USER|ADMIN`), timestamps, `onDelete: Cascade` preparado para entidades futuras.
@@ -58,6 +60,7 @@ Escopo:
 **Spec a escrever:** `2026-05-07-fase-2-ocr.md`
 
 Escopo:
+
 - Schema Prisma: `Document` (id, userId, filename, mime, size, storagePath, status, summary jsonb, extractedText, timestamps), `onDelete: Cascade` no userId.
 - Módulo `documents` no Nest: criar, listar (filtro `userId` obrigatório), buscar por id (com ownership check).
 - Módulo `ocr` separado: `OcrService` com OpenAI vision, system prompt mencionando campos BR (CNPJ emitente, valor total, data emissão, chave NF-e 44 dígitos, CFOP), retorna `summary` estruturado + `extractedText`.
@@ -75,6 +78,7 @@ Escopo:
 **Spec a escrever:** `2026-05-07-fase-3-chat.md`
 
 Escopo:
+
 - Schema Prisma: `ChatSession` e `ChatMessage` (vinculados a userId+documentId, cascade), papéis (`user`, `assistant`, `tool`), conteúdo, timestamps.
 - Módulo `chat` no Nest, separado de `ocr`.
 - `ChatService` com SDK OpenAI direto (sem LangChain): function calling com tool `get_full_document(id)` que devolve `extractedText` do banco — só após ownership check.
@@ -89,6 +93,7 @@ Escopo:
 **Spec a escrever:** `2026-05-07-fase-4-lista-download.md`
 
 Escopo:
+
 - Web: página `/documents` com listagem do usuário, paginação simples, link para detalhes.
 - Endpoint download: gera artefato combinando documento original + texto extraído + transcript do chat. Formato (PDF único vs ZIP com original + .txt + chat.md) fica para spec da fase.
 - Signed URL para download (TTL 15 min).
@@ -100,6 +105,7 @@ Escopo:
 **Spec a escrever:** `2026-05-07-fase-5-finalizacao.md`
 
 Escopo:
+
 - `samples/` definitiva: 3-5 NF-e anonimizadas, 2-3 NFS-e, 1-2 boletos, templates DANFE.
 - Página estática de privacy policy (LGPD).
 - Cascade delete validado end-to-end (deletar usuário → some tudo, inclusive arquivos do volume).
