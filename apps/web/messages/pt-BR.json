@@ -1,0 +1,24 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Algo deu errado.",
+    "retry": "Tentar de novo"
+  },
+  "errors": {
+    "unknown": "Erro inesperado. Tente novamente."
+  },
+  "topbar": {
+    "workspace": "Pessoal",
+    "nav": {
+      "home": "Início",
+      "list": "Minhas notas",
+      "chat": "Chat"
+    },
+    "search_placeholder": "Buscar...",
+    "user_menu_label": "Conta"
+  },
+  "home": {
+    "skeleton_title": "Invoices OCR",
+    "skeleton_caption": "Skeleton em construção. Próxima fase: autenticação."
+  }
+}
