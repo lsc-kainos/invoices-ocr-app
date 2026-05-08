@@ -21,7 +21,11 @@
     "test": "turbo run test",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css}\" --ignore-path .prettierignore",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css}\" --ignore-path .prettierignore"
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css}\" --ignore-path .prettierignore",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:setup": "bash scripts/db-setup.sh",
+    "db:studio": "npm --workspace=@invoices-ocr/api exec -- prisma studio"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,md,yml,yaml,css}": [
