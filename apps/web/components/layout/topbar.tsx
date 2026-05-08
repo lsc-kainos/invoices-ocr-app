@@ -1,19 +1,20 @@
+import Link from 'next/link';
 import { ChevronDown, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import type { Session } from 'next-auth';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Logo } from './logo';
+import { UserMenu } from './user-menu';
 
-// Topbar estática da F0.5: nav, search e avatar todos desabilitados.
-// F1 ativa rotas, search keybind e DropdownMenu do avatar (logout).
-export function Topbar() {
+export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
   const t = useTranslations('topbar');
   const navItems = [
-    { key: 'home', label: t('nav.home') },
-    { key: 'list', label: t('nav.list') },
-    { key: 'chat', label: t('nav.chat') },
+    { key: 'home', label: t('nav.home'), href: '/' as const, enabled: true },
+    { key: 'list', label: t('nav.list'), href: '#' as const, enabled: false },
+    { key: 'chat', label: t('nav.chat'), href: '#' as const, enabled: false },
   ];
 
   return (
@@ -34,18 +35,28 @@ export function Topbar() {
       <Separator orientation="vertical" className="mx-1.5 h-[18px]" />
 
       <nav className="flex gap-0" aria-label="Primary">
-        {navItems.map((item) => (
-          <span
-            key={item.key}
-            aria-disabled="true"
-            className={cn(
-              'text-muted-foreground rounded-md px-2.5 py-1.5 text-sm',
-              'pointer-events-none opacity-40 select-none',
-            )}
-          >
-            {item.label}
-          </span>
-        ))}
+        {navItems.map((item) =>
+          item.enabled ? (
+            <Link
+              key={item.key}
+              href={item.href}
+              className="text-foreground bg-secondary/40 rounded-md px-2.5 py-1.5 text-sm font-medium"
+            >
+              {item.label}
+            </Link>
+          ) : (
+            <span
+              key={item.key}
+              aria-disabled="true"
+              className={cn(
+                'text-muted-foreground rounded-md px-2.5 py-1.5 text-sm',
+                'pointer-events-none opacity-40 select-none',
+              )}
+            >
+              {item.label}
+            </span>
+          ),
+        )}
       </nav>
 
       <div className="flex-1" />
@@ -66,13 +77,7 @@ export function Topbar() {
         </kbd>
       </div>
 
-      <Avatar
-        aria-label={t('user_menu_label')}
-        aria-disabled="true"
-        className="border-border pointer-events-none size-7 cursor-default border opacity-60"
-      >
-        <AvatarFallback className="bg-secondary text-xs font-medium">?</AvatarFallback>
-      </Avatar>
+      <UserMenu user={user} />
     </header>
   );
 }
