@@ -43,8 +43,6 @@ describe('JwtAuthGuard', () => {
     (strategy.decryptAndValidate as jest.Mock).mockResolvedValue(user);
     const c = ctx({ authorization: 'Bearer xyz' });
     await expect(guard.canActivate(c)).resolves.toBe(true);
-    expect((c.switchToHttp().getRequest() as { user: unknown }).user).toBe(
-      user,
-    );
+    expect(c.switchToHttp().getRequest<{ user: unknown }>().user).toBe(user);
   });
 });

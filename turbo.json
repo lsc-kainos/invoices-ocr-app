@@ -4,6 +4,20 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "env": [
+        "NODE_ENV",
+        "NEXTAUTH_URL",
+        "NEXTAUTH_SECRET",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "GITHUB_CLIENT_ID",
+        "GITHUB_CLIENT_SECRET",
+        "ADMIN_EMAILS",
+        "API_URL",
+        "DATABASE_URL",
+        "ALLOWED_ORIGINS",
+        "PORT"
+      ],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "dev": {
