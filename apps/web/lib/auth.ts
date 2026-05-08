@@ -10,15 +10,10 @@ const adminEmails = env.ADMIN_EMAILS.split(',')
   .map((s) => s.trim().toLowerCase())
   .filter(Boolean);
 
-export async function signInCallback({
-  user,
-}: {
-  user: {
-    email?: string | null;
-    name?: string | null;
-    image?: string | null;
-  };
-}) {
+type Callbacks = NonNullable<NextAuthOptions['callbacks']>;
+type SignInArgs = Parameters<NonNullable<Callbacks['signIn']>>[0];
+
+export async function signInCallback({ user }: SignInArgs) {
   if (!user.email) return false;
   const role: Role = adminEmails.includes(user.email.toLowerCase()) ? Role.ADMIN : Role.USER;
   await prisma.user.upsert({
@@ -38,11 +33,7 @@ export async function signInCallback({
   return true;
 }
 
-type JwtArgs = {
-  token: Record<string, unknown>;
-  user?: { email?: string | null } | null;
-  trigger?: string;
-};
+type JwtArgs = Parameters<NonNullable<Callbacks['jwt']>>[0];
 
 export async function jwtCallback({ token, user, trigger }: JwtArgs) {
   if (user?.email) {
@@ -63,14 +54,15 @@ export async function jwtCallback({ token, user, trigger }: JwtArgs) {
   return token;
 }
 
-type SessionArgs = {
-  session: { user?: Record<string, unknown>; expires: string };
-  token: Record<string, unknown>;
-};
+type SessionArgs = Parameters<NonNullable<Callbacks['session']>>[0];
 
 export async function sessionCallback({ session, token }: SessionArgs) {
   if (session.user && token.sub) {
-    session.user = { ...session.user, id: token.sub, role: token.role };
+    session.user = {
+      ...session.user,
+      id: token.sub,
+      role: token.role as Role,
+    };
   }
   return session;
 }
@@ -107,8 +99,8 @@ export const authOptions: NextAuthOptions = {
   secret: env.NEXTAUTH_SECRET,
   pages: { signIn: '/login' },
   callbacks: {
-    signIn: signInCallback as never,
-    jwt: jwtCallback as never,
-    session: sessionCallback as never,
+    signIn: signInCallback,
+    jwt: jwtCallback,
+    session: sessionCallback,
   },
 };

@@ -25,4 +25,12 @@ describe('sessionCallback', () => {
     } as never);
     expect(out.user).toMatchObject({ id: 'u1', role: 'ADMIN' });
   });
+
+  it('passa session inalterada quando token.sub ausente', async () => {
+    const out = await sessionCallback({
+      session: { user: { email: 'e@x', name: 'X' }, expires: '2030-01-01' },
+      token: { email: 'e@x' },
+    } as never);
+    expect(out.user).toEqual({ email: 'e@x', name: 'X' });
+  });
 });

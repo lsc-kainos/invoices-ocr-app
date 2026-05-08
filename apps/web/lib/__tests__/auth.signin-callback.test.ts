@@ -24,14 +24,14 @@ describe('signInCallback', () => {
   beforeEach(() => (prisma.user.upsert as ReturnType<typeof vi.fn>).mockReset());
 
   it('rejeita quando email ausente', async () => {
-    expect(await signInCallback({ user: { email: null } as never })).toBe(false);
+    expect(await signInCallback({ user: { email: null } } as never)).toBe(false);
   });
 
   it('cria USER para email novo', async () => {
     (prisma.user.upsert as ReturnType<typeof vi.fn>).mockResolvedValue({});
     await signInCallback({
-      user: { email: 'new@x.com', name: 'N', image: 'img' } as never,
-    });
+      user: { email: 'new@x.com', name: 'N', image: 'img' },
+    } as never);
     expect(prisma.user.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { email: 'new@x.com' },
@@ -44,8 +44,8 @@ describe('signInCallback', () => {
   it('promove ADMIN se email em ADMIN_EMAILS (case-insensitive)', async () => {
     (prisma.user.upsert as ReturnType<typeof vi.fn>).mockResolvedValue({});
     await signInCallback({
-      user: { email: 'Admin@X.COM', name: 'A', image: null } as never,
-    });
+      user: { email: 'Admin@X.COM', name: 'A', image: null },
+    } as never);
     expect(prisma.user.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         create: expect.objectContaining({ role: 'ADMIN' }),
