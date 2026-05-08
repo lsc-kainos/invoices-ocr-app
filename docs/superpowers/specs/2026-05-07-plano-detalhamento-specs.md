@@ -22,38 +22,79 @@
 
 ---
 
-## F0 — Setup e Deploy hello-world
+## F0 — Bootstrap do monorepo
 
-**Spec a escrever:** `2026-05-07-fase-0-setup.md`
+**Plano de implementação:** `2026-05-07-monorepo-bootstrap.md` (já em execução).
+
+Escopo (entregue por esse plano, não por uma spec separada):
+
+- Monorepo `npm workspaces` + Turborepo, layout `apps/web` (Next.js 16, App Router, Tailwind), `apps/api` (NestJS 11), `packages/shared-types`.
+- Tooling dia 0: ESLint, Prettier (com `prettier-plugin-tailwindcss`), Husky, lint-staged, commitlint (conventional commits), `.editorconfig`, `.nvmrc`.
+- GitHub Actions: lint, typecheck, build em PRs.
+- Repositório no GitHub, push inicial, CI verde.
+
+**Não entrega** (vai pra F0.5): shadcn, NextAuth, Prisma, helmet, throttler, class-validator, next-themes, next-intl, tema Paggo, Railway/deploy.
+
+## F0.5 — Skeleton (frontend + backend base)
+
+**Spec a escrever:** `2026-05-07-fase-0.5-skeleton.md`
+
+Pré-requisito da F1 e seguintes. **Não entrega valor de usuário sozinha** — é a base compartilhada que todas as features verticais consomem.
 
 Escopo:
 
-- Monorepo `npm workspaces` + Turborepo, layout `apps/web`, `apps/api`, `packages/shared-types`, `samples/`.
-- Tooling dia 0: ESLint, Prettier, Husky, lint-staged, commitlint (conventional commits), `.editorconfig`.
-- GitHub Actions: lint, typecheck, test, build em PRs.
-- Skeleton Next.js (App Router) + Tailwind + shadcn init + paleta OKLCH cobre/conhaque base no `globals.css` + next-themes + next-intl com `messages/pt-BR.json` funcional.
-- Skeleton NestJS + helmet + class-validator + `@nestjs/throttler` (config base).
-- Prisma: schema mínimo só com `User` placeholder.
-- Postgres no Railway, volume montado na api, `.env.example` no repo, `.env` no `.gitignore`.
-- Deploy Railway funcional: web e api no ar, banco conectado, healthcheck OK.
-- README inicial com setup local.
-- Página `/` no web e `/health` no api só para provar que está tudo de pé.
+- **Frontend:**
+  - shadcn/ui init em `apps/web` + paleta OKLCH cobre/conhaque (vinda de `docs/claude-design/reference/globals.css` + `tokens.css`).
+  - Fonts: Geist + Geist Mono + Instrument Serif italic.
+  - Primitives shadcn portados: Button, Input, Badge, Card, Tabs, Avatar, Separator, Progress, DropdownMenu, Dialog (mínimo necessário pras telas de F1+F2).
+  - next-themes (provider + dark default) e next-intl (provider + `messages/pt-BR.json` vazio mas funcional, helper `t()` no client e server).
+  - Layout root mínimo (`app/layout.tsx`) aplicando tokens, fonts, theme provider, intl provider.
+- **Backend:**
+  - Prisma init (`prisma/schema.prisma` com `datasource` + `generator`, sem models ainda — models entram nas fases que os usam).
+  - Módulos esqueleto no Nest: `AuthModule`, `UsersModule` (vazios, prontos para F1).
+  - `helmet` aplicado no bootstrap.
+  - `@nestjs/throttler` registrado globalmente com baseline (60/min default).
+  - `class-validator` + `class-transformer` + `ValidationPipe` global com `whitelist: true, forbidNonWhitelisted: true`.
+  - CORS via `ALLOWED_ORIGINS` env (lista por vírgula, sem wildcard em prod).
+  - `/health` endpoint público.
+- **Dev local:**
+  - `docker-compose.yml` na raiz subindo Postgres 16 (porta 5432, volume nomeado, healthcheck) e, opcionalmente desde já, um Adminer pra inspeção visual.
+  - `.env.example` na raiz documentando **todas** as variáveis do monorepo, organizadas por escopo (`# === apps/web ===`, `# === apps/api ===`, `# === compartilhada ===`).
+  - Convenção por app: `apps/web/.env.local` (Next lê automaticamente, ignorada pelo git) e `apps/api/.env` (Nest + Prisma, ignorada pelo git). Ambas com base em `.env.example` da raiz.
+  - Scripts raiz:
+    - `db:up` → `docker compose up -d postgres`
+    - `db:down` → `docker compose down`
+    - `db:setup` → `bash scripts/db-setup.sh` (sobe Postgres, aguarda healthy, roda `prisma migrate deploy` em dev/local equivalente, e `prisma db seed` **se** `prisma.seed` estiver configurado em `apps/api/package.json`).
+    - `scripts/db-setup.sh`: bash idempotente, com `set -euo pipefail`, espera ativa pelo healthcheck do Postgres (loop com `docker compose ps --format json` checando `Health.Status == healthy`, timeout configurável), depois invoca os steps Prisma. Seed é opcional: detecta a existência via `node -e "const p = require('./apps/api/package.json'); process.exit(p.prisma?.seed ? 0 : 1)"` e só roda se `0`.
+  - README com seção "Setup local em 4 passos": clone → `npm install` → `cp .env.example apps/web/.env.local apps/api/.env` (e preencher) → `npm run db:setup && npm run dev`.
+- **Deploy Railway:** web + api + Postgres + volume no ar. Smoke: GET `/` no web (placeholder), GET `/health` no api retorna 200. Variáveis configuradas no Railway separadas dos `.env` locais.
+- **Sem auth ainda.** Páginas e endpoints rodam abertos — F1 protege.
 
 ## F1 — Auth
 
 **Spec a escrever:** `2026-05-07-fase-1-auth.md`
 
-Escopo:
+Escopo (assume F0.5 pronta):
 
-- Decisão arquitetural: onde mora a sessão (NextAuth no web e Nest valida via JWT/header? Cookie compartilhado? Proxy?). Spec resolve explicitamente.
-- NextAuth com Google + GitHub, `NEXTAUTH_SECRET` forte, cookies httpOnly+secure, expiry 7 dias com renovação por atividade.
-- Modelo `User` completo no Prisma: id, email, name, avatar, role (`USER|ADMIN`), timestamps, `onDelete: Cascade` preparado para entidades futuras.
-- Validação de sessão no Nest: guard global, decorator `@CurrentUser()`, RBAC `@Roles('ADMIN')`.
-- Páginas web: `/login` (botões Google + GitHub), `/dashboard` protegida vazia, redirect funcional.
-- Throttler de auth: 5 req/min por IP.
-- Tema dark default aplicado, switcher claro/escuro/sistema funcional, todas as strings via `t()`.
-- Testes: integração Nest (rota protegida bloqueia/libera), E2E Playwright com mock OAuth (login → /dashboard).
-- CORS restritivo via `ALLOWED_ORIGINS`.
+- Decisões fechadas: sessão **JWT do NextAuth**, transporte **`Authorization: Bearer`** server-side fetch do Next pro Nest, **sem Prisma adapter** (só model `User`), bootstrap ADMIN via `ADMIN_EMAILS` env, redirect pós-login pra `/`, mock OAuth pra E2E via Credentials Provider só em `NODE_ENV=test`.
+- NextAuth no `apps/web` com providers Google + GitHub, `NEXTAUTH_SECRET` forte, sessão JWT 7 dias com `updateAge` 24h.
+- Schema Prisma — model `User` completo (id cuid, email unique, name, avatar, role enum `USER|ADMIN`, timestamps).
+- Callbacks NextAuth: `signIn` faz upsert do User + promove ADMIN se email ∈ `ADMIN_EMAILS`; `jwt` enriquece token com `sub` (user.id) e `role`; `session` espelha pra cliente.
+- Middleware Next protege `app/(authed)/*` (redirect pra `/login?callbackUrl=...` se não logado).
+- Rate limit `/api/auth/*`: 5 req/min por IP (in-memory na F1, Upstash/Redis no backlog).
+- Validação no Nest: `JwtStrategy` (Passport) decodifica com `NEXTAUTH_SECRET` compartilhado, busca User no DB pelo `sub`. `JwtAuthGuard` global + `@Public()` opt-out (rotas públicas: `/health`). `@CurrentUser()` decorator. `RolesGuard` + `@Roles('ADMIN')` para RBAC. Endpoint `GET /api/v1/me` como smoke do fluxo.
+- Páginas web (portando do `docs/claude-design`):
+  - `/login` ← `HifiV2Login` (split 1.15fr/1fr, brand presence à esquerda, card SSO à direita com Button secondary lg Google + GitHub).
+  - `app/(authed)/layout.tsx` ← `V2Topbar` (logo + workspace + nav + search placeholder + Avatar dropdown com theme switcher + logout).
+  - `/` (home autenticada minimal F1): saudação Instrument Serif "Bem-vindo, {name}" + placeholder "Em breve, sua primeira nota". F2 substitui pelo `HifiV2Upload`.
+- i18n: namespaces `login`, `topbar`, `auth.errors` em `messages/pt-BR.json`. Tudo via `t()`.
+- Logs: token nunca logado; email mascarado em logs de erro de auth.
+- Env novas: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `ADMIN_EMAILS`. README ganha seção "Auth setup local".
+- Testes:
+  - Unit Nest: `JwtStrategy.validate` (válido/expirado/user inexistente), `JwtAuthGuard` + `@CurrentUser()` em rota stub, `RolesGuard`.
+  - Unit Next: callbacks `signIn` (cria/atualiza, promove ADMIN), `jwt`, middleware (redirect).
+  - E2E Playwright: login via Credentials Provider de teste, redirect pra `/`, fetch `/api/v1/me` retorna USER, logout volta pra `/login`.
+- Risco aberto registrado: NextAuth v4 JWT pode usar JWE (não JWS) — primeira task da implementação faz prova de conceito da decodificação no Nest; fallback documentado é trocar pra Database session.
 
 ## F2 — OCR (upload → vision → ver texto)
 
@@ -119,4 +160,8 @@ Escopo:
 
 ## Próximos passos imediatos
 
-Após este plano-mestre ser aprovado, abrir sessão dedicada para escrever **a spec da F0** (`2026-05-07-fase-0-setup.md`). Implementação só começa depois da spec da F0 estar aprovada.
+- F0 já em execução pelo plano `2026-05-07-monorepo-bootstrap.md`.
+- Próxima sessão dedicada: escrever a spec da **F0.5 — Skeleton** (`2026-05-07-fase-0.5-skeleton.md`).
+- Em seguida, spec da **F1 — Auth** (`2026-05-07-fase-1-auth.md`) já desenhada nesta sessão.
+
+Implementação de cada fase só começa depois da respectiva spec aprovada.
