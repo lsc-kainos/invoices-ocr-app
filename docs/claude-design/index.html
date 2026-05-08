@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Invoices App — Telas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="tokens.css"/>
+
+  <style>
+    html, body { margin: 0; padding: 0; background: #f0eee9; }
+    body { font-family: var(--font-sans); }
+    /* Color the canvas bg darker so the dark frames pop */
+  </style>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="shared.jsx"></script>
+  <script type="text/babel" src="wireframes.jsx"></script>
+  <script type="text/babel" src="hifi-screens.jsx"></script>
+  <script type="text/babel" src="hifi-upload.jsx"></script>
+  <script type="text/babel" src="hifi-detail.jsx"></script>
+  <script type="text/babel" src="hifi-v2.jsx"></script>
+
+  <script type="text/babel">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "theme": "dark",
+      "density": "comfy",
+      "detailLayout": "horizontal",
+      "listStyle": "cards"
+    }/*EDITMODE-END*/;
+
+    function App() {
+      const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+      // Apply theme class on body
+      React.useEffect(() => {
+        document.body.classList.toggle('theme-light', t.theme === 'light');
+      }, [t.theme]);
+
+      // Wireframes are intentionally locked dark; only hi-fi reflects theme.
+      const themeClass = t.theme === 'light' ? 'theme-light' : '';
+
+      // Artboard dimensions — 1280×860 desktop frames
+      const W = 1280, H = 860;
+
+      return (
+        <>
+          <DesignCanvas>
+            <DCSection id="wireframes" title="Wireframes" subtitle="Esboço low-fi · estrutura e densidade da informação">
+              <DCArtboard id="wf-login"  label="01 · Login"     width={W} height={H}><WireLogin/></DCArtboard>
+              <DCArtboard id="wf-list"   label="02 · Lista"     width={W} height={H}><WireList/></DCArtboard>
+              <DCArtboard id="wf-upload" label="03 · Upload"    width={W} height={H}><WireUpload/></DCArtboard>
+              <DCArtboard id="wf-detail" label="04 · Detalhe"   width={W} height={H}><WireDetail/></DCArtboard>
+            </DCSection>
+
+            <DCSection id="hifi-v2" title="Hi-fi v2 — shadcn, restraint-first" subtitle="Linear/Vercel energy · primitives shadcn · sem ornamentação">
+              <DCArtboard id="v2-login"  label="01 · Login"               width={W} height={H}><HifiV2Login/></DCArtboard>
+              <DCArtboard id="v2-upload" label="02 · Página inicial · Upload" width={W} height={H}><HifiV2Upload/></DCArtboard>
+              <DCArtboard id="v2-list"   label="03 · Minhas notas"        width={W} height={H}><HifiV2List/></DCArtboard>
+              <DCArtboard id="v2-detail" label="04 · Detalhe da nota"     width={W} height={H}><HifiV2Detail/></DCArtboard>
+              <DCArtboard id="v2-chat"   label="05 · Chat (multi-nota)"   width={W} height={H}><HifiV2Chat/></DCArtboard>
+            </DCSection>
+
+            <DCSection id="hifi" title="Hi-fi v1 — café/conhaque" subtitle="Versão anterior · mantida para comparação">
+              <DCArtboard id="hi-login"  label="01 · Login"     width={W} height={H}><div className={themeClass} style={{width:'100%',height:'100%'}}><HifiLogin density={t.density}/></div></DCArtboard>
+              <DCArtboard id="hi-list"   label="02 · Lista"     width={W} height={H}><div className={themeClass} style={{width:'100%',height:'100%'}}><HifiList density={t.density} listStyle={t.listStyle}/></div></DCArtboard>
+              <DCArtboard id="hi-upload" label="03 · Upload"    width={W} height={H}><div className={themeClass} style={{width:'100%',height:'100%'}}><HifiUpload density={t.density}/></div></DCArtboard>
+              <DCArtboard id="hi-detail" label={`04 · Detalhe (${t.detailLayout})`} width={W} height={H}><div className={themeClass} style={{width:'100%',height:'100%'}}><HifiDetail density={t.density} layout={t.detailLayout}/></div></DCArtboard>
+            </DCSection>
+
+            <DCSection id="detail-variants" title="Variações da tela de Detalhe" subtitle="Mesma tela, três layouts — alternáveis via Tweaks">
+              <DCArtboard id="dv-h" label="A · Horizontal (imagem em cima)" width={W} height={H}><div className={themeClass} style={{width:'100%',height:'100%'}}><HifiDetail density={t.density} layout="horizontal"/></div></DCArtboard>
+              <DCArtboard id="dv-v" label="B · Vertical (3 colunas)"        width={W} height={H}><div className={themeClass} style={{width:'100%',height:'100%'}}><HifiDetail density={t.density} layout="vertical"/></div></DCArtboard>
+              <DCArtboard id="dv-t" label="C · Tabs"                         width={W} height={H}><div className={themeClass} style={{width:'100%',height:'100%'}}><HifiDetail density={t.density} layout="tabs"/></div></DCArtboard>
+            </DCSection>
+          </DesignCanvas>
+
+          <TweaksPanel>
+            <TweakSection label="Tema" />
+            <TweakRadio label="Aparência" value={t.theme}
+              options={[{value:'dark', label:'Dark'}, {value:'light', label:'Light'}]}
+              onChange={(v) => setTweak('theme', v)} />
+
+            <TweakSection label="Densidade" />
+            <TweakRadio label="Espaçamento" value={t.density}
+              options={[{value:'compact', label:'Compacto'},{value:'regular', label:'Regular'},{value:'comfy', label:'Confort.'}]}
+              onChange={(v) => setTweak('density', v)} />
+
+            <TweakSection label="Tela de Detalhe" />
+            <TweakSelect label="Layout" value={t.detailLayout}
+              options={[
+                {value:'horizontal', label:'Horizontal · imagem em cima'},
+                {value:'vertical',   label:'Vertical · 3 colunas'},
+                {value:'tabs',       label:'Tabs · alternar texto/chat'},
+              ]}
+              onChange={(v) => setTweak('detailLayout', v)} />
+
+            <TweakSection label="Lista" />
+            <TweakRadio label="Estilo" value={t.listStyle}
+              options={[{value:'rows', label:'Linhas'},{value:'cards', label:'Cards'},{value:'grouped', label:'Agrupada'}]}
+              onChange={(v) => setTweak('listStyle', v)} />
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>
