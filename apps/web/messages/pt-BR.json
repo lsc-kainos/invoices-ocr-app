@@ -7,6 +7,30 @@
   "errors": {
     "unknown": "Erro inesperado. Tente novamente."
   },
+  "login": {
+    "headline": "Notas fiscais,<br/>conversáveis.",
+    "subtitle": "Envie uma NF-e ou NFS-e e nós cuidamos da extração. Pergunte sobre valores, itens ou impostos em linguagem natural — com fontes citadas no documento.",
+    "features": {
+      "nfe": "NF-e modelo 55",
+      "nfse": "NFS-e municipal",
+      "boleto": "Boletos"
+    },
+    "card": {
+      "request_access": "Solicitar acesso",
+      "title": "Entrar",
+      "subtitle": "Acesse seu workspace com a conta do trabalho.",
+      "google": "Continuar com Google",
+      "github": "Continuar com GitHub",
+      "terms": "Termos",
+      "privacy": "Privacidade"
+    },
+    "footer": "© 2026 Invoices",
+    "meta": {
+      "operational": "Sistema operacional",
+      "lgpd": "LGPD compliant",
+      "soc2": "SOC 2 Type II"
+    }
+  },
   "topbar": {
     "workspace": "Pessoal",
     "nav": {
@@ -15,10 +39,26 @@
       "chat": "Chat"
     },
     "search_placeholder": "Buscar...",
-    "user_menu_label": "Conta"
+    "user_menu_label": "Conta",
+    "menu": {
+      "theme": "Tema",
+      "theme_light": "Claro",
+      "theme_dark": "Escuro",
+      "theme_system": "Sistema",
+      "logout": "Sair"
+    }
   },
   "home": {
-    "skeleton_title": "Invoices OCR",
-    "skeleton_caption": "Skeleton em construção. Próxima fase: autenticação."
+    "welcome": "Bem-vindo, {name}",
+    "placeholder": "Em breve, você vai conseguir enviar sua primeira nota fiscal aqui."
+  },
+  "auth": {
+    "errors": {
+      "Configuration": "Configuração de auth incorreta. Avise o administrador.",
+      "AccessDenied": "Acesso negado pelo provedor.",
+      "Verification": "Falha na verificação. Tente novamente.",
+      "Default": "Não foi possível entrar. Tente de novo em instantes.",
+      "OAuthAccountNotLinked": "Esse e-mail já foi usado com outro provedor."
+    }
   }
 }
