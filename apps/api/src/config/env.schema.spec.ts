@@ -1,13 +1,22 @@
 import { validateEnv } from './env.schema';
 
-describe('validateEnv', () => {
-  const validRaw = {
-    NODE_ENV: 'development',
-    PORT: '3001',
-    DATABASE_URL: 'postgresql://invoices:invoices@localhost:5432/invoices',
-    ALLOWED_ORIGINS: 'http://localhost:3000',
-  };
+const validRaw = {
+  NODE_ENV: 'development',
+  PORT: '3001',
+  DATABASE_URL: 'postgresql://invoices:invoices@localhost:5432/invoices',
+  ALLOWED_ORIGINS: 'http://localhost:3000',
+};
 
+function omit<T extends Record<string, unknown>>(
+  obj: T,
+  key: keyof T,
+): Partial<T> {
+  const copy: Record<string, unknown> = { ...obj };
+  delete copy[key as string];
+  return copy as Partial<T>;
+}
+
+describe('validateEnv', () => {
   it('aceita env válida e coage PORT para number', () => {
     const env = validateEnv(validRaw);
     expect(env.PORT).toBe(3001);
@@ -17,20 +26,21 @@ describe('validateEnv', () => {
   });
 
   it('aplica default para NODE_ENV e PORT quando ausentes', () => {
-    const { NODE_ENV: _node, PORT: _port, ...rest } = validRaw;
-    const env = validateEnv(rest);
+    const env = validateEnv(omit(omit(validRaw, 'NODE_ENV'), 'PORT'));
     expect(env.NODE_ENV).toBe('development');
     expect(env.PORT).toBe(3001);
   });
 
   it('rejeita quando DATABASE_URL está ausente', () => {
-    const { DATABASE_URL: _url, ...rest } = validRaw;
-    expect(() => validateEnv(rest)).toThrow(/DATABASE_URL/);
+    expect(() => validateEnv(omit(validRaw, 'DATABASE_URL'))).toThrow(
+      /DATABASE_URL/,
+    );
   });
 
   it('rejeita quando ALLOWED_ORIGINS está ausente', () => {
-    const { ALLOWED_ORIGINS: _origins, ...rest } = validRaw;
-    expect(() => validateEnv(rest)).toThrow(/ALLOWED_ORIGINS/);
+    expect(() => validateEnv(omit(validRaw, 'ALLOWED_ORIGINS'))).toThrow(
+      /ALLOWED_ORIGINS/,
+    );
   });
 
   it('rejeita DATABASE_URL não-URL', () => {
