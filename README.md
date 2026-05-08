@@ -24,11 +24,13 @@ OCR + LLM chat sobre invoices — case técnico Paggo.
 nvm use
 npm install
 
-# 2) variáveis: copia o template para os dois apps
-cp .env.example apps/api/.env
-cp .env.example apps/web/.env.local
-#   → editar apps/web/.env.local: deixar só o bloco "apps/web"
-#   → editar apps/api/.env: deixar só o bloco "apps/api"
+# 2) variáveis: um único .env.local na raiz alimenta web e api
+cp .env.example .env.local
+#    → preencher os secrets (NEXTAUTH_SECRET, GOOGLE_*, GITHUB_*, etc)
+npm run env:link
+#    → cria symlinks apps/web/.env.local e apps/api/.env apontando
+#      pra raiz, então qualquer ferramenta (Next, Nest, Prisma, Playwright)
+#      lê a mesma fonte
 
 # 3) sobe Postgres, espera healthcheck, roda migrate (e seed se houver)
 npm run db:setup
@@ -37,9 +39,9 @@ npm run db:setup
 npm run dev
 ```
 
-> O `.env.example` tem dois blocos comentados (`# === apps/web ===` e
-> `# === apps/api ===`). Em cada cópia, mantenha apenas o bloco do app
-> correspondente — ambas as cópias são gitignored.
+> Tanto `.env.local` na raiz quanto os symlinks em `apps/*` são gitignored.
+> Em produção (Railway), cada service recebe env vars via dashboard — o
+> arquivo local não é usado.
 
 ### Auth setup local (F1)
 
