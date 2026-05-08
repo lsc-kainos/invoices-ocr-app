@@ -13,7 +13,8 @@ describeOrSkip('GET /health (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    process.env.ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ?? 'http://localhost:3000';
+    process.env.ALLOWED_ORIGINS =
+      process.env.ALLOWED_ORIGINS ?? 'http://localhost:3000';
 
     const module = await Test.createTestingModule({
       imports: [AppModule],
@@ -31,7 +32,9 @@ describeOrSkip('GET /health (e2e)', () => {
   });
 
   it('responde 200 com status ok quando o banco está disponível', async () => {
-    const response = await request(app.getHttpServer()).get('/health').expect(200);
+    const response = await request(app.getHttpServer())
+      .get('/health')
+      .expect(200);
     expect(response.body.status).toBe('ok');
     expect(typeof response.body.ts).toBe('string');
   });

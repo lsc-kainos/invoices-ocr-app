@@ -26,6 +26,8 @@ describe('HealthController', () => {
 
   it('lança ServiceUnavailableException quando Prisma falha', async () => {
     prismaMock.$queryRaw.mockRejectedValueOnce(new Error('connection refused'));
-    await expect(controller.health()).rejects.toBeInstanceOf(ServiceUnavailableException);
+    await expect(controller.health()).rejects.toBeInstanceOf(
+      ServiceUnavailableException,
+    );
   });
 });

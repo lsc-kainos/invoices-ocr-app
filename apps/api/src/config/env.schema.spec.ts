@@ -34,10 +34,14 @@ describe('validateEnv', () => {
   });
 
   it('rejeita DATABASE_URL não-URL', () => {
-    expect(() => validateEnv({ ...validRaw, DATABASE_URL: 'not-a-url' })).toThrow(/DATABASE_URL/);
+    expect(() =>
+      validateEnv({ ...validRaw, DATABASE_URL: 'not-a-url' }),
+    ).toThrow(/DATABASE_URL/);
   });
 
   it('rejeita NODE_ENV inválido', () => {
-    expect(() => validateEnv({ ...validRaw, NODE_ENV: 'staging' })).toThrow(/NODE_ENV/);
+    expect(() => validateEnv({ ...validRaw, NODE_ENV: 'staging' })).toThrow(
+      /NODE_ENV/,
+    );
   });
 });
