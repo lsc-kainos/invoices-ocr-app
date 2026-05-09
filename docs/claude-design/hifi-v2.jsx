@@ -489,18 +489,33 @@ const HifiV2Login = () => (
       }}
     >
       <Logo />
-      <h1
-        style={{
-          fontSize: 32,
-          fontWeight: 600,
-          letterSpacing: '-0.02em',
-          margin: 0,
-          color: 'var(--v2-fg)',
-          maxWidth: 380,
-        }}
-      >
-        Notas fiscais, conversáveis.
-      </h1>
+      {/* Hero animado: headline aparece no load, subtítulo entra
+          com delay (~300ms). Implementação real em apps/web usa
+          tw-animate-css (animate-in fade-in slide-in-from-bottom-N
+          duration-700 + delay-300 no subtítulo). */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 420 }}>
+        <h1
+          style={{
+            fontSize: 32,
+            fontWeight: 600,
+            letterSpacing: '-0.02em',
+            margin: 0,
+            color: 'var(--v2-fg)',
+          }}
+        >
+          Notas fiscais, conversáveis.
+        </h1>
+        <p
+          style={{
+            fontSize: 14,
+            color: 'var(--v2-fg-mute)',
+            margin: 0,
+            lineHeight: 1.5,
+          }}
+        >
+          Entre na plataforma e descubra um novo nível de gestão de suas notas.
+        </p>
+      </div>
       <span style={{ fontSize: 12, color: 'var(--v2-fg-dim)' }}>Invoices · 2026</span>
     </div>
 

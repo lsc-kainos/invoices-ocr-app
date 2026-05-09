@@ -33,9 +33,14 @@ export function Login() {
       {/* Editorial column — desktop only */}
       <div className="border-border bg-background hidden flex-col justify-between border-r px-14 py-10 lg:flex">
         <Logo />
-        <h1 className="text-foreground max-w-[380px] text-4xl font-semibold tracking-tight">
-          {t('headline')}
-        </h1>
+        <div className="flex max-w-[420px] flex-col gap-4">
+          <h1 className="animate-in fade-in-0 slide-in-from-bottom-3 fill-mode-both text-foreground text-4xl font-semibold tracking-tight duration-700">
+            {t('headline')}
+          </h1>
+          <p className="text-muted-foreground animate-in fade-in-0 slide-in-from-bottom-2 fill-mode-both text-sm leading-relaxed delay-300 duration-700">
+            {t('subtitle')}
+          </p>
+        </div>
         <span className="text-muted-foreground text-xs">{t('tagline')}</span>
       </div>
 
