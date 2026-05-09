@@ -1,9 +1,11 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/layout/logo';
+import { cn } from '@/lib/utils';
 import { GoogleLogo } from './google-logo';
 import { GithubLogo } from './github-logo';
 import { useLogin } from './use-login';
@@ -17,17 +19,28 @@ const ERROR_KEYS = [
 ] as const;
 type ErrorKey = (typeof ERROR_KEYS)[number];
 
-// Cascata teatral: hero nasce (zoom+fade) → subtítulo desliza → botões CTA
-// surgem por último. Tempos pensados para dar ritmo de "apresentação".
+// Cascata teatral em duas fases (apenas desktop):
 //
-//   t=0      logo aparece (suave)
-//   t=300    headline NASCE (zoom-in + fade) — duração longa
-//   t=900    subtítulo desliza pra baixo
-//   t=1400   tagline e header do card entram juntos
-//   t=1700   subtítulo do card
-//   t=2000   botões OAuth (CTA — final da apresentação)
-//   t=2400   Termos · Privacidade (rodapé)
+//   FASE 1 (0–1500ms): hero ocupa 100% da tela.
+//     t=0     Logo
+//     t=300   HEADLINE nasce (zoom-in-95 + fade, 1000ms)
+//     t=900   subtítulo desliza (700ms)
+//     t=1400  tagline (500ms)
+//
+//   FASE 2 (1500ms+): grid-template-columns anima de [1fr_0fr] →
+//     [1fr_1fr] em 1000ms, abrindo espaço para o card. A border-r do
+//     hero — antes invisível no bezel direito — vira a linha divisória
+//     "construída" entre as duas colunas. Card content cascateia em
+//     paralelo (delays alinhados com a abertura).
+//     t=1500  H2 "Entrar" (700ms)
+//     t=2000  subtítulo do card
+//     t=2200  botões OAuth (CTA)
+//     t=2700  Termos · Privacidade
+//
+// MOBILE: o hero não renderiza (`hidden lg:flex`). O card aparece em
+// cascata snappy (delay-200 → 1000) sem a fase 1.
 const slide = 'animate-in fade-in-0 slide-in-from-bottom-2 fill-mode-both';
+const SPLIT_DELAY_MS = 1500;
 
 export function Login() {
   const t = useTranslations('login');
@@ -41,10 +54,22 @@ export function Login() {
     : null;
   const { signInGoogle, signInGithub, pending } = useLogin();
 
+  const [split, setSplit] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setSplit(true), SPLIT_DELAY_MS);
+    return () => clearTimeout(id);
+  }, []);
+
   return (
-    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
+    <div
+      data-phase={split ? 'split' : 'hero-full'}
+      className={cn(
+        'grid h-screen grid-cols-1 transition-[grid-template-columns] duration-1000 ease-out',
+        split ? 'lg:grid-cols-[1fr_1fr]' : 'lg:grid-cols-[1fr_0fr]',
+      )}
+    >
       {/* Editorial column — desktop only */}
-      <div className="border-border bg-background hidden flex-col justify-between border-r px-14 py-10 lg:flex">
+      <div className="border-border bg-background hidden flex-col justify-between overflow-hidden border-r px-14 py-10 lg:flex">
         <div className={`${slide} duration-500`}>
           <Logo />
         </div>
@@ -64,19 +89,19 @@ export function Login() {
       </div>
 
       {/* Auth card */}
-      <div className="flex items-center justify-center px-6 py-10">
+      <div className="flex items-center justify-center overflow-hidden px-6 py-10">
         <div className="w-full max-w-[360px]">
           <div className={`${slide} mb-8 flex justify-center duration-500 lg:hidden`}>
             <Logo />
           </div>
 
           <h2
-            className={`${slide} text-2xl font-medium tracking-tight delay-[1400ms] duration-700`}
+            className={`${slide} text-2xl font-medium tracking-tight delay-200 duration-700 lg:delay-[1700ms]`}
           >
             {t('card.title')}
           </h2>
           <p
-            className={`${slide} text-muted-foreground mt-2 mb-6 text-[13px] leading-relaxed delay-[1700ms] duration-700`}
+            className={`${slide} text-muted-foreground mt-2 mb-6 text-[13px] leading-relaxed delay-500 duration-700 lg:delay-[2000ms]`}
           >
             {t('card.subtitle')}
           </p>
@@ -90,7 +115,7 @@ export function Login() {
             </div>
           )}
 
-          <div className={`${slide} flex flex-col gap-2 delay-[2000ms] duration-700`}>
+          <div className={`${slide} flex flex-col gap-2 delay-700 duration-700 lg:delay-[2200ms]`}>
             <Button
               type="button"
               variant="secondary"
@@ -128,7 +153,7 @@ export function Login() {
           </div>
 
           <div
-            className={`${slide} border-border text-muted-foreground mt-6 border-t pt-4 text-[11px] leading-relaxed delay-[2400ms] duration-500`}
+            className={`${slide} border-border text-muted-foreground mt-6 border-t pt-4 text-[11px] leading-relaxed delay-1000 duration-500 lg:delay-[2700ms]`}
           >
             <a href="#" className="hover:underline">
               {t('card.terms')}
