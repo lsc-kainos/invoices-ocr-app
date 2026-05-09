@@ -36,6 +36,7 @@ export class DocumentsController {
   }
 
   @Get()
+  @Throttle({ default: { ttl: 60_000, limit: 1200 } })
   list(
     @CurrentUser() user: User,
     @Query() query: ListDocumentsQueryDto,
@@ -44,6 +45,7 @@ export class DocumentsController {
   }
 
   @Get(':id')
+  @Throttle({ default: { ttl: 60_000, limit: 1200 } })
   findOne(
     @CurrentUser() user: User,
     @Param('id') id: string,
