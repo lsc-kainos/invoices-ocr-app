@@ -49,6 +49,25 @@ export function Login() {
     getCsrfToken().then((token) => setCsrfToken(token ?? ''));
   }, []);
 
+  // Se o user clicar antes do useEffect popular o csrfToken, intercepta
+  // o submit, busca o token na hora, injeta no input e re-submete. Sem
+  // isso, 1º clique sai com csrf vazio → NextAuth rejeita → "página
+  // atualiza" e só o 2º clique funciona.
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if (csrfToken) return; // happy path: form submete naturalmente
+    e.preventDefault();
+    // Captura form sincronamente — após await, React limpa e.currentTarget
+    const form = e.currentTarget;
+    const token = await getCsrfToken();
+    if (!token) return;
+    setCsrfToken(token);
+    const csrfInput = form.querySelector('input[name="csrfToken"]') as HTMLInputElement | null;
+    if (csrfInput) {
+      csrfInput.value = token;
+      form.submit();
+    }
+  };
+
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       {/* Editorial column — desktop only */}
@@ -108,7 +127,12 @@ export function Login() {
           )}
 
           <div className={`${slide} flex flex-col gap-2 delay-700 duration-700`}>
-            <form action="/api/auth/signin/google" method="POST" className="contents">
+            <form
+              action="/api/auth/signin/google"
+              method="POST"
+              className="contents"
+              onSubmit={handleFormSubmit}
+            >
               <input type="hidden" name="csrfToken" value={csrfToken} />
               <input type="hidden" name="callbackUrl" value="/" />
               <Button
@@ -122,7 +146,12 @@ export function Login() {
                 {t('card.google')}
               </Button>
             </form>
-            <form action="/api/auth/signin/github" method="POST" className="contents">
+            <form
+              action="/api/auth/signin/github"
+              method="POST"
+              className="contents"
+              onSubmit={handleFormSubmit}
+            >
               <input type="hidden" name="csrfToken" value={csrfToken} />
               <input type="hidden" name="callbackUrl" value="/" />
               <Button
