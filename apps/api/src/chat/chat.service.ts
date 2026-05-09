@@ -11,6 +11,7 @@ import type {
   ChatCompletionAssistantMessageParam,
   ChatCompletionMessageParam,
 } from 'openai/resources/chat/completions';
+import { ChatRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   LLM_PROVIDER,
@@ -88,7 +89,7 @@ export class ChatService {
     return this.prisma.chatMessage.findMany({
       where: {
         sessionId,
-        ...(includeTool ? {} : { role: { not: 'TOOL' as any } }),
+        ...(includeTool ? {} : { role: { not: ChatRole.TOOL } }),
       },
       orderBy: { createdAt: 'asc' },
       select: { id: true, role: true, content: true, createdAt: true },
@@ -109,7 +110,7 @@ export class ChatService {
       data: { sessionId, role: 'USER', content },
     });
 
-    const history = await this.loadHistory(sessionId);
+    const history = await this.loadHistory(sessionId, userId);
     const docs = await this.prisma.document.findMany({
       where: { userId, status: 'READY' },
       select: { id: true, filename: true, summary: true },
@@ -160,7 +161,7 @@ export class ChatService {
       data: { sessionId: session.id, role: 'USER', content },
     });
 
-    const history = await this.loadHistory(session.id);
+    const history = await this.loadHistory(session.id, userId);
     const result = await this.runConversation({
       userId,
       systemPrompt: buildDocumentSystem(doc as any),
@@ -199,7 +200,7 @@ export class ChatService {
     return this.prisma.chatMessage.findMany({
       where: {
         sessionId: session.id,
-        ...(includeTool ? {} : { role: { not: 'TOOL' as any } }),
+        ...(includeTool ? {} : { role: { not: ChatRole.TOOL } }),
       },
       orderBy: { createdAt: 'asc' },
       select: { id: true, role: true, content: true, createdAt: true },
@@ -220,14 +221,14 @@ export class ChatService {
     if (!session) return;
 
     await this.prisma.chatMessage.deleteMany({
-      where: { sessionId: session.id },
+      where: { sessionId: session.id, session: { userId } },
     });
   }
 
-  private async loadHistory(sessionId: string) {
+  private async loadHistory(sessionId: string, userId: string) {
     const max = this.config.get<number>('CHAT_MAX_HISTORY') ?? 20;
     const all = await this.prisma.chatMessage.findMany({
-      where: { sessionId },
+      where: { sessionId, session: { userId } },
       orderBy: { createdAt: 'desc' },
       take: max,
       select: { role: true, content: true, toolCallId: true, toolName: true },
