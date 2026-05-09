@@ -37,39 +37,29 @@ async function loginAs(page: Page, email: string) {
 test('chat global: criar conversa, alternar entre sessões', async ({ page }) => {
   await loginAs(page, `playwright-chat-global-${Date.now()}@test.local`);
 
-  // Navigate to chat via the topbar "Chat" link
   await page.getByRole('link', { name: 'Chat' }).click();
   await expect(page).toHaveURL(/\/chat/, { timeout: 10_000 });
 
-  // Click "Nova conversa" to create first session
   await page.getByRole('button', { name: 'Nova conversa' }).click();
   await expect(page).toHaveURL(/\/chat\/[^/]+$/, { timeout: 10_000 });
+  const firstSessionUrl = page.url();
 
-  // Send first message in first session
   const input = page.locator('input[type="text"]');
   await input.fill('Olá');
   await input.press('Enter');
-
-  // Wait for mock response
   await expect(page.getByText('Resposta mock.')).toBeVisible({ timeout: 10_000 });
 
-  // Create a second session
+  // Create a second session — URL must differ from session 1
   await page.getByRole('button', { name: 'Nova conversa' }).click();
   await expect(page).toHaveURL(/\/chat\/[^/]+$/, { timeout: 10_000 });
+  expect(page.url()).not.toBe(firstSessionUrl);
 
-  // Send second message in second session
-  const input2 = page.locator('input[type="text"]');
-  await input2.fill('Outra pergunta');
-  await input2.press('Enter');
-
-  // Wait for mock response in second session
+  await input.fill('Outra pergunta');
+  await input.press('Enter');
   await expect(page.getByText('Resposta mock.')).toBeVisible({ timeout: 10_000 });
 
-  // Click the first session link in the sidebar (the one with "Olá" or first listed)
-  // Sessions are listed in the sidebar as links; click the first one
-  const firstSession = page.locator('aside nav a').first();
-  await firstSession.click();
-
-  // Verify the "Olá" message is visible in the first session
+  // Sessions are sorted by updatedAt desc — session 2 is now first in sidebar.
+  // Navigate to session 1 via its title ("Olá" from titleFromContent).
+  await page.getByRole('link', { name: 'Olá' }).click();
   await expect(page.getByText('Olá')).toBeVisible({ timeout: 10_000 });
 });

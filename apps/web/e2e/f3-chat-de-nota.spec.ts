@@ -95,8 +95,10 @@ test('chat de nota: persiste após reload', async ({ page }) => {
   await input.fill('Qual o valor total?');
   await input.press('Enter');
 
-  // Wait for the mock response to appear
-  await expect(page.getByText('Resposta mock.')).toBeVisible({ timeout: 10_000 });
+  // Wait for the mock response (tool-call path: "valor total" triggers get_full_document)
+  await expect(page.getByText('Encontrei essa informação no documento.')).toBeVisible({
+    timeout: 10_000,
+  });
 
   // Reload the page
   await page.reload();
