@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { validateEnv } from './config/env.schema';
@@ -14,6 +14,7 @@ import { OcrModule } from './ocr/ocr.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { UserScopedThrottlerGuard } from './auth/guards/user-scoped-throttler.guard';
+import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { UserScopedThrottlerGuard } from './auth/guards/user-scoped-throttler.gu
     OcrModule,
   ],
   providers: [
+    { provide: APP_INTERCEPTOR, useClass: LoggerInterceptor },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: UserScopedThrottlerGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
