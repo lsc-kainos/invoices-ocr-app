@@ -8,7 +8,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import type { User } from '@prisma/client';
@@ -26,7 +26,7 @@ export class DocumentsController {
   constructor(private readonly docs: DocumentsService) {}
 
   @Post()
-  @Throttle({ upload: { ttl: 60_000, limit: 5 } })
+  @Throttle({ upload: { ttl: 60_000, limit: 30 } })
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: TEN_MB } }))
   create(
     @CurrentUser() user: User,
@@ -37,6 +37,7 @@ export class DocumentsController {
 
   @Get()
   @Throttle({ default: { ttl: 60_000, limit: 1200 } })
+  @SkipThrottle({ upload: true, ocr: true })
   list(
     @CurrentUser() user: User,
     @Query() query: ListDocumentsQueryDto,
@@ -46,6 +47,7 @@ export class DocumentsController {
 
   @Get(':id')
   @Throttle({ default: { ttl: 60_000, limit: 1200 } })
+  @SkipThrottle({ upload: true, ocr: true })
   findOne(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -54,7 +56,7 @@ export class DocumentsController {
   }
 
   @Post(':id/retry')
-  @Throttle({ upload: { ttl: 60_000, limit: 5 } })
+  @Throttle({ upload: { ttl: 60_000, limit: 30 } })
   retry(
     @CurrentUser() user: User,
     @Param('id') id: string,
