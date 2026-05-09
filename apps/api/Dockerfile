@@ -1,27 +1,27 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:22-alpine AS deps
+FROM node:22-slim AS deps
 WORKDIR /app
-RUN apk add --no-cache openssl
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json turbo.json tsconfig.base.json ./
 COPY apps/api/package.json ./apps/api/
 COPY apps/api/prisma ./apps/api/prisma
 COPY packages/shared-types/package.json ./packages/shared-types/
 RUN npm ci
 
-FROM node:22-alpine AS build
+FROM node:22-slim AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
 COPY . .
 RUN npm run --workspace=@invoices-ocr/api build
 
-FROM node:22-alpine AS runtime
+FROM node:22-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV HOSTNAME=0.0.0.0
-RUN apk add --no-cache openssl postgresql-client
+RUN apt-get update && apt-get install -y --no-install-recommends openssl postgresql-client && rm -rf /var/lib/apt/lists/*
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=build /app/apps/api/dist ./apps/api/dist
