@@ -19,7 +19,11 @@ const FIXTURES: InvoiceSummaryResult[] = [
         cfop: '5102',
       },
       extras: [
-        { label: 'Natureza da operação', value: 'Venda de mercadoria' },
+        {
+          label: 'Natureza da operação',
+          value: 'Venda de mercadoria',
+          mono: null,
+        },
         {
           label: 'Protocolo de autorização',
           value: '135260023456789',
@@ -45,8 +49,12 @@ const FIXTURES: InvoiceSummaryResult[] = [
         cfop: null,
       },
       extras: [
-        { label: 'Código de serviço', value: '17.01' },
-        { label: 'Município de prestação', value: 'São Paulo / SP' },
+        { label: 'Código de serviço', value: '17.01', mono: null },
+        {
+          label: 'Município de prestação',
+          value: 'São Paulo / SP',
+          mono: null,
+        },
       ],
     },
     extractedText:
@@ -66,7 +74,9 @@ const FIXTURES: InvoiceSummaryResult[] = [
         chaveAcesso: null,
         cfop: null,
       },
-      extras: [{ label: 'Forma de pagamento', value: 'À vista — Pix' }],
+      extras: [
+        { label: 'Forma de pagamento', value: 'À vista — Pix', mono: null },
+      ],
     },
     extractedText:
       'RECIBO #042\nVENDOR: Mock Generic Vendor\nDATE: 2026-03-30\nTOTAL: $ 1,234.50\nPAYMENT: Pix',
