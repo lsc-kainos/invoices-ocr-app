@@ -6,6 +6,8 @@ const validRaw = {
   DATABASE_URL: 'postgresql://invoices:invoices@localhost:5432/invoices',
   ALLOWED_ORIGINS: 'http://localhost:3000',
   NEXTAUTH_SECRET: 'a'.repeat(32),
+  VOLUME_ROOT: '/tmp/volume',
+  STORAGE_URL_SECRET: 'b'.repeat(32),
 };
 
 function omit<T extends Record<string, unknown>>(
@@ -61,6 +63,8 @@ describe('validateEnv', () => {
       validateEnv({
         DATABASE_URL: 'postgresql://x',
         ALLOWED_ORIGINS: 'http://localhost:3000',
+        VOLUME_ROOT: '/tmp/v',
+        STORAGE_URL_SECRET: 'b'.repeat(32),
       }),
     ).toThrow(/NEXTAUTH_SECRET/);
   });
@@ -70,7 +74,52 @@ describe('validateEnv', () => {
       DATABASE_URL: 'postgresql://invoices:invoices@localhost:5432/invoices',
       ALLOWED_ORIGINS: 'http://localhost:3000',
       NEXTAUTH_SECRET: 'a'.repeat(32),
+      VOLUME_ROOT: '/tmp/v',
+      STORAGE_URL_SECRET: 'b'.repeat(32),
     });
     expect(env.NEXTAUTH_SECRET).toHaveLength(32);
+  });
+
+  describe('F2 — OCR / Storage', () => {
+    it('aceita OCR_PROVIDER=mock sem OPENAI_API_KEY', () => {
+      expect(() =>
+        validateEnv({ ...validRaw, OCR_PROVIDER: 'mock' }),
+      ).not.toThrow();
+    });
+
+    it('exige OPENAI_API_KEY quando OCR_PROVIDER=openai', () => {
+      expect(() =>
+        validateEnv({ ...validRaw, OCR_PROVIDER: 'openai' }),
+      ).toThrow(/OPENAI_API_KEY/);
+    });
+
+    it('aceita OCR_PROVIDER=openai com OPENAI_API_KEY', () => {
+      expect(() =>
+        validateEnv({
+          ...validRaw,
+          OCR_PROVIDER: 'openai',
+          OPENAI_API_KEY: 'sk-test',
+        }),
+      ).not.toThrow();
+    });
+
+    it('default OCR_PROVIDER=mock, OCR_MODEL=gpt-4o, UPLOAD_MAX_BYTES=10485760', () => {
+      const env = validateEnv(validRaw);
+      expect(env.OCR_PROVIDER).toBe('mock');
+      expect(env.OCR_MODEL).toBe('gpt-4o');
+      expect(env.UPLOAD_MAX_BYTES).toBe(10_485_760);
+    });
+
+    it('rejeita STORAGE_URL_SECRET com menos de 32 chars', () => {
+      expect(() =>
+        validateEnv({ ...validRaw, STORAGE_URL_SECRET: 'short' }),
+      ).toThrow(/STORAGE_URL_SECRET/);
+    });
+
+    it('exige VOLUME_ROOT', () => {
+      expect(() => validateEnv(omit(validRaw, 'VOLUME_ROOT'))).toThrow(
+        /VOLUME_ROOT/,
+      );
+    });
   });
 });

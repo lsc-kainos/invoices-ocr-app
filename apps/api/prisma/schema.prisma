@@ -15,6 +15,13 @@ enum Role {
   ADMIN
 }
 
+enum DocumentStatus {
+  QUEUED
+  OCR_RUNNING
+  READY
+  FAILED
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -23,4 +30,32 @@ model User {
   role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  documents Document[]
+}
+
+model Document {
+  id             String         @id @default(cuid())
+  userId         String
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  filename       String
+  mime           String
+  size           Int
+  storagePath    String
+
+  status         DocumentStatus @default(QUEUED)
+  failureReason  String?
+  retryCount     Int            @default(0)
+
+  summary        Json?
+  extractedText  String?        @db.Text
+
+  ocrStartedAt   DateTime?
+  ocrCompletedAt DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([userId, status])
+  @@index([userId, updatedAt])
 }

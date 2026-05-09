@@ -82,6 +82,27 @@ A F1 ativa OAuth Google + GitHub. Antes do primeiro login você precisa:
 > Em produção (Railway), configurar as mesmas variáveis nos dois services e
 > adicionar o domínio Railway às authorized redirect URIs do Google e GitHub.
 
+### OCR setup local (F2)
+
+Por default o dev local roda com `OCR_PROVIDER=mock`: cada upload retorna uma
+das 3 fixtures (NF-e, NFS-e, recibo) escolhida pelo SHA1 do arquivo. Permite
+desenvolver e rodar a suite E2E sem chave OpenAI nem custo.
+
+Para rodar com OpenAI real, em `.env.local`:
+
+```
+OCR_PROVIDER=openai
+OPENAI_API_KEY=sk-...
+OCR_MODEL=gpt-4o
+STORAGE_URL_SECRET=$(openssl rand -base64 32)
+VOLUME_ROOT=./.data/volume
+```
+
+Custo aproximado: ~$0.01 por documento com `gpt-4o` (vision + structured
+output). Em produção (Railway) o `STORAGE_URL_SECRET` precisa ser uma string
+estável (não regenerar a cada deploy — invalida URLs assinadas em voo) e o
+`VOLUME_ROOT` aponta para o volume Railway montado em `/data`.
+
 ## Comandos úteis
 
 | Comando                                                                 | O que faz                                                                                                    |
@@ -115,6 +136,7 @@ Containers via Dockerfile multi-stage (`apps/web/Dockerfile`, `apps/api/Dockerfi
 
 - Spec original do case: `docs/paggo-ocr-case-spec.md`
 - Plano-mestre das fases: `docs/superpowers/specs/2026-05-07-plano-detalhamento-specs.md`
-- Spec da fase atual (Skeleton): `docs/superpowers/specs/2026-05-07-fase-0.5-skeleton.md`
-- Spec da F1 (Auth): `docs/superpowers/specs/2026-05-07-fase-1-auth.md`
+- Spec F0.5 (Skeleton): `docs/superpowers/specs/2026-05-07-fase-0.5-skeleton.md`
+- Spec F1 (Auth): `docs/superpowers/specs/2026-05-07-fase-1-auth.md`
+- Spec F2 (OCR): `docs/superpowers/specs/2026-05-07-fase-2-ocr.md`
 - Design tokens e mockups: `docs/claude-design/`

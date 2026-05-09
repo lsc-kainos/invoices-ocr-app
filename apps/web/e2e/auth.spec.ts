@@ -27,7 +27,7 @@ async function loginAs(page: Page, email = 'playwright@test.local') {
 test('login via credentials provider e fetch /me', async ({ page }) => {
   await loginAs(page);
   await expect(page).toHaveURL('/');
-  await expect(page.getByText('Bem-vindo, Test User')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Nova nota', level: 1 })).toBeVisible();
 
   const me = await page.request.get('/api/v1/me');
   expect(me.ok()).toBe(true);

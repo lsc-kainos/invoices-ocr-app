@@ -42,3 +42,6 @@ Thumbs.db
 # Uploads locais
 uploads/
 samples/.cache/
+
+# F2 — local volume
+apps/api/.data/

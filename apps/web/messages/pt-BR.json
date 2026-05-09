@@ -5,7 +5,21 @@
     "retry": "Tentar de novo"
   },
   "errors": {
-    "unknown": "Erro inesperado. Tente novamente."
+    "unknown": "Erro inesperado. Tente novamente.",
+    "upload": {
+      "invalid_type": "Formato não suportado. Use JPG, PNG ou PDF.",
+      "too_large": "Arquivo grande demais. Máximo 10 MB.",
+      "rate_limit": "Você excedeu o limite de uploads por minuto. Tente em instantes.",
+      "network": "Falha de rede. Tente de novo."
+    },
+    "ocr": {
+      "rate_limit": "Limite da IA atingido temporariamente",
+      "timeout": "A IA demorou demais para responder",
+      "invalid_image": "Não conseguimos ler o arquivo",
+      "parse_failure": "A IA retornou um resultado inesperado",
+      "provider_error": "Erro do serviço de IA",
+      "unknown": "Falha desconhecida"
+    }
   },
   "login": {
     "headline": "Notas fiscais, conversáveis.",
@@ -48,5 +62,91 @@
       "Default": "Não foi possível entrar. Tente de novo em instantes.",
       "OAuthAccountNotLinked": "Esse e-mail já foi usado com outro provedor."
     }
+  },
+  "upload": {
+    "breadcrumb": {
+      "home": "Início",
+      "new": "Nova nota"
+    },
+    "title": "Nova nota",
+    "subtitle": "Envie um arquivo de NF-e ou NFS-e. A extração roda automaticamente e leva, em média, 12s.",
+    "dropzone": {
+      "drag": "Arraste o arquivo aqui",
+      "or": "ou",
+      "browse": "selecione do computador",
+      "hint": "JPG, PNG, PDF · até 10 MB"
+    },
+    "status": {
+      "QUEUED": "Na fila",
+      "OCR_RUNNING": "Extraindo",
+      "READY": "Pronta",
+      "FAILED": "Falhou"
+    },
+    "ladder": {
+      "upload": "Upload",
+      "ocr": "OCR",
+      "structure": "Estrutura",
+      "ready": "Pronta"
+    },
+    "helpers": {
+      "encrypted": "O arquivo permanece criptografado e visível apenas para você.",
+      "auto_detect": "Identificamos automaticamente NF-e (modelo 55) e NFS-e (modelo 99) por padrões da chave de acesso.",
+      "multipage": "Documentos com mais de 1 página têm apenas a primeira processada nesta versão."
+    },
+    "card": {
+      "view": "Ver documento"
+    },
+    "toasts": {
+      "ready": "{name} está pronta",
+      "failed": "{name} falhou: {reason}",
+      "view": "Ver documento"
+    }
+  },
+  "document": {
+    "header": {
+      "back": "Minhas notas",
+      "export": "Exportar"
+    },
+    "tabs": {
+      "chat": "Conversa",
+      "raw": "Texto bruto",
+      "history": "Histórico"
+    },
+    "fields": {
+      "title": "Campos extraídos",
+      "hint": "Os campos são extraídos automaticamente pela IA",
+      "tipo": "Tipo",
+      "numero": "Número",
+      "dataEmissao": "Data",
+      "chaveAcesso": "Chave de acesso",
+      "cnpjEmitente": "CNPJ emissor",
+      "razaoSocial": "Razão social",
+      "cnpjDestinatario": "CNPJ destinatário",
+      "razaoSocialDestinatario": "Razão social dest.",
+      "valorTotal": "Valor total",
+      "cfop": "CFOP",
+      "empty": "—"
+    },
+    "viewer": {
+      "page": "Página {current} / {total}",
+      "zoom_in": "Aumentar zoom",
+      "zoom_out": "Diminuir zoom",
+      "rotate": "Girar",
+      "loading": "Carregando..."
+    },
+    "history": {
+      "upload": "Arquivo enviado",
+      "ocr_done": "Texto extraído em {seconds}s",
+      "ocr_failed": "Extração falhou",
+      "system": "Sistema"
+    },
+    "raw": {
+      "empty": "Texto ainda não disponível.",
+      "extracting": "Extraindo texto..."
+    }
+  },
+  "disabled": {
+    "f3": "Disponível na próxima versão",
+    "f4": "Disponível na próxima versão"
   }
 }
