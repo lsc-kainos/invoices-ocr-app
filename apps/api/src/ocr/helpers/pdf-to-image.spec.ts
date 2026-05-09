@@ -13,9 +13,10 @@ const describeIntegration = runIntegration ? describe : describe.skip;
 
 describeIntegration('pdfToImage (integration)', () => {
   // Import dentro do describe pra que o módulo só carregue quando o suite roda.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  /* eslint-disable @typescript-eslint/no-require-imports */
   const { pdfToImage } =
     require('./pdf-to-image') as typeof import('./pdf-to-image');
+  /* eslint-enable @typescript-eslint/no-require-imports */
 
   it('converte PDF válido em PNG buffer (1ª página)', async () => {
     const pdfPath = join(
