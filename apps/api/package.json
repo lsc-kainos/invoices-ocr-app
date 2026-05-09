@@ -35,6 +35,8 @@
     "@nestjs/throttler": "^6.5.0",
     "@panva/hkdf": "^1.2.1",
     "@prisma/client": "^6.19.3",
+    "@types/archiver": "^7.0.0",
+    "archiver": "^8.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "csv-parse": "^6.2.1",

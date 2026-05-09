@@ -13,6 +13,7 @@ import { DocumentsModule } from './documents/documents.module';
 import { OcrModule } from './ocr/ocr.module';
 import { BenchmarkModule } from './ocr/benchmark/benchmark.module';
 import { ChatModule } from './chat/chat.module';
+import { DownloadModule } from './download/download.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { UserScopedThrottlerGuard } from './auth/guards/user-scoped-throttler.guard';
@@ -31,6 +32,7 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
       { name: 'ocr', ttl: 60_000, limit: 3 },
       { name: 'benchmark', ttl: 3_600_000, limit: 5 },
       { name: 'chat', ttl: 60_000, limit: 15 },
+      { name: 'download', ttl: 60_000, limit: 10 },
     ]),
     PrismaModule,
     HealthModule,
@@ -40,6 +42,7 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
     DocumentsModule,
     OcrModule,
     ChatModule,
+    DownloadModule,
     ...(process.env.NODE_ENV !== 'test' ? [BenchmarkModule] : []),
   ],
   providers: [
