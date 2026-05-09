@@ -207,6 +207,24 @@ export class ChatService {
     });
   }
 
+  async runConversationStream(ctx: RunContext, res: any): Promise<void> {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+
+    try {
+      await this.runConversation(ctx);
+      // Streaming is single-chunk (token-by-token is backlog)
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } catch (err) {
+      res.write(`data: ${JSON.stringify({ error: 'unexpected' })}\n\n`);
+      res.end();
+      throw err;
+    }
+  }
+
   async clearDocumentMessages(userId: string, documentId: string) {
     const doc = await this.prisma.document.findFirst({
       where: { id: documentId, userId },

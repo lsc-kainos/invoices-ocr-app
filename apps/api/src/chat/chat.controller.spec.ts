@@ -12,6 +12,7 @@ describe('ChatController', () => {
     listDocumentMessages: jest.Mock;
     sendDocumentMessage: jest.Mock;
     clearDocumentMessages: jest.Mock;
+    streamingEnabled: boolean;
   };
 
   beforeEach(async () => {
@@ -23,6 +24,7 @@ describe('ChatController', () => {
       listDocumentMessages: jest.fn(),
       sendDocumentMessage: jest.fn(),
       clearDocumentMessages: jest.fn(),
+      streamingEnabled: false,
     };
     const mod = await Test.createTestingModule({
       controllers: [ChatController],
@@ -53,14 +55,19 @@ describe('ChatController', () => {
     expect(r).toEqual([]);
   });
 
-  it('POST sessions/:id/messages chama sendWorkspaceMessage com user.id, sessionId e content', async () => {
-    const reply = { id: 'm1', role: 'assistant', content: 'olá' };
-    svc.sendWorkspaceMessage.mockResolvedValue(reply);
-    const r = await ctrl.sendWorkspaceMessage({ id: 'u1' }, 's1', {
-      content: 'oi',
-    } as never);
+  it('POST sessions/:id/messages chama sendWorkspaceMessage com user.id, sessionId, content', async () => {
+    svc.sendWorkspaceMessage.mockResolvedValue({ content: 'ok' });
+    const req = { headers: { accept: 'application/json' } } as any;
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
+    await ctrl.sendWorkspaceMessage(
+      { id: 'u1' },
+      's1',
+      { content: 'oi' } as any,
+      req,
+      res,
+    );
     expect(svc.sendWorkspaceMessage).toHaveBeenCalledWith('u1', 's1', 'oi');
-    expect(r).toBe(reply);
+    expect(res.json).toHaveBeenCalledWith({ content: 'ok' });
   });
 
   it('GET documents/:documentId/messages chama listDocumentMessages com includeTool=false', async () => {
@@ -70,18 +77,23 @@ describe('ChatController', () => {
     expect(r).toEqual([]);
   });
 
-  it('POST documents/:documentId/messages chama sendDocumentMessage e retorna resultado', async () => {
-    const reply = { id: 'm2', role: 'assistant', content: 'resposta' };
-    svc.sendDocumentMessage.mockResolvedValue(reply);
-    const r = await ctrl.sendDocumentMessage({ id: 'u1' }, 'doc1', {
-      content: 'pergunta',
-    } as never);
+  it('POST documents/:documentId/messages chama sendDocumentMessage', async () => {
+    svc.sendDocumentMessage.mockResolvedValue({ content: 'ok' });
+    const req = { headers: { accept: 'application/json' } } as any;
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
+    await ctrl.sendDocumentMessage(
+      { id: 'u1' },
+      'd1',
+      { content: 'pergunta' } as any,
+      req,
+      res,
+    );
     expect(svc.sendDocumentMessage).toHaveBeenCalledWith(
       'u1',
-      'doc1',
+      'd1',
       'pergunta',
     );
-    expect(r).toBe(reply);
+    expect(res.json).toHaveBeenCalledWith({ content: 'ok' });
   });
 
   it('DELETE documents/:documentId/messages chama clearDocumentMessages', async () => {

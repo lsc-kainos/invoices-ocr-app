@@ -7,7 +7,10 @@ import {
   Param,
   Post,
   Query,
+  Req,
+  Res,
 } from '@nestjs/common';
+import type { Request, Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ChatService } from './chat.service';
@@ -48,8 +51,32 @@ export class ChatController {
     @CurrentUser() user: { id: string },
     @Param('id') sessionId: string,
     @Body() body: SendMessageDto,
+    @Req() req: Request,
+    @Res() res: Response,
   ) {
-    return this.chat.sendWorkspaceMessage(user.id, sessionId, body.content);
+    const wantsStream =
+      req.headers.accept?.includes('text/event-stream') &&
+      this.chat.streamingEnabled;
+    if (wantsStream) {
+      const result = await this.chat.sendWorkspaceMessage(
+        user.id,
+        sessionId,
+        body.content,
+      );
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-store');
+      res.setHeader('X-Accel-Buffering', 'no');
+      res.write(`data: ${JSON.stringify({ delta: result.content })}\n\n`);
+      res.write(`data: [DONE]\n\n`);
+      res.end();
+      return;
+    }
+    const result = await this.chat.sendWorkspaceMessage(
+      user.id,
+      sessionId,
+      body.content,
+    );
+    res.status(200).json(result);
   }
 
   @Get('documents/:documentId/messages')
@@ -72,8 +99,32 @@ export class ChatController {
     @CurrentUser() user: { id: string },
     @Param('documentId') documentId: string,
     @Body() body: SendMessageDto,
+    @Req() req: Request,
+    @Res() res: Response,
   ) {
-    return this.chat.sendDocumentMessage(user.id, documentId, body.content);
+    const wantsStream =
+      req.headers.accept?.includes('text/event-stream') &&
+      this.chat.streamingEnabled;
+    if (wantsStream) {
+      const result = await this.chat.sendDocumentMessage(
+        user.id,
+        documentId,
+        body.content,
+      );
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-store');
+      res.setHeader('X-Accel-Buffering', 'no');
+      res.write(`data: ${JSON.stringify({ delta: result.content })}\n\n`);
+      res.write(`data: [DONE]\n\n`);
+      res.end();
+      return;
+    }
+    const result = await this.chat.sendDocumentMessage(
+      user.id,
+      documentId,
+      body.content,
+    );
+    res.status(200).json(result);
   }
 
   @Delete('documents/:documentId/messages')
