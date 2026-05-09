@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useDocumentDownload } from '../use-document-download';
 
@@ -10,9 +10,9 @@ vi.mock('sonner', () => ({
 }));
 
 describe('useDocumentDownload', () => {
-  let fetchSpy: any;
-  let createObjectURL: any;
-  let revokeObjectURL: any;
+  let fetchSpy: Mock;
+  let createObjectURL: Mock;
+  let revokeObjectURL: Mock;
   beforeEach(() => {
     fetchSpy = vi.fn();
     vi.stubGlobal('fetch', fetchSpy);
@@ -29,7 +29,7 @@ describe('useDocumentDownload', () => {
       await result.current.download('d1', 'nf');
     });
     const { toast } = await import('sonner');
-    expect((toast.error as any).mock.calls[0][0]).toBe('error_not_ready');
+    expect((toast.error as Mock).mock.calls[0][0]).toBe('error_not_ready');
   });
 
   it('200 → cria <a> com download attr e revoga URL', async () => {
