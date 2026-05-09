@@ -96,6 +96,18 @@
     "card": {
       "view": "Ver documento"
     },
+    "retry": {
+      "button": "Tentar de novo",
+      "in_progress": "Reenviando…",
+      "success": "{name} foi reenviado para nova tentativa",
+      "failed": "Não foi possível reenviar {name}: {reason}"
+    },
+    "retrying": "Tentando de novo automaticamente…",
+    "progress": {
+      "uploading": "Enviando {percent}%",
+      "queued": "Aguardando processamento",
+      "ocr": "Extraindo dados"
+    },
     "toasts": {
       "ready": "{name} está pronta",
       "failed": "{name} falhou: {reason}",

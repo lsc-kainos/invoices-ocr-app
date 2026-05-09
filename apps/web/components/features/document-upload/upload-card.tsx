@@ -2,12 +2,15 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { cn } from '@/lib/utils';
 import type { DocumentSummary, DocumentStatus } from '@invoices-ocr/shared-types';
+import { useDocumentRetry } from './use-document-retry';
 
 const PROGRESS: Record<DocumentStatus, number> = {
   QUEUED: 25,
@@ -22,30 +25,10 @@ const LADDER: Record<
   DocumentStatus,
   Record<'upload' | 'ocr' | 'structure' | 'ready', StepState>
 > = {
-  QUEUED: {
-    upload: 'done',
-    ocr: 'pending',
-    structure: 'pending',
-    ready: 'pending',
-  },
-  OCR_RUNNING: {
-    upload: 'done',
-    ocr: 'active',
-    structure: 'pending',
-    ready: 'pending',
-  },
-  READY: {
-    upload: 'done',
-    ocr: 'done',
-    structure: 'done',
-    ready: 'done',
-  },
-  FAILED: {
-    upload: 'done',
-    ocr: 'failed',
-    structure: 'pending',
-    ready: 'pending',
-  },
+  QUEUED: { upload: 'done', ocr: 'pending', structure: 'pending', ready: 'pending' },
+  OCR_RUNNING: { upload: 'done', ocr: 'active', structure: 'pending', ready: 'pending' },
+  READY: { upload: 'done', ocr: 'done', structure: 'done', ready: 'done' },
+  FAILED: { upload: 'done', ocr: 'failed', structure: 'pending', ready: 'pending' },
 };
 
 const formatSize = (bytes: number) => {
@@ -61,10 +44,16 @@ interface UploadCardProps {
 export function UploadCard({ doc }: UploadCardProps) {
   const t = useTranslations('upload');
   const tErrors = useTranslations('errors.ocr');
+  const tRetry = useTranslations('upload.retry');
+  const { retry, isPending } = useDocumentRetry();
+
   const tipo = doc.summary?.core.tipo ?? 'Doc';
   const ladder = LADDER[doc.status];
   const isReady = doc.status === 'READY';
   const isFailed = doc.status === 'FAILED';
+  const isRunning = doc.status === 'OCR_RUNNING';
+  const isAutoRetrying = isRunning && doc.retryCount > 0;
+  const retryPending = isPending(doc.id);
 
   const wrapperClass = cn(
     'block rounded-md transition-colors',
@@ -80,16 +69,43 @@ export function UploadCard({ doc }: UploadCardProps) {
         <div className="min-w-0 flex-1">
           <div className="text-foreground truncate text-[13px] font-medium">{doc.filename}</div>
           <div className="text-muted-foreground mt-0.5 font-mono text-[11px]">
-            {formatSize(doc.size)} · {PROGRESS[doc.status]}%
+            {formatSize(doc.size)}
+            {!isRunning && ` · ${PROGRESS[doc.status]}%`}
           </div>
         </div>
         <StatusBadge status={doc.status} />
       </div>
 
-      <Progress value={PROGRESS[doc.status]} className="mt-3 h-1" />
+      {isRunning ? (
+        <div
+          data-testid="ocr-spinner"
+          className="text-muted-foreground mt-3 flex items-center gap-2 text-[12px]"
+        >
+          <Loader2 size={13} className="animate-spin" />
+          <span>{isAutoRetrying ? t('retrying') : t('progress.ocr')}</span>
+        </div>
+      ) : (
+        <Progress value={PROGRESS[doc.status]} className="mt-3 h-1" />
+      )}
 
       {isFailed && doc.failureReason ? (
-        <p className="text-destructive mt-3 text-[11px]">{tErrors(doc.failureReason)}</p>
+        <div className="mt-3 flex items-start justify-between gap-3">
+          <p className="text-destructive text-[11px]">{tErrors(doc.failureReason)}</p>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              void retry(doc.id, doc.filename);
+            }}
+            disabled={retryPending}
+            className="h-7 text-[11px]"
+          >
+            {retryPending ? tRetry('in_progress') : tRetry('button')}
+          </Button>
+        </div>
       ) : null}
 
       <div className="mt-3.5 flex items-center text-[11px]">
