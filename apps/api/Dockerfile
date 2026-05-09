@@ -21,12 +21,14 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV HOSTNAME=0.0.0.0
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl postgresql-client
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=build /app/apps/api/dist ./apps/api/dist
 COPY --from=build /app/apps/api/prisma ./apps/api/prisma
 COPY --from=build /app/apps/api/package.json ./apps/api/
 COPY --from=build /app/package.json ./
+COPY apps/api/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 EXPOSE 3001
-CMD ["sh", "-c", "(cd apps/api && npx --no-install prisma migrate deploy) && node apps/api/dist/main.js"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
