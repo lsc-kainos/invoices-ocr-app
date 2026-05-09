@@ -34,4 +34,10 @@ describe('GetFullDocumentTool.execute', () => {
     const r = await tool.execute({ wrong: 'shape' }, { userId: 'u1' });
     expect(r).toEqual({ error: 'invalid_arguments' });
   });
+
+  it('retorna { error: "no_text" } quando doc está READY mas extractedText é nulo', async () => {
+    findFirst.mockResolvedValue({ extractedText: null, status: 'READY' });
+    const r = await tool.execute({ documentId: 'd1' }, { userId: 'u1' });
+    expect(r).toEqual({ error: 'no_text' });
+  });
 });

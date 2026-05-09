@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { DocumentStatus } from '@prisma/client';
+import type { ChatCompletionTool } from 'openai/resources/chat/completions';
 import { z } from 'zod';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -11,7 +13,7 @@ export type GetFullDocumentResult =
 @Injectable()
 export class GetFullDocumentTool {
   static readonly name = 'get_full_document';
-  static readonly schema = {
+  static readonly schema: ChatCompletionTool = {
     type: 'function' as const,
     function: {
       name: 'get_full_document',
@@ -41,7 +43,7 @@ export class GetFullDocumentTool {
     });
 
     if (!doc) return { error: 'not_found' };
-    if (doc.status !== 'READY') return { error: 'not_ready' };
+    if (doc.status !== DocumentStatus.READY) return { error: 'not_ready' };
     if (!doc.extractedText) return { error: 'no_text' };
 
     return { extractedText: doc.extractedText };
