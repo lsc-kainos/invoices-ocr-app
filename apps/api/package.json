@@ -87,6 +87,9 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "moduleNameMapper": {
+      "^archiver$": "<rootDir>/__mocks__/archiver.ts"
+    },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
