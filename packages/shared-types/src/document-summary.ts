@@ -1,5 +1,5 @@
-import type { DocumentStatus } from './document-status';
-import type { InvoiceSummary } from './invoice-summary';
+import type { DocumentStatus } from './document-status.js';
+import type { InvoiceSummary } from './invoice-summary.js';
 
 export interface DocumentSummary {
   id: string;

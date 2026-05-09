@@ -21,13 +21,11 @@ export function buildDocumentSystem(doc: {
   filename: string;
   summary: InvoiceSummary | null;
 }): string {
-  const summary = doc.summary ?? {};
-  const narrative =
-    typeof summary.narrative === 'string' ? summary.narrative : '';
+  const narrative = doc.summary?.narrative ?? '';
   const structured = {
-    core: summary.core ?? {},
-    items: summary.items ?? [],
-    extras: summary.extras ?? [],
+    core: doc.summary?.core,
+    items: doc.summary?.items ?? [],
+    extras: doc.summary?.extras ?? [],
   };
   return [
     RULES,

@@ -6,8 +6,8 @@ export const SHARED_TYPES_PACKAGE_VERSION = '0.0.0';
 export type Role = 'USER' | 'ADMIN';
 export const Role = { USER: 'USER', ADMIN: 'ADMIN' } as const satisfies Record<string, Role>;
 
-export type { DocumentStatus } from './document-status';
-export { DOCUMENT_STATUSES, ACTIVE_DOCUMENT_STATUSES } from './document-status';
-export type { InvoiceCore, InvoiceItem, InvoiceExtra, InvoiceSummary } from './invoice-summary';
-export type { DocumentSummary } from './document-summary';
-export type { DocumentDetail } from './document-detail';
+export type { DocumentStatus } from './document-status.js';
+export { DOCUMENT_STATUSES, ACTIVE_DOCUMENT_STATUSES } from './document-status.js';
+export type { InvoiceCore, InvoiceItem, InvoiceExtra, InvoiceSummary } from './invoice-summary.js';
+export type { DocumentSummary } from './document-summary.js';
+export type { DocumentDetail } from './document-detail.js';

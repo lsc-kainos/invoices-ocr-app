@@ -6,7 +6,7 @@ describe('buildDocumentSystem', () => {
       id: 'doc1',
       filename: 'nf.pdf',
       summary: {
-        core: { total: '100,00' },
+        core: { total: '100,00' } as any,
         items: [
           {
             description: 'Item A',
@@ -51,7 +51,7 @@ describe('buildWorkspaceSystem', () => {
         id: 'd1',
         filename: 'a.pdf',
         summary: {
-          core: { total: '100' },
+          core: { total: '100' } as any,
           items: [],
           extras: [],
           narrative: 'Nota A.',
@@ -61,7 +61,7 @@ describe('buildWorkspaceSystem', () => {
         id: 'd2',
         filename: 'b.pdf',
         summary: {
-          core: { total: '200' },
+          core: { total: '200' } as any,
           items: [],
           extras: [],
           narrative: 'Nota B.',
@@ -81,7 +81,7 @@ describe('buildWorkspaceSystem', () => {
       {
         id: 'd1',
         filename: 'a.pdf',
-        summary: { core: {}, items: [], extras: [], narrative: long },
+        summary: { core: {} as any, items: [], extras: [], narrative: long },
       },
     ]);
     expect(prompt).not.toContain('X'.repeat(241));
