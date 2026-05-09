@@ -58,8 +58,14 @@ describe('ChatController', () => {
   it('POST sessions/:id/messages chama sendWorkspaceMessage com user.id, sessionId, content', async () => {
     svc.sendWorkspaceMessage.mockResolvedValue({ content: 'ok' });
     const req = { headers: { accept: 'application/json' } } as any;
-    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
-    await ctrl.sendWorkspaceMessage(
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      setHeader: jest.fn(),
+      write: jest.fn(),
+      end: jest.fn(),
+    } as any;
+    const r = await ctrl.sendWorkspaceMessage(
       { id: 'u1' },
       's1',
       { content: 'oi' } as any,
@@ -67,7 +73,7 @@ describe('ChatController', () => {
       res,
     );
     expect(svc.sendWorkspaceMessage).toHaveBeenCalledWith('u1', 's1', 'oi');
-    expect(res.json).toHaveBeenCalledWith({ content: 'ok' });
+    expect(r).toEqual({ content: 'ok' });
   });
 
   it('GET documents/:documentId/messages chama listDocumentMessages com includeTool=false', async () => {
@@ -80,8 +86,14 @@ describe('ChatController', () => {
   it('POST documents/:documentId/messages chama sendDocumentMessage', async () => {
     svc.sendDocumentMessage.mockResolvedValue({ content: 'ok' });
     const req = { headers: { accept: 'application/json' } } as any;
-    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
-    await ctrl.sendDocumentMessage(
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      setHeader: jest.fn(),
+      write: jest.fn(),
+      end: jest.fn(),
+    } as any;
+    const r = await ctrl.sendDocumentMessage(
       { id: 'u1' },
       'd1',
       { content: 'pergunta' } as any,
@@ -93,7 +105,7 @@ describe('ChatController', () => {
       'd1',
       'pergunta',
     );
-    expect(res.json).toHaveBeenCalledWith({ content: 'ok' });
+    expect(r).toEqual({ content: 'ok' });
   });
 
   it('DELETE documents/:documentId/messages chama clearDocumentMessages', async () => {

@@ -52,7 +52,7 @@ export class ChatController {
     @Param('id') sessionId: string,
     @Body() body: SendMessageDto,
     @Req() req: Request,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const wantsStream =
       req.headers.accept?.includes('text/event-stream') &&
@@ -71,12 +71,7 @@ export class ChatController {
       res.end();
       return;
     }
-    const result = await this.chat.sendWorkspaceMessage(
-      user.id,
-      sessionId,
-      body.content,
-    );
-    res.status(200).json(result);
+    return this.chat.sendWorkspaceMessage(user.id, sessionId, body.content);
   }
 
   @Get('documents/:documentId/messages')
@@ -100,7 +95,7 @@ export class ChatController {
     @Param('documentId') documentId: string,
     @Body() body: SendMessageDto,
     @Req() req: Request,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const wantsStream =
       req.headers.accept?.includes('text/event-stream') &&
@@ -119,12 +114,7 @@ export class ChatController {
       res.end();
       return;
     }
-    const result = await this.chat.sendDocumentMessage(
-      user.id,
-      documentId,
-      body.content,
-    );
-    res.status(200).json(result);
+    return this.chat.sendDocumentMessage(user.id, documentId, body.content);
   }
 
   @Delete('documents/:documentId/messages')
