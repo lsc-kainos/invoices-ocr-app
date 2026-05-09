@@ -4,20 +4,22 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { InvoiceCore, InvoiceSummary } from '@invoices-ocr/shared-types';
 
+// TODO(f2.5): rewrite rail with universal-schema field keys + i18n keys
 const FIELD_KEYS = [
-  'tipo',
-  'numero',
-  'dataEmissao',
-  'chaveAcesso',
-  'cnpjEmitente',
-  'razaoSocial',
-  'cnpjDestinatario',
-  'razaoSocialDestinatario',
-  'valorTotal',
-  'cfop',
+  'invoiceNumber',
+  'invoiceDate',
+  'dueDate',
+  'sellerName',
+  'sellerAddress',
+  'clientName',
+  'clientAddress',
+  'tax',
+  'discount',
+  'total',
+  'paymentMethod',
 ] as const satisfies ReadonlyArray<keyof InvoiceCore>;
 
-const MONO_KEYS = new Set(['chaveAcesso', 'cnpjEmitente', 'cnpjDestinatario', 'cfop', 'numero']);
+const MONO_KEYS = new Set(['invoiceNumber']);
 
 interface ExtractedFieldsRailProps {
   summary: InvoiceSummary | null;

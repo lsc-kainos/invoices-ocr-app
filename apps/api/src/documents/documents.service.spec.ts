@@ -299,7 +299,11 @@ describe('DocumentsService', () => {
     });
 
     it('markReady seta READY + summary + extractedText + ocrCompletedAt', async () => {
-      await svc.markReady('d1', { core: {} as never, extras: [] }, 'text');
+      await svc.markReady(
+        'd1',
+        { core: {} as never, items: [], extras: [], narrative: '' },
+        'text',
+      );
       expect(prisma.document.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({

@@ -3,22 +3,34 @@ import { createHash } from 'node:crypto';
 import type { OcrProvider } from './ocr-provider.interface';
 import type { InvoiceSummaryResult } from '../schemas/invoice-summary.schema';
 
+// TODO(f2.5): rewrite mock fixtures with realistic universal-schema data
 const FIXTURES: InvoiceSummaryResult[] = [
   {
     summary: {
       core: {
-        tipo: 'NF-e',
-        numero: '0023117',
-        dataEmissao: '2026-04-22',
-        cnpjEmitente: '12.345.678/0001-90',
-        razaoSocial: 'Construtora Vega Ltda.',
-        cnpjDestinatario: '98.765.432/0001-10',
-        razaoSocialDestinatario: 'Cliente Mock S/A',
-        valorTotal: 'R$ 184.520,00',
-        chaveAcesso: '35260412345678000190550010000231171123456789',
-        cfop: '5102',
+        invoiceNumber: '0023117',
+        invoiceDate: '2026-04-22',
+        dueDate: null,
+        sellerName: 'Construtora Vega Ltda.',
+        sellerAddress: null,
+        clientName: 'Cliente Mock S/A',
+        clientAddress: null,
+        tax: null,
+        discount: null,
+        total: 'R$ 184.520,00',
+        paymentMethod: null,
       },
+      items: [],
+      narrative: '',
       extras: [
+        { label: 'CNPJ Emitente', value: '12.345.678/0001-90', mono: true },
+        { label: 'CNPJ Destinatário', value: '98.765.432/0001-10', mono: true },
+        {
+          label: 'Chave NF-e',
+          value: '35260412345678000190550010000231171123456789',
+          mono: true,
+        },
+        { label: 'CFOP', value: '5102', mono: true },
         {
           label: 'Natureza da operação',
           value: 'Venda de mercadoria',
@@ -37,18 +49,23 @@ const FIXTURES: InvoiceSummaryResult[] = [
   {
     summary: {
       core: {
-        tipo: 'NFS-e',
-        numero: '0007789',
-        dataEmissao: '2026-04-15',
-        cnpjEmitente: '11.222.333/0001-44',
-        razaoSocial: 'Servicos Mock Ltda',
-        cnpjDestinatario: '55.666.777/0001-88',
-        razaoSocialDestinatario: 'Tomador Mock Ltda',
-        valorTotal: 'R$ 12.450,00',
-        chaveAcesso: null,
-        cfop: null,
+        invoiceNumber: '0007789',
+        invoiceDate: '2026-04-15',
+        dueDate: null,
+        sellerName: 'Servicos Mock Ltda',
+        sellerAddress: null,
+        clientName: 'Tomador Mock Ltda',
+        clientAddress: null,
+        tax: null,
+        discount: null,
+        total: 'R$ 12.450,00',
+        paymentMethod: null,
       },
+      items: [],
+      narrative: '',
       extras: [
+        { label: 'CNPJ Prestador', value: '11.222.333/0001-44', mono: true },
+        { label: 'CNPJ Tomador', value: '55.666.777/0001-88', mono: true },
         { label: 'Código de serviço', value: '17.01', mono: null },
         {
           label: 'Município de prestação',
@@ -63,17 +80,20 @@ const FIXTURES: InvoiceSummaryResult[] = [
   {
     summary: {
       core: {
-        tipo: 'Recibo',
-        numero: '042',
-        dataEmissao: '2026-03-30',
-        cnpjEmitente: null,
-        razaoSocial: 'Mock Generic Vendor',
-        cnpjDestinatario: null,
-        razaoSocialDestinatario: null,
-        valorTotal: '$ 1,234.50',
-        chaveAcesso: null,
-        cfop: null,
+        invoiceNumber: '042',
+        invoiceDate: '2026-03-30',
+        dueDate: null,
+        sellerName: 'Mock Generic Vendor',
+        sellerAddress: null,
+        clientName: null,
+        clientAddress: null,
+        tax: null,
+        discount: null,
+        total: '$ 1,234.50',
+        paymentMethod: 'Pix',
       },
+      items: [],
+      narrative: '',
       extras: [
         { label: 'Forma de pagamento', value: 'À vista — Pix', mono: null },
       ],
