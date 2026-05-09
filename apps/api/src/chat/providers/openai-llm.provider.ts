@@ -10,13 +10,16 @@ export class OpenaiLlmProvider implements LlmProvider {
   constructor(
     apiKey: string,
     private readonly defaultModel: string,
+    client?: OpenAI,
   ) {
-    this.client = new OpenAI({ apiKey });
+    this.client = client ?? new OpenAI({ apiKey });
   }
 
+  // stream: false hardcoded — streaming path implemented in Task 13 (CHAT_STREAMING env var).
+  // Passing stream: true via params is currently a no-op and will return ChatCompletion, not AsyncIterable.
   async complete(params: LlmCompleteParams): Promise<ChatCompletion> {
     return this.client.chat.completions.create({
-      model: params.model,
+      model: params.model ?? this.defaultModel,
       messages: params.messages,
       tools: params.tools.length > 0 ? params.tools : undefined,
       tool_choice: params.tools.length > 0 ? 'auto' : undefined,
