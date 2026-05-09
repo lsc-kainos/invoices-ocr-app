@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type {
@@ -15,6 +16,11 @@ import {
   type LlmProvider,
 } from './providers/llm-provider.interface';
 import { ToolsRegistry } from './tools/tools-registry';
+import {
+  buildDocumentSystem,
+  buildWorkspaceSystem,
+} from './prompts/system.prompt';
+import { titleFromContent } from './helpers/title-from-content';
 
 type PendingMessage = {
   role: 'USER' | 'ASSISTANT' | 'TOOL';
@@ -49,6 +55,95 @@ export class ChatService {
     logger?: Logger,
   ) {
     this.logger = logger ?? new Logger(ChatService.name);
+  }
+
+  get streamingEnabled(): boolean {
+    return this.config.get<boolean>('CHAT_STREAMING') === true;
+  }
+
+  async createSession(userId: string) {
+    return this.prisma.chatSession.create({
+      data: { userId },
+      select: { id: true, createdAt: true },
+    });
+  }
+
+  async listSessions(userId: string, limit: number) {
+    return this.prisma.chatSession.findMany({
+      where: { userId, documentId: null },
+      select: { id: true, title: true, createdAt: true, updatedAt: true },
+      orderBy: { updatedAt: 'desc' },
+      take: Math.min(limit, 100),
+    });
+  }
+
+  async listMessages(userId: string, sessionId: string, includeTool: boolean) {
+    const session = await this.prisma.chatSession.findFirst({
+      where: { id: sessionId, userId },
+      select: { id: true },
+    });
+    if (!session) throw new NotFoundException();
+
+    return this.prisma.chatMessage.findMany({
+      where: {
+        sessionId,
+        ...(includeTool ? {} : { role: { not: 'TOOL' as any } }),
+      },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, role: true, content: true, createdAt: true },
+    });
+  }
+
+  async sendWorkspaceMessage(
+    userId: string,
+    sessionId: string,
+    content: string,
+  ) {
+    const session = await this.prisma.chatSession.findFirst({
+      where: { id: sessionId, userId },
+    });
+    if (!session) throw new NotFoundException();
+
+    await this.prisma.chatMessage.create({
+      data: { sessionId, role: 'USER', content },
+    });
+
+    const history = await this.loadHistory(sessionId);
+    const docs = await this.prisma.document.findMany({
+      where: { userId, status: 'READY' },
+      select: { id: true, filename: true, summary: true },
+      orderBy: { updatedAt: 'desc' },
+      take: 50,
+    });
+
+    const result = await this.runConversation({
+      userId,
+      systemPrompt: buildWorkspaceSystem(docs as any),
+      messages: history,
+      persist: (msg) =>
+        this.prisma.chatMessage.create({ data: { sessionId, ...msg } }),
+    });
+
+    await this.prisma.chatSession.update({
+      where: { id: sessionId },
+      data: {
+        title: session.title ?? titleFromContent(content),
+        updatedAt: new Date(),
+      },
+    });
+
+    return { content: result.content };
+  }
+
+  private async loadHistory(sessionId: string) {
+    const max = this.config.get<number>('CHAT_MAX_HISTORY') ?? 20;
+    const all = await this.prisma.chatMessage.findMany({
+      where: { sessionId },
+      orderBy: { createdAt: 'desc' },
+      take: max,
+      select: { role: true, content: true, toolCallId: true, toolName: true },
+    });
+    return all.reverse();
   }
 
   private async runConversation(ctx: RunContext): Promise<{ content: string }> {

@@ -127,3 +127,53 @@ describe('ChatService.runConversation (com tool)', () => {
     ).rejects.toThrow(InternalServerErrorException);
   });
 });
+
+describe('ChatService session ops', () => {
+  const makePrisma = () => ({
+    chatSession: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+    },
+    chatMessage: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+    },
+    document: { findMany: jest.fn() },
+  });
+
+  it('createSession retorna { id, createdAt }', async () => {
+    const prisma = makePrisma();
+    prisma.chatSession.create.mockResolvedValue({
+      id: 's1',
+      createdAt: new Date(),
+    });
+    const svc = new ChatService(
+      prisma as any,
+      {} as any,
+      {} as any,
+      { get: () => 20 } as any,
+    );
+    const r = await svc.createSession('u1');
+    expect(prisma.chatSession.create).toHaveBeenCalledWith({
+      data: { userId: 'u1' },
+      select: { id: true, createdAt: true },
+    });
+    expect(r).toHaveProperty('id', 's1');
+  });
+
+  it('listMessages 404 quando sessão não é do user', async () => {
+    const prisma = makePrisma();
+    prisma.chatSession.findFirst.mockResolvedValue(null);
+    const svc = new ChatService(
+      prisma as any,
+      {} as any,
+      {} as any,
+      { get: () => 20 } as any,
+    );
+    await expect(svc.listMessages('u1', 's1', false)).rejects.toThrow(
+      'Not Found',
+    );
+  });
+});
