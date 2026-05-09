@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import type {
+  ChatCompletion,
+  ChatCompletionMessageParam,
+} from 'openai/resources/chat/completions';
 import type { LlmCompleteParams, LlmProvider } from './llm-provider.interface';
 
 @Injectable()
 export class MockLlmProvider implements LlmProvider {
-  async complete(params: LlmCompleteParams): Promise<any> {
+  async complete(params: LlmCompleteParams): Promise<ChatCompletion> {
     const lastMsg = params.messages[params.messages.length - 1];
     const text = typeof lastMsg.content === 'string' ? lastMsg.content : '';
 
@@ -28,7 +32,7 @@ export class MockLlmProvider implements LlmProvider {
   }
 }
 
-function extractDocId(messages: any[]): string | null {
+function extractDocId(messages: ChatCompletionMessageParam[]): string | null {
   for (const m of messages) {
     if (m.role !== 'system' || typeof m.content !== 'string') continue;
     const match = m.content.match(/<document id="([^"]+)"/);
@@ -40,7 +44,7 @@ function extractDocId(messages: any[]): string | null {
 function mockCompletion(opts: {
   content?: string;
   toolCall?: { id: string; name: string; args: object };
-}) {
+}): ChatCompletion {
   return {
     id: 'mock-' + Date.now(),
     object: 'chat.completion',
@@ -50,6 +54,7 @@ function mockCompletion(opts: {
       {
         index: 0,
         finish_reason: opts.toolCall ? 'tool_calls' : 'stop',
+        logprobs: null,
         message: opts.toolCall
           ? {
               role: 'assistant',
@@ -64,10 +69,12 @@ function mockCompletion(opts: {
                   },
                 },
               ],
+              refusal: null,
             }
           : {
               role: 'assistant',
               content: opts.content ?? '',
+              refusal: null,
             },
       },
     ],
