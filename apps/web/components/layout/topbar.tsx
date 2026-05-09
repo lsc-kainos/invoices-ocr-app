@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Menu } from 'lucide-react';
+import { Menu, ShieldCheck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { Session } from 'next-auth';
 import { cn } from '@/lib/utils';
@@ -15,8 +15,9 @@ import { UserMenu } from './user-menu';
 type NavItem = {
   key: string;
   label: string;
-  href: '/' | '#';
+  href: '/' | '#' | '/admin/benchmark';
   enabled: boolean;
+  admin?: boolean;
 };
 
 export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
@@ -25,6 +26,17 @@ export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
     { key: 'home', label: t('nav.home'), href: '/', enabled: true },
     { key: 'list', label: t('nav.list'), href: '#', enabled: false },
     { key: 'chat', label: t('nav.chat'), href: '#', enabled: false },
+    ...(user.role === 'ADMIN'
+      ? [
+          {
+            key: 'benchmark',
+            label: t('nav.benchmark'),
+            href: '/admin/benchmark' as const,
+            enabled: true,
+            admin: true,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -38,8 +50,12 @@ export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
             <Link
               key={item.key}
               href={item.href}
-              className="text-foreground bg-secondary/40 rounded-md px-2.5 py-1.5 text-sm font-medium"
+              className={cn(
+                'text-foreground bg-secondary/40 inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium',
+                item.admin && 'text-primary',
+              )}
             >
+              {item.admin ? <ShieldCheck size={14} /> : null}
               {item.label}
             </Link>
           ) : (
