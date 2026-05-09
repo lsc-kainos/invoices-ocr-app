@@ -9,6 +9,7 @@ export interface DocumentSummaryDto {
   size: number;
   summary: InvoiceSummary | null;
   failureReason: string | null;
+  retryCount: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -22,6 +23,7 @@ export function toSummaryDto(doc: Document): DocumentSummaryDto {
     size: doc.size,
     summary: (doc.summary as InvoiceSummary | null) ?? null,
     failureReason: doc.failureReason,
+    retryCount: doc.retryCount,
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };

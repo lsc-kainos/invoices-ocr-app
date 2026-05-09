@@ -22,6 +22,7 @@ function makeDoc(id: string, status: DocumentSummary['status']): DocumentSummary
     size: 100,
     summary: null,
     failureReason: null,
+    retryCount: 0,
     createdAt: '2026-05-09T00:00:00Z',
     updatedAt: '2026-05-09T00:00:00Z',
   };
