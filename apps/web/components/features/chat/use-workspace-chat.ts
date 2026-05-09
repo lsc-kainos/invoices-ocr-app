@@ -21,7 +21,7 @@ export function useWorkspaceChat(activeSessionId?: string) {
 
   useEffect(() => {
     if (!activeSessionId) {
-      setMessages([]);
+      Promise.resolve([]).then(setMessages);
       return;
     }
     fetch(`/api/chat/sessions/${activeSessionId}/messages`)

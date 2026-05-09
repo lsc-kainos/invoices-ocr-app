@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { DocumentChatTab } from './document-chat-tab';
 import type { DocumentDetail } from '@invoices-ocr/shared-types';
 
 interface TabsPaneProps {
@@ -19,7 +19,6 @@ function formatHistoryDate(iso: string): string {
 
 export function TabsPane({ doc }: TabsPaneProps) {
   const t = useTranslations('document');
-  const tDisabled = useTranslations('disabled');
   const tErrors = useTranslations('errors.ocr');
 
   const ocrSeconds =
@@ -35,21 +34,14 @@ export function TabsPane({ doc }: TabsPaneProps) {
   return (
     <Tabs defaultValue="raw" className="flex h-full flex-col">
       <TabsList className="self-start">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span tabIndex={0}>
-                <TabsTrigger value="chat" disabled aria-disabled>
-                  {t('tabs.chat')}
-                </TabsTrigger>
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>{tDisabled('f3')}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <TabsTrigger value="chat">{t('tabs.chat')}</TabsTrigger>
         <TabsTrigger value="raw">{t('tabs.raw')}</TabsTrigger>
         <TabsTrigger value="history">{t('tabs.history')}</TabsTrigger>
       </TabsList>
+
+      <TabsContent value="chat" className="mt-3 flex-1 overflow-hidden">
+        <DocumentChatTab documentId={doc.id} />
+      </TabsContent>
 
       <TabsContent value="raw" className="mt-3 flex-1 overflow-auto">
         {doc.extractedText ? (
