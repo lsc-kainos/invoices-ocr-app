@@ -60,4 +60,28 @@ describe('jwtCallback', () => {
     expect(token.role).toBe('ADMIN');
     expect(token.sub).toBe('u1');
   });
+
+  // Regressão: antes deste fix, !res.ok era engolido silenciosamente e o
+  // token mantinha o sub do provedor OAuth (Google) em vez do CUID do User
+  // do banco. Resultado: 401 cascata em todas as chamadas à API porque o
+  // JwtStrategy procurava por id que não existe.
+  it('lança quando internalFetch retorna não-ok (impede token-fantasma)', async () => {
+    mockInternalFetch.mockResolvedValue(new Response('Unauthorized', { status: 401 }));
+    await expect(
+      jwtCallback({
+        token: { sub: 'google-sub-123' },
+        user: { email: 'e@x', name: 'E' },
+      } as never),
+    ).rejects.toThrow(/sync/i);
+  });
+
+  it('lança quando internalFetch retorna 5xx', async () => {
+    mockInternalFetch.mockResolvedValue(new Response('boom', { status: 500 }));
+    await expect(
+      jwtCallback({
+        token: {},
+        user: { email: 'e@x' },
+      } as never),
+    ).rejects.toThrow(/sync/i);
+  });
 });

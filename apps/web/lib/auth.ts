@@ -31,12 +31,23 @@ export async function jwtCallback({ token, user, trigger }: JwtArgs) {
     }),
   });
 
-  if (res.ok) {
-    const synced = (await res.json()) as { id: string; email: string; role: Role };
-    token.sub = synced.id;
-    token.role = synced.role;
-    token.email = synced.email;
+  // Falha aqui é fatal: se não substituirmos token.sub pelo CUID do User,
+  // o NextAuth assina o JWT com o sub do provedor OAuth (Google/GitHub) e
+  // a API rejeita TODAS as requests com 401 (user não existe pelo id do
+  // OAuth). Melhor abortar o login do que entregar token-fantasma.
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    console.error('[auth] user sync failed', {
+      status: res.status,
+      bodyPreview: body.slice(0, 200),
+    });
+    throw new Error(`User sync failed (${res.status})`);
   }
+
+  const synced = (await res.json()) as { id: string; email: string; role: Role };
+  token.sub = synced.id;
+  token.role = synced.role;
+  token.email = synced.email;
 
   return token;
 }
