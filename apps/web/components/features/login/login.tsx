@@ -1,11 +1,9 @@
 'use client';
-import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/layout/logo';
-import { cn } from '@/lib/utils';
 import { GoogleLogo } from './google-logo';
 import { GithubLogo } from './github-logo';
 import { useLogin } from './use-login';
@@ -19,29 +17,12 @@ const ERROR_KEYS = [
 ] as const;
 type ErrorKey = (typeof ERROR_KEYS)[number];
 
-// Cascata teatral em duas fases (apenas desktop):
-//
-//   FASE 1 (0–1500ms): hero ocupa 100% da tela.
-//     t=0     Logo
-//     t=300   HEADLINE nasce (zoom-in-95 + fade, 1000ms)
-//     t=900   subtítulo desliza (700ms)
-//     t=1400  tagline (500ms)
-//
-//   FASE 2 (1500ms+): grid-template-columns anima de [1fr_0fr] →
-//     [1fr_1fr] em 1000ms, abrindo espaço para o card. A border-r do
-//     hero — antes invisível no bezel direito — vira a linha divisória
-//     "construída" entre as duas colunas. Card content cascateia em
-//     paralelo (delays alinhados com a abertura).
-//     t=1500  H2 "Entrar" (700ms)
-//     t=2000  subtítulo do card
-//     t=2200  botões OAuth (CTA)
-//     t=2700  Termos · Privacidade
-//
-// MOBILE: o hero não renderiza (`hidden lg:flex`). O card aparece em
-// cascata snappy (delay-200 → 1000) sem a fase 1.
-const slide = 'animate-in fade-in-0 slide-in-from-bottom-2 fill-mode-both';
-const SPLIT_DELAY_MS = 1500;
-
+// Layout estático intencional. Toda a animação (split em duas fases,
+// cascade staged, zoom-in headline) foi removida porque estava causando
+// botões "mortos" depois do primeiro round-trip OAuth — o React tree
+// preservado entre navigations levava o estado pra um limbo onde
+// onClick handlers não disparavam. Com layout estático, cada render
+// é uma reconciliação direta sem state intermediário.
 export function Login() {
   const t = useTranslations('login');
   const tErr = useTranslations('auth.errors');
@@ -54,81 +35,32 @@ export function Login() {
     : null;
   const { signInGoogle, signInGithub, pending } = useLogin();
 
-  const [split, setSplit] = useState(false);
-  useEffect(() => {
-    const id = setTimeout(() => setSplit(true), SPLIT_DELAY_MS);
-
-    // Quando a página é restaurada do bfcache (back-nav após OAuth),
-    // o setTimeout original não reagenda e split fica preso em false,
-    // deixando o card 0fr e clipped no canto direito. Pular direto pra
-    // split=true quando persisted=true.
-    const onPageShow = (e: PageTransitionEvent) => {
-      if (e.persisted) setSplit(true);
-    };
-    window.addEventListener('pageshow', onPageShow);
-
-    return () => {
-      clearTimeout(id);
-      window.removeEventListener('pageshow', onPageShow);
-    };
-  }, []);
-
   return (
-    <div
-      data-phase={split ? 'split' : 'hero-full'}
-      className={cn(
-        'grid h-screen grid-cols-1 transition-[grid-template-columns] duration-1000 ease-out',
-        split ? 'lg:grid-cols-[1fr_1fr]' : 'lg:grid-cols-[1fr_0fr]',
-      )}
-    >
+    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       {/* Editorial column — desktop only */}
-      <div className="border-border bg-background hidden flex-col justify-between overflow-hidden border-r px-14 py-10 lg:flex">
-        <div className={`${slide} duration-500`}>
-          <Logo />
+      <div className="border-border bg-background hidden flex-col justify-between border-r px-14 py-10 lg:flex">
+        <Logo />
+        <div className="flex max-w-[420px] flex-col gap-4">
+          <h1 className="text-foreground text-4xl font-semibold tracking-tight">{t('headline')}</h1>
+          <p className="text-muted-foreground text-base leading-relaxed">{t('subtitle')}</p>
         </div>
-        <div className="flex max-w-[420px] flex-col gap-5">
-          <h1 className="animate-in fade-in-0 zoom-in-95 fill-mode-both text-foreground text-4xl font-semibold tracking-tight delay-300 duration-1000">
-            {t('headline')}
-          </h1>
-          <p
-            className={`${slide} text-muted-foreground text-base leading-relaxed delay-[900ms] duration-700`}
-          >
-            {t('subtitle')}
-          </p>
-        </div>
-        <span className={`${slide} text-muted-foreground text-xs delay-[1400ms] duration-500`}>
-          {t('tagline')}
-        </span>
+        <span className="text-muted-foreground text-xs">{t('tagline')}</span>
       </div>
 
       {/* Auth card */}
-      <div className="flex items-center justify-center overflow-hidden px-6 py-10">
+      <div className="flex items-center justify-center px-6 py-10">
         <div className="w-full max-w-[360px]">
-          {/* Mobile mini hero: Logo + headline + subtítulo (versão
-              compacta do hero editorial; aparece apenas em <lg, onde a
-              coluna esquerda não renderiza). */}
+          {/* Mobile mini hero */}
           <div className="mb-10 flex flex-col gap-3 lg:hidden">
-            <div className={`${slide} duration-500`}>
-              <Logo />
-            </div>
-            <h1 className="animate-in fade-in-0 zoom-in-95 fill-mode-both text-foreground text-2xl font-semibold tracking-tight delay-150 duration-700">
+            <Logo />
+            <h1 className="text-foreground text-2xl font-semibold tracking-tight">
               {t('headline')}
             </h1>
-            <p
-              className={`${slide} text-muted-foreground text-sm leading-relaxed delay-300 duration-500`}
-            >
-              {t('subtitle')}
-            </p>
+            <p className="text-muted-foreground text-sm leading-relaxed">{t('subtitle')}</p>
           </div>
 
-          <h2
-            className={`${slide} text-2xl font-medium tracking-tight delay-200 duration-700 lg:delay-[1700ms]`}
-          >
-            {t('card.title')}
-          </h2>
-          <p
-            className={`${slide} text-muted-foreground mt-2 mb-6 text-[13px] leading-relaxed delay-500 duration-700 lg:delay-[2000ms]`}
-          >
+          <h2 className="text-2xl font-medium tracking-tight">{t('card.title')}</h2>
+          <p className="text-muted-foreground mt-2 mb-6 text-[13px] leading-relaxed">
             {t('card.subtitle')}
           </p>
 
@@ -141,7 +73,7 @@ export function Login() {
             </div>
           )}
 
-          <div className={`${slide} flex flex-col gap-2 delay-700 duration-700 lg:delay-[2200ms]`}>
+          <div className="flex flex-col gap-2">
             <Button
               type="button"
               variant="secondary"
@@ -150,7 +82,6 @@ export function Login() {
               onClick={signInGoogle}
               aria-label={t('card.google')}
               aria-busy={pending === 'google'}
-              data-pending={pending === 'google' ? '' : undefined}
             >
               {pending === 'google' ? (
                 <Loader2 size={15} className="animate-spin" aria-hidden />
@@ -167,7 +98,6 @@ export function Login() {
               onClick={signInGithub}
               aria-label={t('card.github')}
               aria-busy={pending === 'github'}
-              data-pending={pending === 'github' ? '' : undefined}
             >
               {pending === 'github' ? (
                 <Loader2 size={15} className="animate-spin" aria-hidden />
@@ -178,9 +108,7 @@ export function Login() {
             </Button>
           </div>
 
-          <div
-            className={`${slide} border-border text-muted-foreground mt-6 border-t pt-4 text-[11px] leading-relaxed delay-1000 duration-500 lg:delay-[2700ms]`}
-          >
+          <div className="border-border text-muted-foreground mt-6 border-t pt-4 text-[11px] leading-relaxed">
             <a href="#" className="hover:underline">
               {t('card.terms')}
             </a>{' '}

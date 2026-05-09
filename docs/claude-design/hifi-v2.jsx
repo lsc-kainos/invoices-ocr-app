@@ -489,25 +489,10 @@ const HifiV2Login = () => (
       }}
     >
       <Logo />
-      {/* Animação real no /login (apps/web), em duas fases (apenas
-          desktop — hero é hidden lg:flex no mobile):
-
-          FASE 1 (0–1500ms): hero ocupa 100% da viewport
-            t=0    Logo aparece (slide+fade)
-            t=300  HEADLINE nasce (zoom-in-95 + fade, 1000ms)
-            t=900  subtítulo desliza
-            t=1400 tagline
-
-          FASE 2 (1500ms+): grid-template-columns anima de
-          [1fr_0fr] → [1fr_1fr] em 1000ms. A border-r do hero, antes
-          invisível no bezel, vira a linha divisória "construída".
-            t=1500 H2 "Entrar"
-            t=2000 subtítulo do card
-            t=2200 botões OAuth (CTA)
-            t=2700 Termos · Privacidade
-
-          Botões: spinner (Loader2) substitui o logo do provider
-          clicado durante o round-trip OAuth + active:scale-[0.98]. */}
+      {/* Layout estático (sem animação). A versão animada anterior
+          causava onClick "morto" depois do primeiro round-trip OAuth
+          mesmo com Cache-Control: no-store. Mantém-se simples até
+          investigar o root-cause das interações stale. */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 420 }}>
         <h1
           style={{
