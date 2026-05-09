@@ -792,4 +792,32 @@ Backlog explícito — não implementar antes do core fechar:
 
 ---
 
+## Emendas F2.5 (2026-05-09)
+
+A F2.5 adiciona `summary.narrative` ao schema OCR. O download ZIP deve incluí-lo como arquivo adicional.
+
+### Conteúdo do ZIP (atualizado)
+
+| Arquivo              | Origem                                | Condição                             |
+| -------------------- | ------------------------------------- | ------------------------------------ |
+| `original.<ext>`     | Volume Railway                        | Sempre                               |
+| `extracted-text.txt` | `Document.extractedText` (UTF-8 BOM)  | Sempre (vazio se null)               |
+| `narrative.txt`      | `Document.summary?.narrative` (UTF-8) | Somente se `narrative` existir       |
+| `chat-transcript.md` | Mensagens `ChatSession` (role ≠ TOOL) | Sempre (placeholder se sem conversa) |
+
+A decisão D2 muda de "3 arquivos" para "3 ou 4 arquivos". O `narrative.txt` é opcional porque docs processados antes da F2.5 não têm o campo.
+
+### Snippet — `download.service.ts`
+
+```ts
+// após append de extracted-text.txt:
+if (doc.summary?.narrative) {
+  archive.append(doc.summary.narrative, { name: 'narrative.txt' });
+}
+```
+
+Nenhuma outra mudança necessária na F4.
+
+---
+
 **Fim da spec F4.**
