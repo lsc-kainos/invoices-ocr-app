@@ -26,12 +26,24 @@ export type AggregateResult = {
   perField: Record<string, FieldAggregate>;
 };
 
+function normalizeDecimal(v: string): string {
+  if (/^-?\d{1,3}(\.\d{3})+,\d+$/.test(v)) {
+    return v.replace(/\./g, '').replace(',', '.');
+  }
+  if (/^-?\d+,\d{1,2}$/.test(v)) {
+    return v.replace(',', '.');
+  }
+  return v;
+}
+
 function normalize(v: string | null): string {
   if (!v) return '';
-  return v
+  const stripped = v
     .toLowerCase()
-    .replace(/[$,\s]/g, '')
-    .trim();
+    .replace(/r\$/g, '')
+    .replace(/[$€£\s]/g, '');
+  const decimalAware = normalizeDecimal(stripped);
+  return decimalAware.replace(/,/g, '');
 }
 
 export function matchField(
@@ -61,10 +73,9 @@ export function compareFields(
 
 export function computeScore(fieldResults: FieldResults): ScoreResult {
   const entries = Object.values(fieldResults);
-  const presentInGT = entries.filter(
-    (r) => r.expected !== null && r.expected !== '',
-  ).length;
-  const correct = entries.filter((r) => r.match).length;
+  const inGT = entries.filter((r) => r.expected !== null && r.expected !== '');
+  const presentInGT = inGT.length;
+  const correct = inGT.filter((r) => r.match).length;
   return {
     correct,
     presentInGT,

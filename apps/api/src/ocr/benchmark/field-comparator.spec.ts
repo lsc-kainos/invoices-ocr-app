@@ -28,6 +28,22 @@ describe('matchField', () => {
   it('normalize: null extracted vs non-null expected → false', () => {
     expect(matchField(null, '232.95')).toBe(false);
   });
+
+  it('normalize: BR decimal 65,78 matches US 65.78', () => {
+    expect(matchField('65,78', '65.78')).toBe(true);
+  });
+
+  it('normalize: BR thousands+decimal 1.234,50 matches 1234.50', () => {
+    expect(matchField('1.234,50', '1234.50')).toBe(true);
+  });
+
+  it('normalize: BR money R$ 65,78 matches 65.78', () => {
+    expect(matchField('R$ 65,78', '65.78')).toBe(true);
+  });
+
+  it('normalize: pure thousands "1,234" still treated as 1234', () => {
+    expect(matchField('1,234', '1234')).toBe(true);
+  });
 });
 
 describe('computeScore', () => {
@@ -59,5 +75,18 @@ describe('computeScore', () => {
     };
     const r = computeScore(fr);
     expect(r.score).toBe(0);
+  });
+
+  it('score never exceeds 1: empty-GT matches do not inflate numerator', () => {
+    const fr: FieldResults = {
+      a: { extracted: '1', expected: '1', match: true },
+      b: { extracted: '2', expected: '2', match: true },
+      c: { extracted: null, expected: null, match: true },
+      d: { extracted: 'noise', expected: '', match: true },
+    };
+    const r = computeScore(fr);
+    expect(r.presentInGT).toBe(2);
+    expect(r.correct).toBe(2);
+    expect(r.score).toBe(1);
   });
 });
