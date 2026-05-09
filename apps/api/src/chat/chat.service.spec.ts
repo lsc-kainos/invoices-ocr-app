@@ -3,7 +3,7 @@ import { MockLlmProvider } from './providers/mock-llm.provider';
 import { ToolsRegistry } from './tools/tools-registry';
 
 describe('ChatService.runConversation (sem tool)', () => {
-  it('persiste user + assistant e retorna content quando LLM responde direto', async () => {
+  it('persiste assistant e retorna content quando LLM responde direto', async () => {
     const persisted: any[] = [];
     const persist = jest.fn(async (m) => {
       persisted.push(m);

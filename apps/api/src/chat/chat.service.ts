@@ -48,7 +48,7 @@ export class ChatService {
     this.logger = logger ?? new Logger(ChatService.name);
   }
 
-  async runConversation(ctx: RunContext): Promise<{ content: string }> {
+  private async runConversation(ctx: RunContext): Promise<{ content: string }> {
     const maxIter = this.config.get<number>('CHAT_MAX_TOOL_ITERATIONS') ?? 3;
     const model = this.config.get<string>('CHAT_MODEL') ?? 'gpt-4o-mini';
 
