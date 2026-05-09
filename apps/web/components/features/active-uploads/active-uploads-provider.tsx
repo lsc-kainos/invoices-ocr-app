@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import type { DocumentSummary } from '@invoices-ocr/shared-types';
 import { readLastSeen, writeLastSeen } from './last-seen-storage';
+import { UPLOAD_QUEUED_EVENT } from './events';
 
 export interface ActiveUploadsContextValue {
   activeUploads: DocumentSummary[];
@@ -13,7 +14,8 @@ export interface ActiveUploadsContextValue {
 
 export const ActiveUploadsContext = createContext<ActiveUploadsContextValue | null>(null);
 
-const POLL_MS = 1500;
+const INITIAL_DELAY_MS = 1500;
+const MAX_DELAY_MS = 8000;
 const ACTIVE_FILTER = 'QUEUED,OCR_RUNNING';
 const FINISHED_FILTER = 'READY,FAILED';
 const CATCHUP_LIMIT = 5;
@@ -35,6 +37,13 @@ function emitToast(doc: DocumentSummary, t: ToastFn, tErrors: ToastFn, push: Rou
   }
 }
 
+function listSignature(list: DocumentSummary[]): string {
+  return list
+    .map((d) => `${d.id}:${d.status}`)
+    .sort()
+    .join('|');
+}
+
 export function ActiveUploadsProvider({ children }: { children: ReactNode }) {
   const [activeUploads, setActiveUploads] = useState<DocumentSummary[]>([]);
   const previousRef = useRef<Map<string, DocumentSummary>>(new Map());
@@ -42,7 +51,6 @@ export function ActiveUploadsProvider({ children }: { children: ReactNode }) {
   const t = useTranslations('upload');
   const tErrors = useTranslations('errors.ocr');
 
-  // 1) Catch-up retroativo no mount: docs que finalizaram desde o último visto
   useEffect(() => {
     let alive = true;
     const lastSeen = readLastSeen();
@@ -61,16 +69,36 @@ export function ActiveUploadsProvider({ children }: { children: ReactNode }) {
     return () => {
       alive = false;
     };
-    // hooks/router são estáveis — efeito só roda no mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 2) Poll consolidado
   useEffect(() => {
     let alive = true;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    let inFlight = false;
+    let delayMs = INITIAL_DELAY_MS;
+    let lastSignature = '';
+
+    const isHidden = () => typeof document !== 'undefined' && document.visibilityState === 'hidden';
+
+    const cancelTimer = () => {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    };
+
+    const scheduleNext = () => {
+      cancelTimer();
+      if (!alive || isHidden()) return;
+      const hasWork = previousRef.current.size > 0;
+      if (!hasWork) return;
+      timer = setTimeout(tick, delayMs);
+    };
 
     const tick = async () => {
+      if (!alive || inFlight) return;
+      inFlight = true;
       try {
         const res = await fetch(`/api/documents?status=${ACTIVE_FILTER}`);
         const list = res.ok ? ((await res.json()) as DocumentSummary[]) : [];
@@ -91,24 +119,59 @@ export function ActiveUploadsProvider({ children }: { children: ReactNode }) {
         await Promise.all(transitions);
         previousRef.current = new Map(list.map((d) => [d.id, d]));
         setActiveUploads(list);
+
+        const signature = listSignature(list);
+        if (signature !== lastSignature) {
+          delayMs = INITIAL_DELAY_MS;
+        } else {
+          delayMs = Math.min(delayMs * 2, MAX_DELAY_MS);
+        }
+        lastSignature = signature;
       } catch {
         // erro de rede — silencioso, próximo tick tenta de novo
       } finally {
-        if (alive) {
-          timer = setTimeout(tick, POLL_MS);
-        }
+        inFlight = false;
+        scheduleNext();
+      }
+    };
+
+    const wake = () => {
+      if (!alive || isHidden()) return;
+      delayMs = INITIAL_DELAY_MS;
+      cancelTimer();
+      void tick();
+    };
+
+    const onVisibilityChange = () => {
+      if (isHidden()) {
+        cancelTimer();
+      } else {
+        wake();
       }
     };
 
     void tick();
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onVisibilityChange);
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener(UPLOAD_QUEUED_EVENT, wake);
+    }
+
     return () => {
       alive = false;
-      if (timer) clearTimeout(timer);
+      cancelTimer();
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+      }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener(UPLOAD_QUEUED_EVENT, wake);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 3) Persist lastSeen periodicamente + on unload
   useEffect(() => {
     const flush = () => writeLastSeen();
     const interval = setInterval(flush, 30_000);

@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { UPLOAD_QUEUED_EVENT } from '../active-uploads/events';
 
 interface UseDocumentUploadResult {
   uploadFiles: (files: File[]) => Promise<void>;
@@ -28,7 +29,12 @@ export function useDocumentUpload(): UseDocumentUploadResult {
         toast.error(t('network'));
         return;
       }
-      if (res.ok) return;
+      if (res.ok) {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent(UPLOAD_QUEUED_EVENT));
+        }
+        return;
+      }
       let body: ApiError | null = null;
       try {
         body = (await res.json()) as ApiError;
