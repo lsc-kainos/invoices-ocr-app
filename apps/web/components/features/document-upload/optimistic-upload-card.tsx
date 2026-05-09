@@ -23,7 +23,7 @@ export function OptimisticUploadCard({ upload }: Props) {
     <Card className="border-border/60 bg-card p-3.5" data-testid="optimistic-upload-card">
       <div className="flex items-center gap-3">
         <Badge variant="secondary" className="font-mono text-[10px] tracking-wide uppercase">
-          {t('status.QUEUED')}
+          {t('status.UPLOADING')}
         </Badge>
         <div className="min-w-0 flex-1">
           <div className="text-foreground truncate text-[13px] font-medium">{upload.filename}</div>
