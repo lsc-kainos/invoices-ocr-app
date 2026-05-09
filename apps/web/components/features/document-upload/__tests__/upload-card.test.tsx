@@ -1,14 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextIntlClientProvider } from 'next-intl';
 import { UploadCard } from '../upload-card';
+import { useDocumentRetry } from '../use-document-retry';
 import messages from '../../../../messages/pt-BR.json';
 
 const retryMock = vi.fn();
-vi.mock('../use-document-retry', () => ({
-  useDocumentRetry: () => ({ retry: retryMock, isPending: () => false }),
-}));
+vi.mock('../use-document-retry');
 
 const wrap = (ui: React.ReactNode) => (
   <NextIntlClientProvider locale="pt-BR" messages={messages}>
@@ -30,6 +29,10 @@ const baseDoc = {
 };
 
 describe('UploadCard — retry button', () => {
+  beforeEach(() => {
+    vi.mocked(useDocumentRetry).mockReturnValue({ retry: retryMock, isPending: () => false });
+  });
+
   it('FAILED renderiza botão "Tentar de novo" e chama retry no clique', async () => {
     render(wrap(<UploadCard doc={baseDoc} />));
     const btn = screen.getByRole('button', { name: /tentar de novo/i });
@@ -57,5 +60,20 @@ describe('UploadCard — retry button', () => {
       ),
     );
     expect(container.querySelector('[data-testid="ocr-spinner"]')).toBeInTheDocument();
+  });
+
+  it('isPending desativa o botão e mostra "Reenviando…"', async () => {
+    vi.mocked(useDocumentRetry).mockReturnValueOnce({
+      retry: retryMock,
+      isPending: (id) => id === 'd1',
+    });
+    render(wrap(<UploadCard doc={baseDoc} />));
+    const btn = screen.getByRole('button', { name: /reenviando/i });
+    expect(btn).toBeDisabled();
+  });
+
+  it('FAILED sem failureReason não renderiza botão de retry', () => {
+    render(wrap(<UploadCard doc={{ ...baseDoc, failureReason: null }} />));
+    expect(screen.queryByRole('button', { name: /tentar de novo/i })).not.toBeInTheDocument();
   });
 });

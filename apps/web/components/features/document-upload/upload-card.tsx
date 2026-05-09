@@ -81,7 +81,7 @@ export function UploadCard({ doc }: UploadCardProps) {
           data-testid="ocr-spinner"
           className="text-muted-foreground mt-3 flex items-center gap-2 text-[12px]"
         >
-          <Loader2 size={13} className="animate-spin" />
+          <Loader2 size={13} className="animate-spin" aria-hidden />
           <span>{isAutoRetrying ? t('retrying') : t('progress.ocr')}</span>
         </div>
       ) : (
