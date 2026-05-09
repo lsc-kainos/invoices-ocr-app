@@ -1,0 +1,72 @@
+import { promises as fs } from 'node:fs';
+import { join } from 'node:path';
+import { parse } from 'csv-parse/sync';
+
+export type BenchmarkSample = {
+  filename: string;
+  groundTruth: {
+    invoiceNumber: string | null;
+    invoiceDate: string | null;
+    dueDate: string | null;
+    sellerName: string | null;
+    clientName: string | null;
+    tax: string | null;
+    total: string | null;
+  };
+  items: Array<{ description: string; quantity: string; totalPrice: string }>;
+  ocrText: string;
+};
+
+function nullIfEmpty(v: unknown): string | null {
+  if (typeof v !== 'string' || v.trim() === '') return null;
+  return v.trim();
+}
+
+function parseRow(row: Record<string, string>): BenchmarkSample {
+  const data = JSON.parse(row['Json Data']) as Record<string, unknown>;
+  const inv = (data['invoice'] ?? {}) as Record<string, string>;
+  const sub = (data['subtotal'] ?? {}) as Record<string, string>;
+  const rawItems = Array.isArray(data['items'])
+    ? (data['items'] as Record<string, string>[])
+    : [];
+
+  return {
+    filename: row['File Name'],
+    groundTruth: {
+      invoiceNumber: nullIfEmpty(inv['invoice_number']),
+      invoiceDate: nullIfEmpty(inv['invoice_date']),
+      dueDate: nullIfEmpty(inv['due_date']),
+      sellerName: nullIfEmpty(inv['seller_name']),
+      clientName: nullIfEmpty(inv['client_name']),
+      tax: nullIfEmpty(sub['tax']),
+      total: nullIfEmpty(sub['total']),
+    },
+    items: rawItems.map((it) => ({
+      description: String(it['description'] ?? ''),
+      quantity: String(it['quantity'] ?? ''),
+      totalPrice: String(it['total_price'] ?? ''),
+    })),
+    ocrText: row['OCRed Text'] ?? '',
+  };
+}
+
+export async function loadCsvSamples(
+  samplesDir: string,
+): Promise<BenchmarkSample[]> {
+  const batchFiles = ['batch1_1.csv', 'batch1_2.csv', 'batch1_3.csv'];
+
+  const batches = await Promise.all(
+    batchFiles.map(async (file) => {
+      const content = await fs.readFile(join(samplesDir, file), 'utf-8');
+      const rows = parse(content, {
+        columns: true,
+        skip_empty_lines: true,
+        relax_quotes: true,
+        relax_column_count: true,
+      }) as Record<string, string>[];
+      return rows.map(parseRow);
+    }),
+  );
+
+  return batches.flat();
+}
