@@ -24,10 +24,11 @@ describe('<Login />', () => {
     expect(screen.getByRole('button', { name: /Continuar com GitHub/i })).toBeInTheDocument();
   });
 
-  it('renderiza features (NF-e, NFS-e, Boletos)', () => {
+  it('não renderiza pontos removidos (request_access, features-row, meta-rail)', () => {
     setup();
-    expect(screen.getByText('NF-e modelo 55')).toBeInTheDocument();
-    expect(screen.getByText('NFS-e municipal')).toBeInTheDocument();
-    expect(screen.getByText('Boletos')).toBeInTheDocument();
+    expect(screen.queryByText(/Solicitar acesso/i)).toBeNull();
+    expect(screen.queryByText('NF-e modelo 55')).toBeNull();
+    expect(screen.queryByText('Boletos')).toBeNull();
+    expect(screen.queryByText(/Sistema operacional/i)).toBeNull();
   });
 });

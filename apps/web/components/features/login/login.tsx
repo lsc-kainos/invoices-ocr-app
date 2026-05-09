@@ -1,7 +1,6 @@
 'use client';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/layout/logo';
 import { GoogleLogo } from './google-logo';
@@ -30,55 +29,25 @@ export function Login() {
   const { signInGoogle, signInGithub, pending } = useLogin();
 
   return (
-    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[1.15fr_1fr]">
-      {/* Left column */}
-      <div className="border-border bg-background relative flex flex-col overflow-hidden border-r px-14 py-8">
+    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
+      {/* Editorial column — desktop only */}
+      <div className="border-border bg-background hidden flex-col justify-between border-r px-14 py-10 lg:flex">
         <Logo />
-        <div className="flex flex-1 flex-col justify-center gap-7">
-          <h1 className="font-serif-italic text-foreground m-0 text-[92px] leading-[0.92] tracking-[-0.045em]">
-            {t.rich('headline', { br: () => <br /> })}
-          </h1>
-          <p className="text-muted-foreground m-0 max-w-[420px] text-sm leading-relaxed">
-            {t('subtitle')}
-          </p>
-          <div className="text-muted-foreground mt-2 flex gap-5 text-xs">
-            <span className="inline-flex items-center gap-2">
-              <Check size={13} className="text-emerald-500" />
-              {t('features.nfe')}
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Check size={13} className="text-emerald-500" />
-              {t('features.nfse')}
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Check size={13} className="text-emerald-500" />
-              {t('features.boleto')}
-            </span>
-          </div>
-        </div>
-        <div className="text-muted-foreground flex items-center gap-4 text-[11px]">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="size-1.5 animate-pulse rounded-full bg-emerald-500" />
-            {t('meta.operational')}
-          </span>
-          <span className="bg-border size-[3px] rounded-full" />
-          <span>{t('meta.lgpd')}</span>
-          <span className="bg-border size-[3px] rounded-full" />
-          <span>{t('meta.soc2')}</span>
-        </div>
+        <h1 className="text-foreground max-w-[380px] text-4xl font-semibold tracking-tight">
+          {t('headline')}
+        </h1>
+        <span className="text-muted-foreground text-xs">{t('tagline')}</span>
       </div>
 
-      {/* Right column */}
-      <div className="flex flex-col px-12 py-8">
-        <div className="text-muted-foreground flex justify-end text-xs">
-          <a href="#" className="border-border ml-1.5 border-b">
-            {t('card.request_access')}
-          </a>
-        </div>
+      {/* Auth card */}
+      <div className="flex items-center justify-center px-6 py-10">
+        <div className="w-full max-w-[360px]">
+          <div className="mb-8 flex justify-center lg:hidden">
+            <Logo />
+          </div>
 
-        <div className="flex w-full max-w-[360px] flex-1 flex-col justify-center self-start">
-          <h2 className="text-2xl font-medium tracking-[-0.02em]">{t('card.title')}</h2>
-          <p className="text-muted-foreground mt-1.5 mb-6 text-[13px] leading-relaxed">
+          <h2 className="text-2xl font-medium tracking-tight">{t('card.title')}</h2>
+          <p className="text-muted-foreground mt-2 mb-6 text-[13px] leading-relaxed">
             {t('card.subtitle')}
           </p>
 
@@ -127,10 +96,6 @@ export function Login() {
               {t('card.privacy')}
             </a>
           </div>
-        </div>
-
-        <div className="text-muted-foreground flex justify-between text-[11px]">
-          <span>{t('footer')}</span>
         </div>
       </div>
     </div>
