@@ -1,12 +1,12 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { getCsrfToken } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/layout/logo';
 import { GoogleLogo } from './google-logo';
 import { GithubLogo } from './github-logo';
-import { useLogin } from './use-login';
 
 const ERROR_KEYS = [
   'Configuration',
@@ -17,12 +17,12 @@ const ERROR_KEYS = [
 ] as const;
 type ErrorKey = (typeof ERROR_KEYS)[number];
 
-// Layout estático intencional. Toda a animação (split em duas fases,
-// cascade staged, zoom-in headline) foi removida porque estava causando
-// botões "mortos" depois do primeiro round-trip OAuth — o React tree
-// preservado entre navigations levava o estado pra um limbo onde
-// onClick handlers não disparavam. Com layout estático, cada render
-// é uma reconciliação direta sem state intermediário.
+// Fluxo de login via <form> POST nativo. Bypassa o signIn() JS client
+// do NextAuth — bug intermitente onde onClick handlers morriam após o
+// primeiro round-trip OAuth (independente de animação, bfcache, ou
+// state cleanup). Form submission é browser-native: 100% imune a stale
+// closures, React reconciliation weirdness, ou bfcache event delegation
+// quebrada.
 export function Login() {
   const t = useTranslations('login');
   const tErr = useTranslations('auth.errors');
@@ -33,7 +33,11 @@ export function Login() {
       ? (errorParam as ErrorKey)
       : 'Default'
     : null;
-  const { signInGoogle, signInGithub, pending } = useLogin();
+
+  const [csrfToken, setCsrfToken] = useState('');
+  useEffect(() => {
+    getCsrfToken().then((token) => setCsrfToken(token ?? ''));
+  }, []);
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
@@ -74,38 +78,34 @@ export function Login() {
           )}
 
           <div className="flex flex-col gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              size="lg"
-              className="justify-center gap-2.5 transition-transform active:scale-[0.98]"
-              onClick={signInGoogle}
-              aria-label={t('card.google')}
-              aria-busy={pending === 'google'}
-            >
-              {pending === 'google' ? (
-                <Loader2 size={15} className="animate-spin" aria-hidden />
-              ) : (
+            <form action="/api/auth/signin/google" method="POST" className="contents">
+              <input type="hidden" name="csrfToken" value={csrfToken} />
+              <input type="hidden" name="callbackUrl" value="/" />
+              <Button
+                type="submit"
+                variant="secondary"
+                size="lg"
+                className="w-full justify-center gap-2.5 transition-transform active:scale-[0.98]"
+                aria-label={t('card.google')}
+              >
                 <GoogleLogo size={15} />
-              )}
-              {t('card.google')}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="lg"
-              className="justify-center gap-2.5 transition-transform active:scale-[0.98]"
-              onClick={signInGithub}
-              aria-label={t('card.github')}
-              aria-busy={pending === 'github'}
-            >
-              {pending === 'github' ? (
-                <Loader2 size={15} className="animate-spin" aria-hidden />
-              ) : (
+                {t('card.google')}
+              </Button>
+            </form>
+            <form action="/api/auth/signin/github" method="POST" className="contents">
+              <input type="hidden" name="csrfToken" value={csrfToken} />
+              <input type="hidden" name="callbackUrl" value="/" />
+              <Button
+                type="submit"
+                variant="secondary"
+                size="lg"
+                className="w-full justify-center gap-2.5 transition-transform active:scale-[0.98]"
+                aria-label={t('card.github')}
+              >
                 <GithubLogo size={15} />
-              )}
-              {t('card.github')}
-            </Button>
+                {t('card.github')}
+              </Button>
+            </form>
           </div>
 
           <div className="border-border text-muted-foreground mt-6 border-t pt-4 text-[11px] leading-relaxed">
