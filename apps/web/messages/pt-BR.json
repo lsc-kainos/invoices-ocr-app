@@ -189,6 +189,13 @@
     "error_provider": "Serviço de IA temporariamente indisponível.",
     "empty_state_title": "Pergunte qualquer coisa",
     "empty_state_subtitle": "Toque em uma sugestão ou digite abaixo.",
-    "tab_conversa": "Conversa"
+    "tab_conversa": "Conversa",
+    "no_sessions": "Sem conversas ainda. Crie uma nova na sidebar.",
+    "suggestion_workspace_1": "Quais notas vencem este mês?",
+    "suggestion_workspace_2": "Soma do valor total das notas de janeiro",
+    "suggestion_workspace_3": "Liste as notas com CFOP 5102",
+    "suggestion_document_1": "Qual o valor total?",
+    "suggestion_document_2": "Quem é o emitente?",
+    "suggestion_document_3": "Qual a chave NF-e?"
   }
 }

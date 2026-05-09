@@ -13,21 +13,37 @@ export function useWorkspaceChat(activeSessionId?: string) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let alive = true;
     fetch('/api/chat/sessions')
       .then((r) => (r.ok ? r.json() : []))
-      .then(setSessions)
+      .then((data) => {
+        if (alive) setSessions(data);
+      })
       .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
   }, []);
 
   useEffect(() => {
+    let alive = true;
     if (!activeSessionId) {
-      Promise.resolve([]).then(setMessages);
-      return;
+      Promise.resolve([]).then((data) => {
+        if (alive) setMessages(data);
+      });
+      return () => {
+        alive = false;
+      };
     }
     fetch(`/api/chat/sessions/${activeSessionId}/messages`)
       .then((r) => (r.ok ? r.json() : []))
-      .then(setMessages)
+      .then((data) => {
+        if (alive) setMessages(data);
+      })
       .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
   }, [activeSessionId]);
 
   const createSession = useCallback(async () => {
