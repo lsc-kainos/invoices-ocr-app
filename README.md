@@ -24,9 +24,13 @@ OCR + LLM chat sobre invoices — case técnico Paggo.
 nvm use
 npm install
 
-# 2) variáveis: copia o template para os dois apps
-cp .env.example apps/api/.env
-cp .env.example apps/web/.env.local
+# 2) variáveis: um único .env.local na raiz alimenta web e api
+cp .env.example .env.local
+#    → preencher os secrets (NEXTAUTH_SECRET, GOOGLE_*, GITHUB_*, etc)
+npm run env:link
+#    → cria symlinks apps/web/.env.local e apps/api/.env apontando
+#      pra raiz, então qualquer ferramenta (Next, Nest, Prisma, Playwright)
+#      lê a mesma fonte
 
 # 3) sobe Postgres, espera healthcheck, roda migrate (e seed se houver)
 npm run db:setup
@@ -35,9 +39,48 @@ npm run db:setup
 npm run dev
 ```
 
-> O `.env.example` tem dois blocos comentados (`# === apps/api ===` e
-> `# === apps/web ===`). Em cada cópia, mantenha apenas o bloco do app
-> correspondente — ambas as cópias são gitignored.
+> Tanto `.env.local` na raiz quanto os symlinks em `apps/*` são gitignored.
+> Em produção (Railway), cada service recebe env vars via dashboard — o
+> arquivo local não é usado.
+
+### Auth setup local (F1)
+
+A F1 ativa OAuth Google + GitHub. Antes do primeiro login você precisa:
+
+1. **Gerar `NEXTAUTH_SECRET`** (mesmo valor em web e api):
+
+   ```bash
+   openssl rand -base64 32
+   ```
+
+2. **Google Cloud Console** → APIs & Services → Credentials → Create OAuth 2.0
+   Client ID (Web application). Authorized redirect URI:
+
+   ```
+   http://localhost:3000/api/auth/callback/google
+   ```
+
+   Copiar Client ID/Secret para `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` em
+   `apps/web/.env.local`.
+
+3. **GitHub** → Settings → Developer settings → OAuth Apps → New OAuth App.
+   Authorization callback URL:
+
+   ```
+   http://localhost:3000/api/auth/callback/github
+   ```
+
+   Copiar Client ID/Secret para `GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET`.
+
+4. **`ADMIN_EMAILS`** (CSV, opcional): e-mails listados são promovidos a `ADMIN`
+   no `signIn` callback. Os demais ficam como `USER`.
+
+5. **Smoke**: `npm run dev`, abrir `http://localhost:3000` → redireciona para
+   `/login`. Click "Continuar com Google" ou "Continuar com GitHub" → autoriza →
+   home com saudação. `curl -i http://localhost:3001/api/v1/me` sem token → 401.
+
+> Em produção (Railway), configurar as mesmas variáveis nos dois services e
+> adicionar o domínio Railway às authorized redirect URIs do Google e GitHub.
 
 ## Comandos úteis
 
@@ -54,11 +97,15 @@ npm run dev
 - API (Jest): `npm --workspace=@invoices-ocr/api run test`
 - API e2e (Jest + Postgres rodando): `cd apps/api && DATABASE_URL=... npm run test:e2e`
 - Web (Vitest + Testing Library): `npm --workspace=@invoices-ocr/web run test`
+- Web e2e (Playwright, requer Postgres + envs): `npm --workspace=@invoices-ocr/web run test:e2e`
 
 ## Smoke local
 
-- `http://localhost:3000` mostra placeholder Instrument Serif sobre fundo dark com Topbar estática (nav e search desabilitados na F0.5).
-- `curl http://localhost:3001/health` retorna `{"status":"ok","ts":"..."}` (executa `SELECT 1` via Prisma).
+- `http://localhost:3000/` sem cookie → redireciona para `/login`.
+- Login Google ou GitHub → volta para `/` com saudação "Bem-vindo, ...".
+- `curl http://localhost:3001/health` retorna `{"status":"ok","ts":"..."}` (executa `SELECT 1` via Prisma; rota pública).
+- `curl -i http://localhost:3001/api/v1/me` sem `Authorization: Bearer` → 401.
+- UserMenu (avatar topo direito) → "Sair" → volta para `/login`.
 
 ## Deploy
 

@@ -1,5 +1,12 @@
 import { Module } from '@nestjs/common';
+import { UsersService } from './users.service';
+import { UsersController } from './users.controller';
+import { PrismaModule } from '../prisma/prisma.module';
 
-// Esqueleto vazio. F1 popula com UsersService (lookup por id e email).
-@Module({})
+@Module({
+  imports: [PrismaModule],
+  controllers: [UsersController],
+  providers: [UsersService],
+  exports: [UsersService],
+})
 export class UsersModule {}

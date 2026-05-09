@@ -7,18 +7,46 @@
   "errors": {
     "unknown": "Erro inesperado. Tente novamente."
   },
+  "login": {
+    "headline": "Notas fiscais, conversáveis.",
+    "subtitle": "Entre na plataforma e descubra um novo nível de gestão inteligente de suas notas.",
+    "tagline": "Invoices · 2026",
+    "card": {
+      "title": "Entrar",
+      "subtitle": "Acesse seu workspace com a conta do trabalho.",
+      "google": "Continuar com Google",
+      "github": "Continuar com GitHub",
+      "terms": "Termos",
+      "privacy": "Privacidade"
+    }
+  },
   "topbar": {
-    "workspace": "Pessoal",
     "nav": {
       "home": "Início",
       "list": "Minhas notas",
-      "chat": "Chat"
+      "chat": "Chat",
+      "menu_label": "Abrir menu"
     },
-    "search_placeholder": "Buscar...",
-    "user_menu_label": "Conta"
+    "user_menu_label": "Conta",
+    "menu": {
+      "theme": "Tema",
+      "theme_light": "Claro",
+      "theme_dark": "Escuro",
+      "theme_system": "Sistema",
+      "logout": "Sair"
+    }
   },
   "home": {
-    "skeleton_title": "Invoices OCR",
-    "skeleton_caption": "Skeleton em construção. Próxima fase: autenticação."
+    "welcome": "Bem-vindo, {name}",
+    "placeholder": "Em breve, você vai conseguir enviar sua primeira nota fiscal aqui."
+  },
+  "auth": {
+    "errors": {
+      "Configuration": "Configuração de auth incorreta. Avise o administrador.",
+      "AccessDenied": "Acesso negado pelo provedor.",
+      "Verification": "Falha na verificação. Tente novamente.",
+      "Default": "Não foi possível entrar. Tente de novo em instantes.",
+      "OAuthAccountNotLinked": "Esse e-mail já foi usado com outro provedor."
+    }
   }
 }

@@ -8,3 +8,11 @@ coverage
 package-lock.json
 .husky/_
 .claude/
+
+# Next.js auto-generated, gitignored
+**/next-env.d.ts
+
+# Playwright
+**/playwright-report/
+**/test-results/
+**/playwright/.cache/

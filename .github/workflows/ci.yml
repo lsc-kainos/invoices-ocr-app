@@ -49,7 +49,22 @@ jobs:
         run: npm run typecheck
 
       - name: Build
+        env:
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ci-build-secret-must-be-at-least-32-chars
+          GOOGLE_CLIENT_ID: ci
+          GOOGLE_CLIENT_SECRET: ci
+          GITHUB_CLIENT_ID: ci
+          GITHUB_CLIENT_SECRET: ci
+          ADMIN_EMAILS: ''
+          API_URL: http://localhost:3001
+          DATABASE_URL: postgresql://invoices:invoices@localhost:5432/invoices
+          ALLOWED_ORIGINS: http://localhost:3000
         run: npm run build
 
       - name: Test
+        env:
+          NEXTAUTH_SECRET: ci-build-secret-must-be-at-least-32-chars
+          DATABASE_URL: postgresql://invoices:invoices@localhost:5432/invoices
+          ALLOWED_ORIGINS: http://localhost:3000
         run: npm run test

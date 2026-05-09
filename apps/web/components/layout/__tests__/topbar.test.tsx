@@ -1,13 +1,26 @@
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
-import { describe, expect, it } from 'vitest';
 import messages from '@/messages/pt-BR.json';
 import { Topbar } from '../topbar';
+
+vi.mock('next-auth/react', () => ({ signOut: vi.fn() }));
+vi.mock('next-themes', () => ({
+  useTheme: () => ({ theme: 'dark', setTheme: vi.fn() }),
+}));
+
+const user = {
+  id: 'u',
+  name: 'L',
+  email: 'l@x.com',
+  image: null,
+  role: 'USER' as const,
+};
 
 function renderTopbar() {
   return render(
     <NextIntlClientProvider locale="pt-BR" messages={messages}>
-      <Topbar />
+      <Topbar user={user} />
     </NextIntlClientProvider>,
   );
 }
@@ -18,28 +31,43 @@ describe('<Topbar />', () => {
     expect(screen.getByText('Invoices')).toBeInTheDocument();
   });
 
-  it('mostra os 3 itens de nav todos com aria-disabled e pointer-events bloqueados', () => {
+  it('Desktop nav: Início é link, Minhas notas e Chat estão disabled', () => {
     renderTopbar();
     const nav = screen.getByRole('navigation', { name: /primary/i });
-    const labels = ['Início', 'Minhas notas', 'Chat'];
-    for (const label of labels) {
+    expect(within(nav).getByRole('link', { name: 'Início' })).toHaveAttribute('href', '/');
+    for (const label of ['Minhas notas', 'Chat']) {
       const item = within(nav).getByText(label);
       expect(item).toHaveAttribute('aria-disabled', 'true');
       expect(item.className).toMatch(/pointer-events-none/);
     }
   });
 
-  it('renderiza o input de busca como disabled e readOnly', () => {
+  it('Desktop nav só aparece em lg+ (hidden lg:flex)', () => {
     renderTopbar();
-    const input = screen.getByPlaceholderText(/Buscar/i) as HTMLInputElement;
-    expect(input).toBeDisabled();
-    expect(input).toHaveAttribute('readonly');
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+    expect(nav.className).toMatch(/hidden/);
+    expect(nav.className).toMatch(/lg:flex/);
   });
 
-  it('renderiza o avatar do usuário como placeholder com "?" e sem dropdown', () => {
+  it('Mobile hamburger trigger existe (lg:hidden) com aria-label', () => {
     renderTopbar();
-    const avatarLabel = screen.getByLabelText(messages.topbar.user_menu_label);
-    expect(avatarLabel).toHaveAttribute('aria-disabled', 'true');
-    expect(within(avatarLabel).getByText('?')).toBeInTheDocument();
+    const trigger = screen.getByRole('button', {
+      name: messages.topbar.nav.menu_label,
+    });
+    expect(trigger).toBeInTheDocument();
+    expect(trigger.className).toMatch(/lg:hidden/);
+  });
+
+  it('NÃO renderiza search nem workspace switcher (simplificado)', () => {
+    renderTopbar();
+    expect(screen.queryByPlaceholderText(/Buscar/i)).toBeNull();
+    expect(screen.queryByText('Pessoal')).toBeNull();
+  });
+
+  it('renderiza UserMenu trigger com aria-label', () => {
+    renderTopbar();
+    expect(
+      screen.getByRole('button', { name: messages.topbar.user_menu_label }),
+    ).toBeInTheDocument();
   });
 });

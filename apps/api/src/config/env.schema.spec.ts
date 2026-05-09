@@ -5,6 +5,7 @@ const validRaw = {
   PORT: '3001',
   DATABASE_URL: 'postgresql://invoices:invoices@localhost:5432/invoices',
   ALLOWED_ORIGINS: 'http://localhost:3000',
+  NEXTAUTH_SECRET: 'a'.repeat(32),
 };
 
 function omit<T extends Record<string, unknown>>(
@@ -53,5 +54,23 @@ describe('validateEnv', () => {
     expect(() => validateEnv({ ...validRaw, NODE_ENV: 'staging' })).toThrow(
       /NODE_ENV/,
     );
+  });
+
+  it('rejeita NEXTAUTH_SECRET ausente', () => {
+    expect(() =>
+      validateEnv({
+        DATABASE_URL: 'postgresql://x',
+        ALLOWED_ORIGINS: 'http://localhost:3000',
+      }),
+    ).toThrow(/NEXTAUTH_SECRET/);
+  });
+
+  it('aceita NEXTAUTH_SECRET com 32+ chars', () => {
+    const env = validateEnv({
+      DATABASE_URL: 'postgresql://invoices:invoices@localhost:5432/invoices',
+      ALLOWED_ORIGINS: 'http://localhost:3000',
+      NEXTAUTH_SECRET: 'a'.repeat(32),
+    });
+    expect(env.NEXTAUTH_SECRET).toHaveLength(32);
   });
 });

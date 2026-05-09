@@ -471,154 +471,70 @@ const V2Topbar = ({ active = 'invoices' }) => {
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// 01 · LOGIN — minimal centered (Linear/Cal.com energy)
+// 01 · LOGIN — minimal, sans-serif, adaptativo (sem cursivas, sem
+// claims fictícios). Coluna editorial só em desktop largo.
 // ═══════════════════════════════════════════════════════════════════
 
 const HifiV2Login = () => (
-  <V2 style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr' }}>
-    {/* ─── Left: editorial brand presence ─── */}
+  <V2 style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+    {/* ─── Left: brand presence (desktop) ─── */}
     <div
       style={{
-        padding: '32px 56px',
+        padding: '40px 56px',
         display: 'flex',
         flexDirection: 'column',
+        justifyContent: 'space-between',
         borderRight: '1px solid var(--v2-line)',
         background: 'var(--v2-bg)',
-        position: 'relative',
-        overflow: 'hidden',
       }}
     >
       <Logo />
-
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          gap: 28,
-        }}
-      >
+      {/* Layout estático (sem animação). A versão animada anterior
+          causava onClick "morto" depois do primeiro round-trip OAuth
+          mesmo com Cache-Control: no-store. Mantém-se simples até
+          investigar o root-cause das interações stale. */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 420 }}>
         <h1
           style={{
-            fontFamily: 'var(--font-serif)',
-            fontSize: 92,
-            fontWeight: 400,
-            fontStyle: 'italic',
-            letterSpacing: '-0.045em',
-            lineHeight: 0.92,
+            fontSize: 32,
+            fontWeight: 600,
+            letterSpacing: '-0.02em',
             margin: 0,
             color: 'var(--v2-fg)',
           }}
         >
-          Notas fiscais,
-          <br />
-          conversáveis.
+          Notas fiscais, conversáveis.
         </h1>
-
         <p
           style={{
             fontSize: 14,
             color: 'var(--v2-fg-mute)',
             margin: 0,
-            lineHeight: 1.6,
-            maxWidth: 420,
+            lineHeight: 1.5,
           }}
         >
-          Envie uma NF-e ou NFS-e e nós cuidamos da extração. Pergunte sobre valores, itens ou
-          impostos em linguagem natural — com fontes citadas no documento.
+          Entre na plataforma e descubra um novo nível de gestão de suas notas.
         </p>
-
-        <div
-          style={{
-            display: 'flex',
-            gap: 20,
-            marginTop: 8,
-            fontSize: 12,
-            color: 'var(--v2-fg-mute)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Icon name="check" size={13} style={{ color: 'var(--v2-good)' }} />
-            NF-e modelo 55
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Icon name="check" size={13} style={{ color: 'var(--v2-good)' }} />
-            NFS-e municipal
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Icon name="check" size={13} style={{ color: 'var(--v2-good)' }} />
-            Boletos
-          </div>
-        </div>
       </div>
-
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 18,
-          fontSize: 11,
-          color: 'var(--v2-fg-dim)',
-        }}
-      >
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <StatusDot tone="success" pulse />
-          Sistema operacional
-        </span>
-        <span
-          style={{ width: 3, height: 3, background: 'var(--v2-line-strong)', borderRadius: 999 }}
-        />
-        <span>LGPD compliant</span>
-        <span
-          style={{ width: 3, height: 3, background: 'var(--v2-line-strong)', borderRadius: 999 }}
-        />
-        <span>SOC 2 Type II</span>
-      </div>
+      <span style={{ fontSize: 12, color: 'var(--v2-fg-dim)' }}>Invoices · 2026</span>
     </div>
 
     {/* ─── Right: auth card ─── */}
-    <div style={{ padding: '32px 48px', display: 'flex', flexDirection: 'column' }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          fontSize: 12,
-          color: 'var(--v2-fg-dim)',
-        }}
-      >
-        Não tem conta?{' '}
-        <a
-          href="#"
-          style={{
-            color: 'var(--v2-fg)',
-            textDecoration: 'none',
-            borderBottom: '1px solid var(--v2-line-strong)',
-            marginLeft: 6,
-          }}
-        >
-          Solicitar acesso
-        </a>
-      </div>
-
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          maxWidth: 360,
-          alignSelf: 'flex-start',
-          width: '100%',
-        }}
-      >
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 24px',
+      }}
+    >
+      <div style={{ width: '100%', maxWidth: 360 }}>
         <h2
           style={{
             fontSize: 24,
             fontWeight: 500,
             margin: 0,
             letterSpacing: '-0.02em',
-            lineHeight: 1.2,
           }}
         >
           Entrar
@@ -627,7 +543,7 @@ const HifiV2Login = () => (
           style={{
             fontSize: 13,
             color: 'var(--v2-fg-mute)',
-            marginTop: 6,
+            marginTop: 8,
             marginBottom: 24,
             lineHeight: 1.5,
           }}
@@ -647,40 +563,19 @@ const HifiV2Login = () => (
         <div
           style={{
             marginTop: 24,
-            paddingTop: 18,
+            paddingTop: 16,
             borderTop: '1px solid var(--v2-line)',
             fontSize: 11,
             color: 'var(--v2-fg-dim)',
             lineHeight: 1.6,
           }}
         >
-          Ao continuar, você aceita os{' '}
           <a href="#" style={{ color: 'var(--v2-fg-mute)' }}>
             Termos
           </a>{' '}
-          e a{' '}
+          ·{' '}
           <a href="#" style={{ color: 'var(--v2-fg-mute)' }}>
-            Política de Privacidade
-          </a>
-          .
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          fontSize: 11,
-          color: 'var(--v2-fg-dim)',
-        }}
-      >
-        <span>© 2025 Invoices</span>
-        <div style={{ display: 'flex', gap: 14 }}>
-          <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>
-            Status
-          </a>
-          <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>
-            Docs
+            Privacidade
           </a>
         </div>
       </div>
