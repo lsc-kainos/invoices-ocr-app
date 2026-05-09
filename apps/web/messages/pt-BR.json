@@ -10,7 +10,11 @@
       "invalid_type": "Formato não suportado. Use JPG, PNG ou PDF.",
       "too_large": "Arquivo grande demais. Máximo 10 MB.",
       "rate_limit": "Você excedeu o limite de uploads por minuto. Tente em instantes.",
-      "network": "Falha de rede. Tente de novo."
+      "network": "Falha de rede. Tente de novo.",
+      "invalid_type_named": "{name}: formato não suportado. Use JPG, PNG ou PDF.",
+      "too_large_named": "{name}: arquivo grande demais. Máximo 10 MB.",
+      "rate_limit_named": "{name}: limite de uploads por minuto excedido.",
+      "network_named": "{name}: falha de rede. Tente de novo."
     },
     "ocr": {
       "rate_limit": "Limite da IA atingido temporariamente",
@@ -77,6 +81,7 @@
       "hint": "JPG, PNG, PDF · até 10 MB"
     },
     "status": {
+      "UPLOADING": "Enviando",
       "QUEUED": "Na fila",
       "OCR_RUNNING": "Extraindo",
       "READY": "Pronta",
@@ -95,6 +100,18 @@
     },
     "card": {
       "view": "Ver documento"
+    },
+    "retry": {
+      "button": "Tentar de novo",
+      "in_progress": "Reenviando…",
+      "success": "{name} foi reenviado para nova tentativa",
+      "failed": "Não foi possível reenviar {name}: {reason}"
+    },
+    "retrying": "Tentando de novo automaticamente…",
+    "progress": {
+      "uploading": "Enviando {percent}%",
+      "queued": "Aguardando processamento",
+      "ocr": "Extraindo dados"
     },
     "toasts": {
       "ready": "{name} está pronta",

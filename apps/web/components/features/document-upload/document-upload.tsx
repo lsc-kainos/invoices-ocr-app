@@ -16,11 +16,12 @@ import {
 import { cn } from '@/lib/utils';
 import { useDocumentUpload } from './use-document-upload';
 import { UploadCard } from './upload-card';
+import { OptimisticUploadCard } from './optimistic-upload-card';
 import { useActiveUploads } from '@/components/features/active-uploads/use-active-uploads';
 
 export function DocumentUpload() {
   const t = useTranslations('upload');
-  const { uploadFiles } = useDocumentUpload();
+  const { uploadFiles, activeUploads: pending } = useDocumentUpload();
   const { activeUploads } = useActiveUploads();
 
   const onDrop = useCallback((accepted: File[]) => uploadFiles(accepted), [uploadFiles]);
@@ -89,13 +90,16 @@ export function DocumentUpload() {
         </div>
       </Card>
 
-      {activeUploads.length > 0 ? (
+      {(pending.length > 0 || activeUploads.length > 0) && (
         <div className="mt-4 space-y-3">
+          {pending.map((u) => (
+            <OptimisticUploadCard key={u.clientId} upload={u} />
+          ))}
           {activeUploads.map((doc) => (
             <UploadCard key={doc.id} doc={doc} />
           ))}
         </div>
-      ) : null}
+      )}
 
       <div className="mt-6 flex flex-col gap-3">
         {[

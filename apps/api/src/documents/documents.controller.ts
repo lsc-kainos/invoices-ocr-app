@@ -51,6 +51,15 @@ export class DocumentsController {
     return this.docs.findOne(user.id, id);
   }
 
+  @Post(':id/retry')
+  @Throttle({ upload: { ttl: 60_000, limit: 5 } })
+  retry(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<DocumentSummaryDto> {
+    return this.docs.retry(user.id, id);
+  }
+
   @Public()
   @Get(':id/file')
   getFile(

@@ -1,0 +1,79 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import { UploadCard } from '../upload-card';
+import { useDocumentRetry } from '../use-document-retry';
+import messages from '../../../../messages/pt-BR.json';
+
+const retryMock = vi.fn();
+vi.mock('../use-document-retry');
+
+const wrap = (ui: React.ReactNode) => (
+  <NextIntlClientProvider locale="pt-BR" messages={messages}>
+    {ui}
+  </NextIntlClientProvider>
+);
+
+const baseDoc = {
+  id: 'd1',
+  filename: 'nf.pdf',
+  mime: 'application/pdf',
+  size: 1024,
+  status: 'FAILED' as const,
+  summary: null,
+  failureReason: 'parse_failure' as const,
+  retryCount: 1,
+  createdAt: '',
+  updatedAt: '',
+};
+
+describe('UploadCard — retry button', () => {
+  beforeEach(() => {
+    vi.mocked(useDocumentRetry).mockReturnValue({ retry: retryMock, isPending: () => false });
+  });
+
+  it('FAILED renderiza botão "Tentar de novo" e chama retry no clique', async () => {
+    render(wrap(<UploadCard doc={baseDoc} />));
+    const btn = screen.getByRole('button', { name: /tentar de novo/i });
+    await userEvent.click(btn);
+    expect(retryMock).toHaveBeenCalledWith('d1', 'nf.pdf');
+  });
+
+  it('OCR_RUNNING + retryCount>0 mostra "Tentando de novo automaticamente"', () => {
+    render(
+      wrap(
+        <UploadCard
+          doc={{ ...baseDoc, status: 'OCR_RUNNING', retryCount: 1, failureReason: null }}
+        />,
+      ),
+    );
+    expect(screen.getByText(/tentando de novo automaticamente/i)).toBeInTheDocument();
+  });
+
+  it('OCR_RUNNING substitui progress numérico por status spinner', () => {
+    const { container } = render(
+      wrap(
+        <UploadCard
+          doc={{ ...baseDoc, status: 'OCR_RUNNING', retryCount: 0, failureReason: null }}
+        />,
+      ),
+    );
+    expect(container.querySelector('[data-testid="ocr-spinner"]')).toBeInTheDocument();
+  });
+
+  it('isPending desativa o botão e mostra "Reenviando…"', async () => {
+    vi.mocked(useDocumentRetry).mockReturnValueOnce({
+      retry: retryMock,
+      isPending: (id) => id === 'd1',
+    });
+    render(wrap(<UploadCard doc={baseDoc} />));
+    const btn = screen.getByRole('button', { name: /reenviando/i });
+    expect(btn).toBeDisabled();
+  });
+
+  it('FAILED sem failureReason não renderiza botão de retry', () => {
+    render(wrap(<UploadCard doc={{ ...baseDoc, failureReason: null }} />));
+    expect(screen.queryByRole('button', { name: /tentar de novo/i })).not.toBeInTheDocument();
+  });
+});

@@ -10,6 +10,7 @@ describe('DocumentsController', () => {
     list: jest.Mock;
     findOne: jest.Mock;
     streamFile: jest.Mock;
+    retry: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -18,6 +19,7 @@ describe('DocumentsController', () => {
       list: jest.fn(),
       findOne: jest.fn(),
       streamFile: jest.fn(),
+      retry: jest.fn(),
     };
     const mod = await Test.createTestingModule({
       controllers: [DocumentsController],
@@ -57,5 +59,15 @@ describe('DocumentsController', () => {
     svc.streamFile.mockResolvedValue(undefined);
     await ctrl.getFile('d1', 'token', res);
     expect(svc.streamFile).toHaveBeenCalledWith('d1', 'token', res);
+  });
+
+  describe('POST :id/retry', () => {
+    it('chama service.retry com user.id e param id', async () => {
+      const summary = { id: 'doc1', status: 'QUEUED' } as never;
+      svc.retry.mockResolvedValue(summary);
+      const result = await ctrl.retry({ id: 'u1' } as never, 'doc1');
+      expect(svc.retry).toHaveBeenCalledWith('u1', 'doc1');
+      expect(result).toBe(summary);
+    });
   });
 });

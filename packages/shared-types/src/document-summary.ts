@@ -9,6 +9,7 @@ export interface DocumentSummary {
   size: number;
   summary: InvoiceSummary | null;
   failureReason: string | null;
+  retryCount: number;
   createdAt: string;
   updatedAt: string;
 }

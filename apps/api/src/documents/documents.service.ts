@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   Logger,
@@ -130,6 +131,31 @@ export class DocumentsService implements DocumentOps {
     });
     if (!doc) throw new NotFoundException();
     return toDetailDto(doc, this.signFileUrl(doc.id, userId));
+  }
+
+  async retry(userId: string, id: string): Promise<DocumentSummaryDto> {
+    const doc = await this.prisma.document.findFirst({ where: { id, userId } });
+    if (!doc) throw new NotFoundException();
+    if (doc.status !== DocumentStatus.FAILED) {
+      throw new ConflictException({ code: 'documents.retry.invalid_status' });
+    }
+
+    const updated = await this.prisma.document.update({
+      where: { id },
+      data: {
+        status: DocumentStatus.QUEUED,
+        failureReason: null,
+        ocrStartedAt: null,
+        ocrCompletedAt: null,
+      },
+    });
+
+    this.events.emit(
+      DocumentUploadedEvent.NAME,
+      new DocumentUploadedEvent(updated.id),
+    );
+    this.logger.log(`Document retry docId=${id} user=${userId}`);
+    return toSummaryDto(updated);
   }
 
   signFileUrl(docId: string, userId: string): string {

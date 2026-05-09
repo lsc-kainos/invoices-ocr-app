@@ -22,6 +22,7 @@ function makeDoc(id: string, status: DocumentSummary['status']): DocumentSummary
     size: 100,
     summary: null,
     failureReason: null,
+    retryCount: 0,
     createdAt: '2026-05-09T00:00:00Z',
     updatedAt: '2026-05-09T00:00:00Z',
   };
@@ -191,6 +192,59 @@ describe('<ActiveUploadsProvider />', () => {
       await vi.advanceTimersByTimeAsync(0);
     });
     expect(activeFetchCount(fetchSpy)).toBe(2);
+  });
+
+  it('quando OCR_RUNNING persiste (mesma signature), mantém delay em 1500ms', async () => {
+    // Tick 1 (0ms): QUEUED — initial fetch
+    // Tick 2 (1500ms): QUEUED again — no change, delay doubles to 3000ms
+    // Tick 3 (3000ms): OCR_RUNNING — signature changed, delay resets to 1500ms
+    // Tick 4 (1500ms): OCR_RUNNING again — same signature, but hasRunning=true → delay stays 1500ms
+    // Tick 5 should fire after 1500ms, not 3000ms
+    const responses: DocumentSummary[][] = [
+      [makeDoc('a', 'QUEUED')],
+      [makeDoc('a', 'QUEUED')],
+      [makeDoc('a', 'OCR_RUNNING')],
+      [makeDoc('a', 'OCR_RUNNING')],
+    ];
+    let i = 0;
+    fetchSpy.mockImplementation((url: string) => {
+      if (url.includes('status=QUEUED')) {
+        const body = responses[Math.min(i++, responses.length - 1)];
+        return Promise.resolve(jsonResponse(body));
+      }
+      return Promise.resolve(jsonResponse([]));
+    });
+
+    renderProvider();
+    // Tick 1: QUEUED
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(activeFetchCount(fetchSpy)).toBe(1);
+
+    // Tick 2: QUEUED (no change → delay doubles to 3000ms)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1500);
+    });
+    expect(activeFetchCount(fetchSpy)).toBe(2);
+
+    // Tick 3: OCR_RUNNING (signature changes → delay resets to 1500ms)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000);
+    });
+    expect(activeFetchCount(fetchSpy)).toBe(3);
+
+    // Tick 4: OCR_RUNNING again (same signature, but hasRunning=true → delay stays 1500ms)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1500);
+    });
+    expect(activeFetchCount(fetchSpy)).toBe(4);
+
+    // Tick 5: should fire after 1500ms (not 3000ms, because OCR_RUNNING keeps delay at minimum)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1500);
+    });
+    expect(activeFetchCount(fetchSpy)).toBe(5);
   });
 
   it('acorda do estado idle quando recebe upload-queued event', async () => {
