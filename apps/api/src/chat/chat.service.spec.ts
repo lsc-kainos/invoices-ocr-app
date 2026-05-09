@@ -1,3 +1,4 @@
+import { InternalServerErrorException } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { MockLlmProvider } from './providers/mock-llm.provider';
 import { ToolsRegistry } from './tools/tools-registry';
@@ -123,6 +124,6 @@ describe('ChatService.runConversation (com tool)', () => {
         messages: [{ role: 'USER', content: 'q' }],
         persist: async (m: any) => m,
       }),
-    ).rejects.toThrow();
+    ).rejects.toThrow(InternalServerErrorException);
   });
 });
