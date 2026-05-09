@@ -1,4 +1,4 @@
-import type { DocumentSummary } from './document-summary';
+import type { DocumentSummary } from './document-summary.js';
 
 export interface DocumentDetail extends DocumentSummary {
   extractedText: string | null;

@@ -15,7 +15,7 @@ import { UserMenu } from './user-menu';
 type NavItem = {
   key: string;
   label: string;
-  href: '/' | '#' | '/admin/benchmark';
+  href: string;
   enabled: boolean;
   admin?: boolean;
 };
@@ -24,14 +24,14 @@ export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
   const t = useTranslations('topbar');
   const navItems: NavItem[] = [
     { key: 'home', label: t('nav.home'), href: '/', enabled: true },
-    { key: 'list', label: t('nav.list'), href: '#', enabled: false },
-    { key: 'chat', label: t('nav.chat'), href: '#', enabled: false },
+    { key: 'list', label: t('nav.list'), href: '/documents', enabled: true },
+    { key: 'chat', label: t('nav.chat'), href: '/chat', enabled: true },
     ...(user.role === 'ADMIN'
       ? [
           {
             key: 'benchmark',
             label: t('nav.benchmark'),
-            href: '/admin/benchmark' as const,
+            href: '/admin/benchmark',
             enabled: true,
             admin: true,
           },

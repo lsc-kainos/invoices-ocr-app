@@ -174,8 +174,52 @@
       "extracting": "Extraindo texto..."
     }
   },
+  "documents": {
+    "list": {
+      "title": "Minhas notas",
+      "subtitle": "Documentos enviados, ordenados pelos mais recentes.",
+      "empty_title": "Você ainda não enviou nenhum documento",
+      "empty_cta": "Fazer primeiro upload",
+      "status": {
+        "QUEUED": "Na fila",
+        "OCR_RUNNING": "Processando",
+        "READY": "Pronto",
+        "FAILED": "Falhou"
+      },
+      "updated_at": "atualizado {when}"
+    },
+    "download": {
+      "button": "Download",
+      "disabled_tooltip": "Disponível quando a extração terminar",
+      "error_not_ready": "Documento ainda não está pronto",
+      "error_generic": "Não foi possível baixar agora. Tente de novo."
+    }
+  },
   "disabled": {
     "f3": "Disponível na próxima versão",
     "f4": "Disponível na próxima versão"
+  },
+  "chat": {
+    "placeholder": "Faça uma pergunta sobre o documento…",
+    "placeholder_workspace": "Pergunte sobre suas notas…",
+    "send": "Enviar",
+    "loading": "Gerando resposta…",
+    "clear": "Limpar conversa",
+    "new_conversation": "Nova conversa",
+    "untitled": "Sem título",
+    "sidebar_empty": "Nenhuma conversa ainda. Comece uma nova.",
+    "error_generic": "Não consegui responder. Tente de novo.",
+    "error_rate_limit": "Muitas mensagens. Aguarde um instante.",
+    "error_provider": "Serviço de IA temporariamente indisponível.",
+    "empty_state_title": "Pergunte qualquer coisa",
+    "empty_state_subtitle": "Toque em uma sugestão ou digite abaixo.",
+    "tab_conversa": "Conversa",
+    "no_sessions": "Sem conversas ainda. Crie uma nova na sidebar.",
+    "suggestion_workspace_1": "Quais notas vencem este mês?",
+    "suggestion_workspace_2": "Soma do valor total das notas de janeiro",
+    "suggestion_workspace_3": "Liste as notas com CFOP 5102",
+    "suggestion_document_1": "Qual o valor total?",
+    "suggestion_document_2": "Quem é o emitente?",
+    "suggestion_document_3": "Qual a chave NF-e?"
   }
 }

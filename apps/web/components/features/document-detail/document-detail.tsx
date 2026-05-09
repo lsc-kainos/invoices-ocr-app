@@ -2,9 +2,8 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { ChevronLeft, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ChevronLeft } from 'lucide-react';
+import { DownloadButton } from '@/components/features/document-download/download-button';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -26,7 +25,6 @@ interface DocumentDetailProps {
 
 export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
   const t = useTranslations('document');
-  const tDisabled = useTranslations('disabled');
   const tUpload = useTranslations('upload');
   const doc = useDocumentDetail(initialDoc);
   const razao = doc.summary?.core.sellerName ?? null;
@@ -65,19 +63,12 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
           </p>
         </div>
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span tabIndex={0}>
-                <Button variant="outline" size="sm" disabled aria-disabled>
-                  <Download size={14} />
-                  {t('header.export')}
-                </Button>
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>{tDisabled('f4')}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <DownloadButton
+          documentId={doc.id}
+          filename={doc.filename}
+          status={doc.status}
+          variant="default"
+        />
       </header>
 
       <section className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
