@@ -34,8 +34,6 @@ export function DocumentUpload() {
     },
     maxSize: 10 * 1024 * 1024,
     multiple: true,
-    noClick: true,
-    noKeyboard: false,
   });
 
   return (
@@ -59,7 +57,8 @@ export function DocumentUpload() {
         <div
           {...getRootProps()}
           className={cn(
-            'border-border bg-background flex flex-col items-center justify-center gap-3.5 rounded-md border border-dashed px-6 py-10 text-center transition-colors',
+            'border-border bg-background flex cursor-pointer flex-col items-center justify-center gap-3.5 rounded-md border border-dashed px-6 py-10 text-center transition-colors',
+            'hover:border-primary/30 hover:bg-muted/30',
             isDragActive && 'border-primary/40 bg-muted/40',
           )}
           aria-label="dropzone"
@@ -74,7 +73,10 @@ export function DocumentUpload() {
               {t('dropzone.or')}{' '}
               <button
                 type="button"
-                onClick={open}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  open();
+                }}
                 className="text-foreground decoration-border hover:decoration-foreground underline underline-offset-2"
               >
                 {t('dropzone.browse')}
