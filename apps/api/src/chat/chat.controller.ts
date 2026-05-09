@@ -24,6 +24,7 @@ export class ChatController {
   }
 
   @Get('sessions')
+  @Throttle({ chat: { ttl: 60_000, limit: 15 } })
   async listSessions(
     @CurrentUser() user: { id: string },
     @Query() q: ListSessionsQueryDto,
@@ -32,6 +33,7 @@ export class ChatController {
   }
 
   @Get('sessions/:id/messages')
+  @Throttle({ chat: { ttl: 60_000, limit: 15 } })
   async listMessages(
     @CurrentUser() user: { id: string },
     @Param('id') sessionId: string,
@@ -51,6 +53,7 @@ export class ChatController {
   }
 
   @Get('documents/:documentId/messages')
+  @Throttle({ chat: { ttl: 60_000, limit: 15 } })
   async listDocumentMessages(
     @CurrentUser() user: { id: string },
     @Param('documentId') documentId: string,
