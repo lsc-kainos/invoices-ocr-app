@@ -57,7 +57,20 @@ export function Login() {
   const [split, setSplit] = useState(false);
   useEffect(() => {
     const id = setTimeout(() => setSplit(true), SPLIT_DELAY_MS);
-    return () => clearTimeout(id);
+
+    // Quando a página é restaurada do bfcache (back-nav após OAuth),
+    // o setTimeout original não reagenda e split fica preso em false,
+    // deixando o card 0fr e clipped no canto direito. Pular direto pra
+    // split=true quando persisted=true.
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setSplit(true);
+    };
+    window.addEventListener('pageshow', onPageShow);
+
+    return () => {
+      clearTimeout(id);
+      window.removeEventListener('pageshow', onPageShow);
+    };
   }, []);
 
   return (
