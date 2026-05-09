@@ -71,12 +71,27 @@ export function ExtractedFieldsRail({ summary }: ExtractedFieldsRailProps) {
         })}
       </dl>
 
-      <section className="flex flex-col gap-2">
-        <h3 className="text-muted-foreground text-[10px] tracking-wide uppercase">
-          {t('items.title')}
-        </h3>
-        {/* TODO(human): render items[] table here */}
-      </section>
+      {summary?.items?.length ? (
+        <section className="flex flex-col gap-2">
+          <h3 className="text-muted-foreground text-[10px] tracking-wide uppercase">
+            {t('items.title')}
+          </h3>
+          <div className="flex flex-col gap-2">
+            {summary.items.map((item, idx) => (
+              <div key={idx} className="bg-muted/40 flex flex-col gap-1 rounded-sm px-3 py-2">
+                <span className="text-foreground text-[12px]">{item.description}</span>
+                <div className="text-muted-foreground flex gap-3 text-[11px]">
+                  {item.quantity != null && <span>{item.quantity}</span>}
+                  {item.unitPrice != null && <span>{item.unitPrice}</span>}
+                  {item.totalPrice != null && (
+                    <span className="text-foreground ml-auto font-medium">{item.totalPrice}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {summary?.extras?.length ? (
         <dl className="flex flex-col gap-3">
