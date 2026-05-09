@@ -32,8 +32,7 @@ function load(): Env {
       GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID ?? '',
       GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET ?? '',
       ADMIN_EMAILS: process.env.ADMIN_EMAILS ?? '',
-      DATABASE_URL:
-        process.env.DATABASE_URL ?? 'postgresql://build:build@localhost:5432/build',
+      DATABASE_URL: process.env.DATABASE_URL ?? 'postgresql://build:build@localhost:5432/build',
     } as Env;
     return cached;
   }
