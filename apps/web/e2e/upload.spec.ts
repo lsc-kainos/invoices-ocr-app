@@ -101,6 +101,30 @@ test('upload via API → READY → detail page renderiza com texto bruto', async
   await expect(page.locator('pre')).toContainText(/.+/, { timeout: 10_000 });
 });
 
+test('card otimista aparece com progresso antes do card servidor', async ({ page }) => {
+  await loginAs(page, `playwright-opt-${Date.now()}@test.local`);
+
+  // Confirma que a home renderizou (dropzone visível)
+  await expect(page.getByRole('heading', { name: 'Nova nota', level: 1 })).toBeVisible({
+    timeout: 15_000,
+  });
+
+  // Dispara upload via input do dropzone (react-dropzone expõe <input type="file">)
+  const input = page.locator('input[type=file]');
+  await input.setInputFiles(INVOICE_JPG);
+
+  // O card otimista deve aparecer imediatamente (dentro de 2s) enquanto o XHR ainda está em voo
+  await expect(page.getByTestId('optimistic-upload-card').first()).toBeVisible({ timeout: 2000 });
+
+  // Após o upload completar, um card real do servidor deve aparecer (QUEUED / OCR_RUNNING / READY)
+  await expect(page.getByText(/Na fila|Extraindo|Pronta/)).toBeVisible({ timeout: 15_000 });
+});
+
+test.skip('botão "Tentar de novo" reenvia doc FAILED para QUEUED', async ({ page }) => {
+  // requer OCR_PROVIDER=mock-fail (provider que sempre falha) — fora de escopo desta entrega
+  void page;
+});
+
 test('upload arquivo não suportado → 400', async ({ page }) => {
   await loginAs(page, `playwright-bad-${Date.now()}@test.local`);
   const docx = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00]);
