@@ -53,20 +53,12 @@ function parseRow(row: Record<string, string>): BenchmarkSample {
 export async function loadCsvSamples(
   samplesDir: string,
 ): Promise<BenchmarkSample[]> {
-  const batchFiles = ['batch1_1.csv', 'batch1_2.csv', 'batch1_3.csv'];
-
-  const batches = await Promise.all(
-    batchFiles.map(async (file) => {
-      const content = await fs.readFile(join(samplesDir, file), 'utf-8');
-      const rows = parse(content, {
-        columns: true,
-        skip_empty_lines: true,
-        relax_quotes: true,
-        relax_column_count: true,
-      }) as Record<string, string>[];
-      return rows.map(parseRow);
-    }),
-  );
-
-  return batches.flat();
+  const content = await fs.readFile(join(samplesDir, 'index.csv'), 'utf-8');
+  const rows = parse(content, {
+    columns: true,
+    skip_empty_lines: true,
+    relax_quotes: true,
+    relax_column_count: true,
+  }) as Record<string, string>[];
+  return rows.map(parseRow);
 }
