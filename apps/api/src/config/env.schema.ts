@@ -37,6 +37,13 @@ export const envSchema = z
       .string()
       .min(32, 'STORAGE_URL_SECRET deve ter pelo menos 32 chars'),
     UPLOAD_MAX_BYTES: z.coerce.number().int().positive().default(10_485_760),
+
+    // F3 — Chat / LLM
+    CHAT_MODEL: z.string().default('gpt-4o-mini'),
+    CHAT_STREAMING: z.coerce.boolean().default(false),
+    CHAT_MAX_HISTORY: z.coerce.number().int().min(1).default(20),
+    CHAT_MAX_TOOL_ITERATIONS: z.coerce.number().int().min(1).default(3),
+    LLM_PROVIDER: z.enum(['openai', 'mock']).default('openai'),
   })
   .superRefine((env, ctx) => {
     if (env.OCR_PROVIDER === 'openai' && !env.OPENAI_API_KEY) {
@@ -44,6 +51,13 @@ export const envSchema = z
         code: 'custom',
         path: ['OPENAI_API_KEY'],
         message: 'OPENAI_API_KEY é obrigatória quando OCR_PROVIDER=openai',
+      });
+    }
+    if (env.LLM_PROVIDER === 'openai' && !env.OPENAI_API_KEY) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['OPENAI_API_KEY'],
+        message: 'OPENAI_API_KEY é obrigatória quando LLM_PROVIDER=openai',
       });
     }
   });
