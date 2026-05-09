@@ -2,6 +2,7 @@
 // no runtime CJS do Nest quanto sob ts-jest (que reescreve `import()` para
 // `require`), usamos `new Function` para obter um import dinâmico bruto que o
 // transpilador não reescreve.
+// eslint-disable-next-line @typescript-eslint/no-implied-eval
 const dynamicImport: <T = unknown>(spec: string) => Promise<T> = new Function(
   'spec',
   'return import(spec)',

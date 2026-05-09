@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -22,19 +23,21 @@ const buildJpeg = () =>
   ]);
 const buildDocx = () => Buffer.from([0x50, 0x4b, 0x03, 0x04, 0, 0, 0, 0]);
 
-const file = (buffer: Buffer, originalname = 'nota.jpg'): Express.Multer.File =>
-  ({
-    buffer,
-    originalname,
-    size: buffer.length,
-    fieldname: 'file',
-    encoding: '7bit',
-    mimetype: 'image/jpeg',
-    stream: undefined as never,
-    destination: '',
-    filename: originalname,
-    path: '',
-  }) as unknown as Express.Multer.File;
+const file = (
+  buffer: Buffer,
+  originalname = 'nota.jpg',
+): Express.Multer.File => ({
+  buffer,
+  originalname,
+  size: buffer.length,
+  fieldname: 'file',
+  encoding: '7bit',
+  mimetype: 'image/jpeg',
+  stream: undefined as never,
+  destination: '',
+  filename: originalname,
+  path: '',
+});
 
 const baseDoc = (over: Partial<Document>): Document => {
   const now = new Date();
@@ -45,7 +48,7 @@ const baseDoc = (over: Partial<Document>): Document => {
     mime: 'image/jpeg',
     size: 100,
     storagePath: 'user1/d1/original.jpg',
-    status: 'READY' as never,
+    status: 'READY',
     failureReason: null,
     retryCount: 0,
     summary: null,
@@ -55,14 +58,10 @@ const baseDoc = (over: Partial<Document>): Document => {
     createdAt: now,
     updatedAt: now,
     ...over,
-  } as Document;
+  };
 };
 
-const makeRes = () =>
-  ({ setHeader: jest.fn(), end: jest.fn() }) as unknown as {
-    setHeader: jest.Mock;
-    end: jest.Mock;
-  };
+const makeRes = () => ({ setHeader: jest.fn(), end: jest.fn() });
 
 describe('DocumentsService', () => {
   let svc: DocumentsService;
@@ -85,9 +84,7 @@ describe('DocumentsService', () => {
         create: jest
           .fn()
           .mockImplementation(({ data }: { data: Partial<Document> }) =>
-            Promise.resolve(
-              baseDoc({ ...data, id: 'd1', status: 'QUEUED' as never }),
-            ),
+            Promise.resolve(baseDoc({ ...data, id: 'd1', status: 'QUEUED' })),
           ),
         findFirst: jest.fn(),
         findMany: jest.fn().mockResolvedValue([]),

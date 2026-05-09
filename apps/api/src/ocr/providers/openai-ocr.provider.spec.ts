@@ -60,14 +60,29 @@ describe('OpenAiOcrProvider', () => {
     );
     expect(result).toEqual(happy);
 
-    const call = parseMock.mock.calls[0][0];
+    interface ChatCall {
+      model: string;
+      temperature: number;
+      response_format: unknown;
+      messages: Array<{
+        role: string;
+        content: string | Array<{ type: string; image_url?: { url: string } }>;
+      }>;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const callArg: unknown = parseMock.mock.calls[0]?.[0];
+    const call = callArg as ChatCall;
     expect(call.model).toBe('gpt-4o');
     expect(call.temperature).toBe(0);
     expect(call.response_format).toBeDefined();
 
     const sys = call.messages[0];
     expect(sys.role).toBe('system');
-    expect(String(sys.content)).toMatch(/extrator de dados/i);
+    const sysText =
+      typeof sys.content === 'string'
+        ? sys.content
+        : JSON.stringify(sys.content);
+    expect(sysText).toMatch(/extrator de dados/i);
 
     const usr = call.messages[1];
     expect(usr.role).toBe('user');

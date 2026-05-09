@@ -1,5 +1,6 @@
 // file-type é ESM-only. Wrapper que usa dynamic import "real" (não reescrito
 // pelo ts-jest) para funcionar tanto em runtime CJS quanto em testes Jest.
+// eslint-disable-next-line @typescript-eslint/no-implied-eval
 const dynamicImport: <T = unknown>(spec: string) => Promise<T> = new Function(
   'spec',
   'return import(spec)',

@@ -76,9 +76,10 @@ const FIXTURES: InvoiceSummaryResult[] = [
 @Injectable()
 export class MockOcrProvider implements OcrProvider {
   async extract(buffer: Buffer, _mime: string): Promise<InvoiceSummaryResult> {
+    void _mime;
     const hash = createHash('sha1').update(buffer).digest('hex');
     const idx = parseInt(hash.slice(0, 8), 16) % FIXTURES.length;
-    const fixture = FIXTURES[idx]!;
+    const fixture = FIXTURES[idx];
     await new Promise((resolve) => setTimeout(resolve, 800));
     return fixture;
   }
