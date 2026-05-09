@@ -15,7 +15,7 @@ import { UserMenu } from './user-menu';
 type NavItem = {
   key: string;
   label: string;
-  href: '/' | '#';
+  href: string;
   enabled: boolean;
 };
 
@@ -24,7 +24,7 @@ export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
   const navItems: NavItem[] = [
     { key: 'home', label: t('nav.home'), href: '/', enabled: true },
     { key: 'list', label: t('nav.list'), href: '#', enabled: false },
-    { key: 'chat', label: t('nav.chat'), href: '#', enabled: false },
+    { key: 'chat', label: t('nav.chat'), href: '/chat', enabled: true },
   ];
 
   return (

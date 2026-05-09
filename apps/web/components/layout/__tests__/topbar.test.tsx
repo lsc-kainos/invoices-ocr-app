@@ -31,15 +31,21 @@ describe('<Topbar />', () => {
     expect(screen.getByText('Invoices')).toBeInTheDocument();
   });
 
-  it('Desktop nav: Início é link, Minhas notas e Chat estão disabled', () => {
+  it('Desktop nav: Início e Chat são links ativos, Minhas notas está disabled', () => {
     renderTopbar();
     const nav = screen.getByRole('navigation', { name: /primary/i });
     expect(within(nav).getByRole('link', { name: 'Início' })).toHaveAttribute('href', '/');
-    for (const label of ['Minhas notas', 'Chat']) {
+    for (const label of ['Minhas notas']) {
       const item = within(nav).getByText(label);
       expect(item).toHaveAttribute('aria-disabled', 'true');
       expect(item.className).toMatch(/pointer-events-none/);
     }
+  });
+
+  it('Chat agora é link ativo apontando para /chat', () => {
+    renderTopbar();
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+    expect(within(nav).getByRole('link', { name: 'Chat' })).toHaveAttribute('href', '/chat');
   });
 
   it('Desktop nav só aparece em lg+ (hidden lg:flex)', () => {
