@@ -40,3 +40,89 @@ describe('ChatService.runConversation (sem tool)', () => {
     });
   });
 });
+
+describe('ChatService.runConversation (com tool)', () => {
+  it('persiste assistant(toolCallId) + tool + assistant final', async () => {
+    const persisted: any[] = [];
+    const persist = jest.fn(async (m) => {
+      persisted.push(m);
+      return { ...m, id: `m${persisted.length}` };
+    });
+
+    const llm = new MockLlmProvider();
+    const registry = {
+      getOpenAiSchemas: () => [
+        {
+          type: 'function',
+          function: { name: 'get_full_document', parameters: {} },
+        },
+      ],
+      getHandler: () => async (_args: unknown, _ctx: { userId: string }) => ({
+        extractedText: 'Texto X',
+      }),
+    } as any;
+    const service = new ChatService({} as any, llm, registry, {
+      get: () => 3,
+    } as any);
+
+    const result = await (service as any).runConversation({
+      userId: 'u1',
+      systemPrompt: '<document id="abc"></document>',
+      messages: [{ role: 'USER', content: 'qual o valor total?' }],
+      persist,
+    });
+
+    expect(result.content).toBe('Encontrei essa informação no documento.');
+    expect(persisted).toHaveLength(3);
+    expect(persisted[0].role).toBe('ASSISTANT');
+    expect(persisted[0].toolCallId).toBeDefined();
+    expect(persisted[1].role).toBe('TOOL');
+    expect(persisted[1].content).toContain('extractedText');
+    expect(persisted[2].role).toBe('ASSISTANT');
+    expect(persisted[2].content).toBe(
+      'Encontrei essa informação no documento.',
+    );
+  });
+
+  it('lança tool_loop_exceeded após CHAT_MAX_TOOL_ITERATIONS', async () => {
+    const llm = {
+      complete: jest.fn().mockResolvedValue({
+        choices: [
+          {
+            message: {
+              role: 'assistant',
+              content: '',
+              tool_calls: [
+                {
+                  id: 'c1',
+                  type: 'function',
+                  function: {
+                    name: 'get_full_document',
+                    arguments: '{"documentId":"x"}',
+                  },
+                },
+              ],
+            },
+            finish_reason: 'tool_calls',
+          },
+        ],
+      }),
+    } as any;
+    const registry = {
+      getOpenAiSchemas: () => [],
+      getHandler: () => async () => ({ extractedText: 'x' }),
+    } as any;
+    const service = new ChatService({} as any, llm, registry, {
+      get: () => 3,
+    } as any);
+
+    await expect(
+      (service as any).runConversation({
+        userId: 'u1',
+        systemPrompt: 'sys',
+        messages: [{ role: 'USER', content: 'q' }],
+        persist: async (m: any) => m,
+      }),
+    ).rejects.toThrow();
+  });
+});

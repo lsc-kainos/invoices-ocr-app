@@ -5,7 +5,10 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
+import type {
+  ChatCompletionAssistantMessageParam,
+  ChatCompletionMessageParam,
+} from 'openai/resources/chat/completions';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   LLM_PROVIDER,
@@ -69,8 +72,51 @@ export class ChatService {
       const message = resp.choices[0].message;
 
       if (message.tool_calls?.length) {
-        // (Implemented in Task 9)
-        throw new Error('not_implemented_yet');
+        await ctx.persist({
+          role: 'ASSISTANT',
+          content: message.content ?? '',
+          toolCallId: message.tool_calls[0].id,
+          toolName: message.tool_calls[0].function.name,
+          toolArgs: JSON.parse(
+            message.tool_calls[0].function.arguments || '{}',
+          ),
+        });
+
+        conversation.push({
+          role: 'assistant',
+          content: message.content ?? null,
+          tool_calls: message.tool_calls,
+        } as ChatCompletionAssistantMessageParam);
+
+        for (const call of message.tool_calls) {
+          const handler = this.tools.getHandler(call.function.name);
+          if (!handler) {
+            this.logger.error({
+              event: 'chat.unknown_tool',
+              tool: call.function.name,
+            });
+            throw new InternalServerErrorException({ code: 'unknown_tool' });
+          }
+          const args = JSON.parse(call.function.arguments || '{}');
+          const output = await handler(args, { userId: ctx.userId });
+          const outputJson = JSON.stringify(output);
+
+          await ctx.persist({
+            role: 'TOOL',
+            content: outputJson,
+            toolCallId: call.id,
+            toolName: call.function.name,
+          });
+
+          conversation.push({
+            role: 'tool',
+            tool_call_id: call.id,
+            content: outputJson,
+          });
+        }
+
+        iter++;
+        continue;
       }
 
       await ctx.persist({ role: 'ASSISTANT', content: message.content ?? '' });
