@@ -4,8 +4,10 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json turbo.json tsconfig.base.json ./
 COPY apps/web/package.json ./apps/web/
+COPY apps/api/package.json ./apps/api/
+COPY apps/api/prisma ./apps/api/prisma
 COPY packages/shared-types/package.json ./packages/shared-types/
-RUN npm ci --ignore-scripts
+RUN npm ci
 
 FROM node:22-alpine AS build
 WORKDIR /app
