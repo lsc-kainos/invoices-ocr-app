@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -133,6 +134,94 @@ export class ChatService {
     });
 
     return { content: result.content };
+  }
+
+  async sendDocumentMessage(
+    userId: string,
+    documentId: string,
+    content: string,
+  ) {
+    const doc = await this.prisma.document.findFirst({
+      where: { id: documentId, userId },
+      select: { id: true, filename: true, summary: true, status: true },
+    });
+    if (!doc) throw new NotFoundException();
+    if (doc.status !== 'READY') {
+      throw new ConflictException({ code: 'document_not_ready' });
+    }
+
+    const session = await this.prisma.chatSession.upsert({
+      where: { userId_documentId: { userId, documentId } },
+      create: { userId, documentId },
+      update: {},
+    });
+
+    await this.prisma.chatMessage.create({
+      data: { sessionId: session.id, role: 'USER', content },
+    });
+
+    const history = await this.loadHistory(session.id);
+    const result = await this.runConversation({
+      userId,
+      systemPrompt: buildDocumentSystem(doc as any),
+      messages: history,
+      persist: (msg) =>
+        this.prisma.chatMessage.create({
+          data: { sessionId: session.id, ...msg },
+        }),
+    });
+
+    await this.prisma.chatSession.update({
+      where: { id: session.id },
+      data: { updatedAt: new Date() },
+    });
+
+    return { content: result.content };
+  }
+
+  async listDocumentMessages(
+    userId: string,
+    documentId: string,
+    includeTool: boolean,
+  ) {
+    const doc = await this.prisma.document.findFirst({
+      where: { id: documentId, userId },
+      select: { id: true },
+    });
+    if (!doc) throw new NotFoundException();
+
+    const session = await this.prisma.chatSession.findFirst({
+      where: { userId, documentId },
+      select: { id: true },
+    });
+    if (!session) return [];
+
+    return this.prisma.chatMessage.findMany({
+      where: {
+        sessionId: session.id,
+        ...(includeTool ? {} : { role: { not: 'TOOL' as any } }),
+      },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, role: true, content: true, createdAt: true },
+    });
+  }
+
+  async clearDocumentMessages(userId: string, documentId: string) {
+    const doc = await this.prisma.document.findFirst({
+      where: { id: documentId, userId },
+      select: { id: true },
+    });
+    if (!doc) throw new NotFoundException();
+
+    const session = await this.prisma.chatSession.findFirst({
+      where: { userId, documentId },
+      select: { id: true },
+    });
+    if (!session) return;
+
+    await this.prisma.chatMessage.deleteMany({
+      where: { sessionId: session.id },
+    });
   }
 
   private async loadHistory(sessionId: string) {

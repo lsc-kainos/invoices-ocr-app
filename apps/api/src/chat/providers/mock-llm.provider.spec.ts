@@ -16,7 +16,12 @@ describe('MockLlmProvider', () => {
   it('dispara tool_call quando user msg menciona "valor total"', async () => {
     const resp = (await provider.complete({
       model: 'mock',
-      tools: [],
+      tools: [
+        {
+          type: 'function',
+          function: { name: 'get_full_document', parameters: {} },
+        } as any,
+      ],
       messages: [
         { role: 'system', content: '<document id="abc123">...' },
         { role: 'user', content: 'qual o valor total?' },

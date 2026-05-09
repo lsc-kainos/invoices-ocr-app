@@ -177,3 +177,81 @@ describe('ChatService session ops', () => {
     );
   });
 });
+
+describe('ChatService document ops', () => {
+  const makePrisma = () => ({
+    chatSession: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+    },
+    chatMessage: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+    },
+    document: { findMany: jest.fn() },
+  });
+
+  it('sendDocumentMessage 409 quando doc.status ≠ READY', async () => {
+    const prisma: any = makePrisma();
+    prisma.document.findFirst = jest
+      .fn()
+      .mockResolvedValue({ id: 'd1', status: 'OCR_RUNNING' });
+    const svc = new ChatService(
+      prisma,
+      {} as any,
+      {} as any,
+      { get: () => 20 } as any,
+    );
+    await expect(
+      svc.sendDocumentMessage('u1', 'd1', 'oi'),
+    ).rejects.toMatchObject({
+      response: { code: 'document_not_ready' },
+    });
+  });
+
+  it('sendDocumentMessage faz upsert na sessão (userId, documentId)', async () => {
+    const prisma: any = makePrisma();
+    prisma.document.findFirst = jest.fn().mockResolvedValue({
+      id: 'd1',
+      filename: 'a.pdf',
+      summary: {},
+      status: 'READY',
+    });
+    prisma.chatSession.upsert = jest.fn().mockResolvedValue({ id: 's1' });
+    prisma.chatMessage.create = jest.fn().mockResolvedValue({});
+    prisma.chatMessage.findMany = jest.fn().mockResolvedValue([]);
+    const llm = new MockLlmProvider();
+    const registry = {
+      getOpenAiSchemas: () => [],
+      getHandler: () => null,
+    } as any;
+
+    const svc = new ChatService(prisma, llm, registry, {
+      get: () => 20,
+    } as any);
+    await svc.sendDocumentMessage('u1', 'd1', 'oi');
+
+    expect(prisma.chatSession.upsert).toHaveBeenCalledWith({
+      where: { userId_documentId: { userId: 'u1', documentId: 'd1' } },
+      create: { userId: 'u1', documentId: 'd1' },
+      update: {},
+    });
+  });
+
+  it('clearDocumentMessages é no-op quando sessão não existe', async () => {
+    const prisma: any = makePrisma();
+    prisma.document.findFirst = jest.fn().mockResolvedValue({ id: 'd1' });
+    prisma.chatSession.findFirst = jest.fn().mockResolvedValue(null);
+    prisma.chatMessage.deleteMany = jest.fn();
+    const svc = new ChatService(
+      prisma,
+      {} as any,
+      {} as any,
+      { get: () => 20 } as any,
+    );
+    await svc.clearDocumentMessages('u1', 'd1');
+    expect(prisma.chatMessage.deleteMany).not.toHaveBeenCalled();
+  });
+});

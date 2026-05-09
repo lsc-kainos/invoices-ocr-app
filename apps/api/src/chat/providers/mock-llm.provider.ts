@@ -17,7 +17,7 @@ export class MockLlmProvider implements LlmProvider {
       });
     }
 
-    if (/texto completo|valor total/i.test(text)) {
+    if (params.tools.length > 0 && /texto completo|valor total/i.test(text)) {
       const docId = extractDocId(params.messages) ?? 'mock-doc-id';
       return mockCompletion({
         toolCall: {
