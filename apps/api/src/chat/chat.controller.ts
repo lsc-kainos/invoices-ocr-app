@@ -1,0 +1,85 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { ChatService } from './chat.service';
+import { SendMessageDto, ListSessionsQueryDto } from './dto';
+
+@Controller('api/v1/chat')
+export class ChatController {
+  constructor(private readonly chat: ChatService) {}
+
+  @Post('sessions')
+  @Throttle({ chat: { ttl: 60_000, limit: 15 } })
+  async createSession(@CurrentUser() user: { id: string }) {
+    return this.chat.createSession(user.id);
+  }
+
+  @Get('sessions')
+  async listSessions(
+    @CurrentUser() user: { id: string },
+    @Query() q: ListSessionsQueryDto,
+  ) {
+    return this.chat.listSessions(user.id, q.limit);
+  }
+
+  @Get('sessions/:id/messages')
+  async listMessages(
+    @CurrentUser() user: { id: string },
+    @Param('id') sessionId: string,
+    @Query('includeTool') includeTool?: string,
+  ) {
+    return this.chat.listMessages(user.id, sessionId, includeTool === 'true');
+  }
+
+  @Post('sessions/:id/messages')
+  @Throttle({ chat: { ttl: 60_000, limit: 15 } })
+  async sendWorkspaceMessage(
+    @CurrentUser() user: { id: string },
+    @Param('id') sessionId: string,
+    @Body() body: SendMessageDto,
+  ) {
+    return this.chat.sendWorkspaceMessage(user.id, sessionId, body.content);
+  }
+
+  @Get('documents/:documentId/messages')
+  async listDocumentMessages(
+    @CurrentUser() user: { id: string },
+    @Param('documentId') documentId: string,
+    @Query('includeTool') includeTool?: string,
+  ) {
+    return this.chat.listDocumentMessages(
+      user.id,
+      documentId,
+      includeTool === 'true',
+    );
+  }
+
+  @Post('documents/:documentId/messages')
+  @Throttle({ chat: { ttl: 60_000, limit: 15 } })
+  async sendDocumentMessage(
+    @CurrentUser() user: { id: string },
+    @Param('documentId') documentId: string,
+    @Body() body: SendMessageDto,
+  ) {
+    return this.chat.sendDocumentMessage(user.id, documentId, body.content);
+  }
+
+  @Delete('documents/:documentId/messages')
+  @Throttle({ chat: { ttl: 60_000, limit: 15 } })
+  @HttpCode(204)
+  async clearDocumentMessages(
+    @CurrentUser() user: { id: string },
+    @Param('documentId') documentId: string,
+  ) {
+    await this.chat.clearDocumentMessages(user.id, documentId);
+  }
+}
