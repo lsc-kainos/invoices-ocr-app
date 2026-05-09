@@ -13,7 +13,12 @@ export const envSchema = z
       .min(32, 'NEXTAUTH_SECRET deve ter pelo menos 32 chars'),
 
     // F2 — OCR / Storage
-    OPENAI_API_KEY: z.string().min(1).optional(),
+    // String vazia é tratada como ausente (.env mantém o nome da var como
+    // placeholder em dev local sem chave configurada).
+    OPENAI_API_KEY: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.string().min(1).optional(),
+    ),
     OCR_PROVIDER: z.enum(['openai', 'mock']).default('mock'),
     OCR_MODEL: z.string().default('gpt-4o'),
     VOLUME_ROOT: z.string().min(1, 'VOLUME_ROOT é obrigatório'),

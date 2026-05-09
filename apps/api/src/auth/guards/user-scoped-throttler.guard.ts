@@ -8,7 +8,7 @@ interface ReqWithUser {
 
 @Injectable()
 export class UserScopedThrottlerGuard extends ThrottlerGuard {
-  protected async getTracker(req: ReqWithUser): Promise<string> {
+  protected override async getTracker(req: ReqWithUser): Promise<string> {
     const userId = req?.user?.id;
     if (userId) return `user:${userId}`;
     return `ip:${req?.ip ?? 'unknown'}`;

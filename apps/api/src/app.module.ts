@@ -1,14 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { validateEnv } from './config/env.schema';
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
+import { StorageModule } from './storage/storage.module';
+import { DocumentsModule } from './documents/documents.module';
+import { OcrModule } from './ocr/ocr.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
+import { UserScopedThrottlerGuard } from './auth/guards/user-scoped-throttler.guard';
 
 @Module({
   imports: [
@@ -16,15 +21,23 @@ import { RolesGuard } from './auth/guards/roles.guard';
       isGlobal: true,
       validate: validateEnv,
     }),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
+    EventEmitterModule.forRoot({ wildcard: false, maxListeners: 10 }),
+    ThrottlerModule.forRoot([
+      { name: 'default', ttl: 60_000, limit: 60 },
+      { name: 'upload', ttl: 60_000, limit: 5 },
+      { name: 'ocr', ttl: 60_000, limit: 3 },
+    ]),
     PrismaModule,
     HealthModule,
     AuthModule,
     UsersModule,
+    StorageModule,
+    DocumentsModule,
+    OcrModule,
   ],
   providers: [
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: UserScopedThrottlerGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
