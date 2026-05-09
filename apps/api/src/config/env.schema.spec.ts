@@ -8,6 +8,7 @@ const validRaw = {
   NEXTAUTH_SECRET: 'a'.repeat(32),
   VOLUME_ROOT: '/tmp/volume',
   STORAGE_URL_SECRET: 'b'.repeat(32),
+  INTERNAL_SERVICE_TOKEN: 'x'.repeat(32),
 };
 
 function omit<T extends Record<string, unknown>>(
@@ -65,6 +66,7 @@ describe('validateEnv', () => {
         ALLOWED_ORIGINS: 'http://localhost:3000',
         VOLUME_ROOT: '/tmp/v',
         STORAGE_URL_SECRET: 'b'.repeat(32),
+        INTERNAL_SERVICE_TOKEN: 'x'.repeat(32),
       }),
     ).toThrow(/NEXTAUTH_SECRET/);
   });
@@ -76,6 +78,7 @@ describe('validateEnv', () => {
       NEXTAUTH_SECRET: 'a'.repeat(32),
       VOLUME_ROOT: '/tmp/v',
       STORAGE_URL_SECRET: 'b'.repeat(32),
+      INTERNAL_SERVICE_TOKEN: 'x'.repeat(32),
     });
     expect(env.NEXTAUTH_SECRET).toHaveLength(32);
   });

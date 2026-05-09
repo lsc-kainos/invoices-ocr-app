@@ -1,11 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-vi.mock('@/lib/prisma', () => ({
-  prisma: { user: { findUnique: vi.fn() } },
-}));
+vi.mock('@/lib/internal-api', () => ({ internalFetch: vi.fn() }));
 vi.mock('@/lib/env', () => ({
   env: {
-    ADMIN_EMAILS: '',
     GOOGLE_CLIENT_ID: 'g-id',
     GOOGLE_CLIENT_SECRET: 'g-secret',
     GITHUB_CLIENT_ID: 'gh-id',
@@ -13,47 +10,54 @@ vi.mock('@/lib/env', () => ({
     NEXTAUTH_SECRET: 'a'.repeat(32),
     NEXTAUTH_URL: 'http://localhost:3000',
     API_URL: 'http://localhost:3001',
-    DATABASE_URL: 'postgresql://x:x@localhost:5432/x',
+    INTERNAL_SERVICE_TOKEN: 'x'.repeat(32),
   },
 }));
 
-import { prisma } from '@/lib/prisma';
+import { internalFetch } from '@/lib/internal-api';
 import { jwtCallback } from '../auth';
 
-describe('jwtCallback', () => {
-  beforeEach(() => (prisma.user.findUnique as ReturnType<typeof vi.fn>).mockReset());
+const mockInternalFetch = vi.mocked(internalFetch);
 
-  it('enriquece token na primeira chamada com user', async () => {
-    (prisma.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
-      id: 'u1',
-      email: 'e@x',
-      role: 'USER',
-    });
+describe('jwtCallback', () => {
+  beforeEach(() => mockInternalFetch.mockReset());
+
+  it('enriquece token na primeira chamada com user e define token.sub com id da resposta', async () => {
+    mockInternalFetch.mockResolvedValue(
+      new Response(JSON.stringify({ id: 'u1', email: 'e@x', role: 'USER' }), {
+        status: 200,
+      }),
+    );
     const token = await jwtCallback({
       token: {},
-      user: { email: 'e@x' },
+      user: { email: 'e@x', name: 'E' },
     } as never);
+    expect(mockInternalFetch).toHaveBeenCalledWith(
+      '/api/v1/internal/users/sync',
+      expect.objectContaining({ method: 'POST' }),
+    );
     expect(token).toMatchObject({ sub: 'u1', email: 'e@x', role: 'USER' });
   });
 
-  it('mantém token quando refresh sem user', async () => {
+  it('mantém token quando não há user nem trigger update', async () => {
     const token = await jwtCallback({
       token: { sub: 'u1', role: 'USER' },
     } as never);
     expect(token).toMatchObject({ sub: 'u1', role: 'USER' });
-    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+    expect(mockInternalFetch).not.toHaveBeenCalled();
   });
 
-  it('re-busca role quando trigger=update', async () => {
-    (prisma.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
-      id: 'u1',
-      email: 'e@x',
-      role: 'ADMIN',
-    });
+  it('re-sincroniza quando trigger=update e atualiza role', async () => {
+    mockInternalFetch.mockResolvedValue(
+      new Response(JSON.stringify({ id: 'u1', email: 'e@x', role: 'ADMIN' }), {
+        status: 200,
+      }),
+    );
     const token = await jwtCallback({
       token: { sub: 'u1', email: 'e@x', role: 'USER' },
       trigger: 'update',
     } as never);
     expect(token.role).toBe('ADMIN');
+    expect(token.sub).toBe('u1');
   });
 });

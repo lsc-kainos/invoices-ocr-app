@@ -1,16 +1,21 @@
 import { test, expect, type Page } from '@playwright/test';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+const API_URL = process.env.API_URL ?? 'http://localhost:3001';
+const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN ?? '';
+
+async function deleteTestUser(email: string) {
+  await fetch(`${API_URL}/api/v1/internal/users/by-email`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-internal-token': INTERNAL_TOKEN,
+    },
+    body: JSON.stringify({ email }),
+  }).catch(() => undefined);
+}
 
 test.beforeEach(async () => {
-  await prisma.user.deleteMany({
-    where: { email: 'playwright@test.local' },
-  });
-});
-
-test.afterAll(async () => {
-  await prisma.$disconnect();
+  await deleteTestUser('playwright@test.local');
 });
 
 async function loginAs(page: Page, email = 'playwright@test.local') {
