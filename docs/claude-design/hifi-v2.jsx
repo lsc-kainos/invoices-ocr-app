@@ -489,10 +489,17 @@ const HifiV2Login = () => (
       }}
     >
       <Logo />
-      {/* Hero animado: headline aparece no load, subtítulo entra
-          com delay (~300ms). Implementação real em apps/web usa
-          tw-animate-css (animate-in fade-in slide-in-from-bottom-N
-          duration-700 + delay-300 no subtítulo). */}
+      {/* Cascata teatral no /login real (apps/web), via tw-animate-css:
+          t=0    Logo (slide+fade, 500ms)
+          t=300  HEADLINE nasce (zoom-in-95 + fade-in, 1000ms)
+          t=900  subtítulo desliza (700ms)
+          t=1400 tagline + H2 "Entrar"
+          t=1700 subtítulo do card
+          t=2000 botões OAuth (CTA — final da apresentação)
+          t=2400 Termos · Privacidade
+          Botões também têm: spinner (Loader2) substitui o logo do
+          provider clicado durante o round-trip OAuth, e
+          active:scale-[0.98] de feedback tátil. */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 420 }}>
         <h1
           style={{
