@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   BadRequestException,
+  ConflictException,
   NotFoundException,
   PayloadTooLargeException,
   UnauthorizedException,
@@ -13,6 +14,8 @@ import { DocumentsService } from './documents.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { STORAGE_SERVICE } from '../storage/storage.service';
 import type { Document } from '@prisma/client';
+import { DocumentStatus } from '@prisma/client';
+import { DocumentUploadedEvent } from './events/document-uploaded.event';
 
 const SECRET = 'a'.repeat(32);
 
@@ -317,6 +320,68 @@ describe('DocumentsService', () => {
           }),
         }),
       );
+    });
+  });
+
+  describe('retry', () => {
+    it('FAILED → QUEUED + emite document.uploaded', async () => {
+      const doc = {
+        id: 'doc1',
+        userId: 'u1',
+        status: DocumentStatus.FAILED,
+        failureReason: 'rate_limit',
+        filename: 'nf.pdf',
+        mime: 'application/pdf',
+        size: 100,
+        storagePath: 'u1/doc1/original.pdf',
+        summary: null,
+        extractedText: null,
+        retryCount: 1,
+        ocrStartedAt: null,
+        ocrCompletedAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as never;
+
+      prisma.document.findFirst.mockResolvedValue(doc);
+      prisma.document.update.mockResolvedValue({
+        ...(doc as object),
+        status: DocumentStatus.QUEUED,
+        failureReason: null,
+      } as never);
+
+      const result = await svc.retry('u1', 'doc1');
+
+      expect(prisma.document.update).toHaveBeenCalledWith({
+        where: { id: 'doc1' },
+        data: {
+          status: DocumentStatus.QUEUED,
+          failureReason: null,
+          ocrStartedAt: null,
+          ocrCompletedAt: null,
+        },
+      });
+      expect(events.emit).toHaveBeenCalledWith(
+        DocumentUploadedEvent.NAME,
+        expect.objectContaining({ documentId: 'doc1' }),
+      );
+      expect(result.status).toBe('QUEUED');
+    });
+
+    it('doc inexistente ou de outro user → NotFoundException', async () => {
+      prisma.document.findFirst.mockResolvedValue(null);
+      await expect(svc.retry('u1', 'doc1')).rejects.toThrow(NotFoundException);
+      expect(events.emit).not.toHaveBeenCalled();
+    });
+
+    it('status ≠ FAILED → ConflictException', async () => {
+      prisma.document.findFirst.mockResolvedValue({
+        id: 'doc1',
+        userId: 'u1',
+        status: DocumentStatus.OCR_RUNNING,
+      } as never);
+      await expect(svc.retry('u1', 'doc1')).rejects.toThrow(ConflictException);
+      expect(events.emit).not.toHaveBeenCalled();
     });
   });
 });
