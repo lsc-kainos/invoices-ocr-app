@@ -40,7 +40,7 @@
     "file-type": "^19.6.0",
     "helmet": "^8.1.0",
     "jose": "^5.10.0",
-    "openai": "^4.104.0",
+    "openai": "^6.37.0",
     "pdf-to-img": "^4.5.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
