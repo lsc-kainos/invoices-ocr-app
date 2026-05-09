@@ -148,8 +148,8 @@ export function Login() {
               size="lg"
               className="justify-center gap-2.5 transition-transform active:scale-[0.98]"
               onClick={signInGoogle}
-              disabled={pending !== null}
               aria-label={t('card.google')}
+              aria-busy={pending === 'google'}
               data-pending={pending === 'google' ? '' : undefined}
             >
               {pending === 'google' ? (
@@ -165,8 +165,8 @@ export function Login() {
               size="lg"
               className="justify-center gap-2.5 transition-transform active:scale-[0.98]"
               onClick={signInGithub}
-              disabled={pending !== null}
               aria-label={t('card.github')}
+              aria-busy={pending === 'github'}
               data-pending={pending === 'github' ? '' : undefined}
             >
               {pending === 'github' ? (

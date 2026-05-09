@@ -42,11 +42,10 @@ describe('<Topbar />', () => {
     }
   });
 
-  it('renderiza o input de busca como disabled e readOnly', () => {
+  it('NÃO renderiza search nem workspace switcher (simplificado)', () => {
     renderTopbar();
-    const input = screen.getByPlaceholderText(/Buscar/i) as HTMLInputElement;
-    expect(input).toBeDisabled();
-    expect(input).toHaveAttribute('readonly');
+    expect(screen.queryByPlaceholderText(/Buscar/i)).toBeNull();
+    expect(screen.queryByText('Pessoal')).toBeNull();
   });
 
   it('renderiza UserMenu trigger com aria-label', () => {

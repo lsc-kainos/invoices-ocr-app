@@ -21,13 +21,11 @@
     }
   },
   "topbar": {
-    "workspace": "Pessoal",
     "nav": {
       "home": "Início",
       "list": "Minhas notas",
       "chat": "Chat"
     },
-    "search_placeholder": "Buscar...",
     "user_menu_label": "Conta",
     "menu": {
       "theme": "Tema",
