@@ -40,7 +40,9 @@ export const envSchema = z
 
     // F3 — Chat / LLM
     CHAT_MODEL: z.string().default('gpt-4o-mini'),
-    CHAT_STREAMING: z.coerce.boolean().default(false),
+    CHAT_STREAMING: z
+      .preprocess((v) => v === 'true' || v === true, z.boolean())
+      .default(false),
     CHAT_MAX_HISTORY: z.coerce.number().int().min(1).default(20),
     CHAT_MAX_TOOL_ITERATIONS: z.coerce.number().int().min(1).default(3),
     LLM_PROVIDER: z.enum(['openai', 'mock']).default('openai'),
