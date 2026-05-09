@@ -50,7 +50,7 @@ Se algum desses pontos não estiver pronto, **F4 está bloqueada** e o gap volta
 | #   | Decisão                          | Escolha                                                                                                                                                                                                                                         |
 | --- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | D1  | Transcript no download           | Sim — chat-de-doc persiste (F3 corrigida) e F4 lê do DB. Origem: requisito Paggo "appended extracted text and LLM interactions".                                                                                                                |
-| D2  | Formato do artefato              | **ZIP** com 3 arquivos: `original.<ext>` + `extracted-text.txt` + `chat-transcript.md`. PDF único (combinando tudo) é polish — backlog F5.                                                                                                      |
+| D2  | Formato do artefato              | **ZIP** com 3-4 arquivos: `original.<ext>` + `extracted-text.txt` + `narrative.txt` (se presente, F2.5) + `chat-transcript.md`. PDF único (combinando tudo) é polish — backlog F5.                                                              |
 | D3  | Paginação de `/documents`        | **Sem paginação** na F4. Lista limita em `take: 100` por user. Cursor/offset entram no backlog se demanda surgir.                                                                                                                               |
 | D4  | Filtros e busca                  | **Nenhum**. Lista crua ordenada por `updatedAt desc`. Filtro de status / busca por filename são backlog.                                                                                                                                        |
 | D5  | Localização do botão download    | **Em ambos:** linha da lista (ação rápida) + header da página de detalhe (ação principal). Usa o mesmo componente `<DownloadButton />`.                                                                                                         |
@@ -221,7 +221,12 @@ async buildArchive(userId: string, documentId: string): Promise<{ stream: Readab
     // 2) Texto extraído
     archive.append(extractedBuf, { name: 'extracted-text.txt' });
 
-    // 3) Transcript do chat
+    // 3) Narrative (F2.5) — presente apenas em docs processados após F2.5
+    if (doc.summary?.narrative) {
+      archive.append(doc.summary.narrative, { name: 'narrative.txt' });
+    }
+
+    // 4) Transcript do chat
     archive.append(transcriptStr, { name: 'chat-transcript.md' });
 
     archive.finalize();
