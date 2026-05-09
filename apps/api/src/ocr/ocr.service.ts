@@ -72,7 +72,27 @@ export class OcrService {
           continue;
         }
         const code = classifyError(err);
-        this.logger.warn(`OCR failed docId=${docId} reason=${code}`);
+        const e = err as {
+          name?: string;
+          message?: string;
+          status?: number;
+          code?: string;
+          stack?: string;
+        };
+        const detail = [
+          e.name && `name=${e.name}`,
+          e.status && `status=${e.status}`,
+          e.code && `errCode=${e.code}`,
+          e.message && `message=${e.message.slice(0, 300)}`,
+        ]
+          .filter(Boolean)
+          .join(' ');
+        this.logger.warn(`OCR failed docId=${docId} reason=${code} ${detail}`);
+        if (code === 'unknown' && e.stack) {
+          this.logger.warn(
+            `OCR stack docId=${docId}: ${e.stack.split('\n').slice(0, 6).join(' | ')}`,
+          );
+        }
         await this.docs.markFailed(docId, code);
         return;
       }
