@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { StorageModule } from './storage/storage.module';
 import { DocumentsModule } from './documents/documents.module';
 import { OcrModule } from './ocr/ocr.module';
+import { BenchmarkModule } from './ocr/benchmark/benchmark.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { UserScopedThrottlerGuard } from './auth/guards/user-scoped-throttler.guard';
@@ -27,6 +28,7 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
       { name: 'default', ttl: 60_000, limit: 60 },
       { name: 'upload', ttl: 60_000, limit: 30 },
       { name: 'ocr', ttl: 60_000, limit: 3 },
+      { name: 'benchmark', ttl: 3_600_000, limit: 5 },
     ]),
     PrismaModule,
     HealthModule,
@@ -35,6 +37,7 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
     StorageModule,
     DocumentsModule,
     OcrModule,
+    ...(process.env.NODE_ENV !== 'test' ? [BenchmarkModule] : []),
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: LoggerInterceptor },
