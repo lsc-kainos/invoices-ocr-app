@@ -22,6 +22,12 @@ enum DocumentStatus {
   FAILED
 }
 
+enum ChatRole {
+  USER
+  ASSISTANT
+  TOOL
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -31,7 +37,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  documents Document[]
+  documents    Document[]
+  chatSessions ChatSession[]
 }
 
 model Document {
@@ -56,6 +63,43 @@ model Document {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
+  chatSessions   ChatSession[]
+
   @@index([userId, status])
   @@index([userId, updatedAt])
+}
+
+model ChatSession {
+  id         String        @id @default(cuid())
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  documentId String?
+  document   Document?     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  title      String?
+  messages   ChatMessage[]
+
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@unique([userId, documentId])
+  @@index([userId, updatedAt])
+}
+
+model ChatMessage {
+  id         String      @id @default(cuid())
+  sessionId  String
+  session    ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  role       ChatRole
+  content    String      @db.Text
+
+  toolCallId String?
+  toolName   String?
+  toolArgs   Json?
+
+  createdAt  DateTime    @default(now())
+
+  @@index([sessionId, createdAt])
 }
