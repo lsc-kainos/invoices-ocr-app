@@ -6,12 +6,14 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { InternalOnly } from '../auth/decorators/internal-only.decorator';
 import { UsersService } from './users.service';
 import { SyncUserDto } from './dto/sync-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 
 @Controller('api/v1/internal/users')
+@SkipThrottle({ benchmark: true })
 export class InternalUsersController {
   constructor(private readonly users: UsersService) {}
 

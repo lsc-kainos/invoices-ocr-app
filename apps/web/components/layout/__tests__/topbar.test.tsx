@@ -17,10 +17,10 @@ const user = {
   role: 'USER' as const,
 };
 
-function renderTopbar() {
+function renderTopbar(role: 'USER' | 'ADMIN' = 'USER') {
   return render(
     <NextIntlClientProvider locale="pt-BR" messages={messages}>
-      <Topbar user={user} />
+      <Topbar user={{ ...user, role }} />
     </NextIntlClientProvider>,
   );
 }
@@ -83,5 +83,18 @@ describe('<Topbar />', () => {
     expect(
       screen.getByRole('button', { name: messages.topbar.user_menu_label }),
     ).toBeInTheDocument();
+  });
+
+  it('USER não vê o link de Benchmark', () => {
+    renderTopbar('USER');
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+    expect(within(nav).queryByText('Benchmark')).toBeNull();
+  });
+
+  it('ADMIN vê o link de Benchmark apontando para /admin/benchmark', () => {
+    renderTopbar('ADMIN');
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+    const link = within(nav).getByRole('link', { name: /Benchmark/i });
+    expect(link).toHaveAttribute('href', '/admin/benchmark');
   });
 });

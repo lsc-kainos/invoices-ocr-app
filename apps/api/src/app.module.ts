@@ -27,9 +27,9 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
     }),
     EventEmitterModule.forRoot({ wildcard: false, maxListeners: 10 }),
     ThrottlerModule.forRoot([
-      { name: 'default', ttl: 60_000, limit: 60 },
-      { name: 'upload', ttl: 60_000, limit: 30 },
-      { name: 'ocr', ttl: 60_000, limit: 3 },
+      { name: 'default', ttl: 60_000, limit: 240 },
+      { name: 'upload', ttl: 60_000, limit: 60 },
+      { name: 'ocr', ttl: 60_000, limit: 30 },
       { name: 'benchmark', ttl: 3_600_000, limit: 5 },
       { name: 'chat', ttl: 60_000, limit: 15 },
       { name: 'download', ttl: 60_000, limit: 10 },

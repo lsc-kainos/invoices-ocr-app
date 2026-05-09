@@ -43,6 +43,7 @@
       "home": "Início",
       "list": "Minhas notas",
       "chat": "Chat",
+      "benchmark": "Benchmark",
       "menu_label": "Abrir menu"
     },
     "user_menu_label": "Conta",
@@ -158,7 +159,9 @@
       "zoom_in": "Aumentar zoom",
       "zoom_out": "Diminuir zoom",
       "rotate": "Girar",
-      "loading": "Carregando..."
+      "loading": "Carregando...",
+      "pdf_fallback": "Não foi possível visualizar o PDF aqui.",
+      "pdf_open_in_tab": "Abrir em nova aba"
     },
     "history": {
       "upload": "Arquivo enviado",
