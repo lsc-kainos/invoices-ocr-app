@@ -171,6 +171,27 @@
       "extracting": "Extraindo texto..."
     }
   },
+  "documents": {
+    "list": {
+      "title": "Minhas notas",
+      "subtitle": "Documentos enviados, ordenados pelos mais recentes.",
+      "empty_title": "Você ainda não enviou nenhum documento",
+      "empty_cta": "Fazer primeiro upload",
+      "status": {
+        "QUEUED": "Na fila",
+        "OCR_RUNNING": "Processando",
+        "READY": "Pronto",
+        "FAILED": "Falhou"
+      },
+      "updated_at": "atualizado {when}"
+    },
+    "download": {
+      "button": "Download",
+      "disabled_tooltip": "Disponível quando a extração terminar",
+      "error_not_ready": "Documento ainda não está pronto",
+      "error_generic": "Não foi possível baixar agora. Tente de novo."
+    }
+  },
   "disabled": {
     "f3": "Disponível na próxima versão",
     "f4": "Disponível na próxima versão"
