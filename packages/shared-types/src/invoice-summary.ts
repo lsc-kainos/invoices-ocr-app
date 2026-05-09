@@ -16,7 +16,7 @@ export interface InvoiceCore {
 export interface InvoiceExtra {
   label: string;
   value: string;
-  mono?: boolean;
+  mono: boolean | null;
 }
 
 export interface InvoiceSummary {

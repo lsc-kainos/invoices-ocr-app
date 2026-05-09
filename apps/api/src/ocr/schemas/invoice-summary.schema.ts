@@ -16,7 +16,7 @@ export const invoiceCoreSchema = z.object({
 export const invoiceExtraSchema = z.object({
   label: z.string(),
   value: z.string(),
-  mono: z.boolean().optional(),
+  mono: z.boolean().nullable(),
 });
 
 export const invoiceSummarySchema = z.object({
