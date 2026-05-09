@@ -174,5 +174,21 @@
   "disabled": {
     "f3": "Disponível na próxima versão",
     "f4": "Disponível na próxima versão"
+  },
+  "chat": {
+    "placeholder": "Faça uma pergunta sobre o documento…",
+    "placeholder_workspace": "Pergunte sobre suas notas…",
+    "send": "Enviar",
+    "loading": "Gerando resposta…",
+    "clear": "Limpar conversa",
+    "new_conversation": "Nova conversa",
+    "untitled": "Sem título",
+    "sidebar_empty": "Nenhuma conversa ainda. Comece uma nova.",
+    "error_generic": "Não consegui responder. Tente de novo.",
+    "error_rate_limit": "Muitas mensagens. Aguarde um instante.",
+    "error_provider": "Serviço de IA temporariamente indisponível.",
+    "empty_state_title": "Pergunte qualquer coisa",
+    "empty_state_subtitle": "Toque em uma sugestão ou digite abaixo.",
+    "tab_conversa": "Conversa"
   }
 }
