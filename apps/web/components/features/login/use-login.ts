@@ -7,16 +7,14 @@ type Provider = 'google' | 'github';
 export function useLogin() {
   const [pending, setPending] = useState<Provider | null>(null);
 
-  // Reset pending quando a página é restaurada do bfcache
-  // (usuário clica "voltar" durante o OAuth flow). Sem isso, o
-  // state pending fica preso e os botões aparecem disabled/sem
-  // spinner ao retornar a /login.
+  // Reseta pending em qualquer pageshow (fresh nav OR bfcache restore).
+  // Cobre todos os caminhos de retorno do OAuth provider quando o user
+  // cancela / clica voltar — sem isso, pending podia ficar preso e os
+  // botões aparecerem disabled na 2ª tentativa.
   useEffect(() => {
-    const onPageShow = (e: PageTransitionEvent) => {
-      if (e.persisted) setPending(null);
-    };
-    window.addEventListener('pageshow', onPageShow);
-    return () => window.removeEventListener('pageshow', onPageShow);
+    const reset = () => setPending(null);
+    window.addEventListener('pageshow', reset);
+    return () => window.removeEventListener('pageshow', reset);
   }, []);
 
   const handle = useCallback(

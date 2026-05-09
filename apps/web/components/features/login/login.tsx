@@ -91,8 +91,21 @@ export function Login() {
       {/* Auth card */}
       <div className="flex items-center justify-center overflow-hidden px-6 py-10">
         <div className="w-full max-w-[360px]">
-          <div className={`${slide} mb-8 flex justify-center duration-500 lg:hidden`}>
-            <Logo />
+          {/* Mobile mini hero: Logo + headline + subtítulo (versão
+              compacta do hero editorial; aparece apenas em <lg, onde a
+              coluna esquerda não renderiza). */}
+          <div className="mb-10 flex flex-col gap-3 lg:hidden">
+            <div className={`${slide} duration-500`}>
+              <Logo />
+            </div>
+            <h1 className="animate-in fade-in-0 zoom-in-95 fill-mode-both text-foreground text-2xl font-semibold tracking-tight delay-150 duration-700">
+              {t('headline')}
+            </h1>
+            <p
+              className={`${slide} text-muted-foreground text-sm leading-relaxed delay-300 duration-500`}
+            >
+              {t('subtitle')}
+            </p>
           </div>
 
           <h2

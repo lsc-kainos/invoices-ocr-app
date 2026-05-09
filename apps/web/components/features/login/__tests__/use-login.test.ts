@@ -51,7 +51,7 @@ describe('useLogin', () => {
     expect(result.current.pending).toBeNull();
   });
 
-  it('NÃO reseta pending em pageshow normal (persisted=false)', () => {
+  it('reseta pending em pageshow fresh (persisted=false) — back-nav sem bfcache', () => {
     (signIn as ReturnType<typeof vi.fn>).mockImplementation(() => new Promise<void>(() => {}));
     const { result } = renderHook(() => useLogin());
 
@@ -60,11 +60,13 @@ describe('useLogin', () => {
     });
     expect(result.current.pending).toBe('google');
 
+    // Alguns browsers servem back-nav sem bfcache (persisted=false). Pra
+    // desbloquear o user em todos os caminhos, reset incondicional.
     act(() => {
       const ev = new Event('pageshow') as PageTransitionEvent;
       Object.defineProperty(ev, 'persisted', { value: false });
       window.dispatchEvent(ev);
     });
-    expect(result.current.pending).toBe('google');
+    expect(result.current.pending).toBeNull();
   });
 });
