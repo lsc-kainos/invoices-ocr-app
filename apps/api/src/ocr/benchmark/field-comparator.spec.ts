@@ -17,9 +17,17 @@ describe('matchField', () => {
     expect(matchField('anything', '')).toBe(true);
   });
 
-  it.todo('normalize: $232.95 matches 232.95');
-  it.todo('normalize: trims whitespace and lowercases');
-  it.todo('normalize: handles null extracted vs non-null expected');
+  it('normalize: $232.95 matches 232.95', () => {
+    expect(matchField('$232.95', '232.95')).toBe(true);
+  });
+
+  it('normalize: trims whitespace and lowercases', () => {
+    expect(matchField('  Clark-Foster  ', 'clark-foster')).toBe(true);
+  });
+
+  it('normalize: null extracted vs non-null expected → false', () => {
+    expect(matchField(null, '232.95')).toBe(false);
+  });
 });
 
 describe('computeScore', () => {

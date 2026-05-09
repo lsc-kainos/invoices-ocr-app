@@ -26,12 +26,12 @@ export type AggregateResult = {
   perField: Record<string, FieldAggregate>;
 };
 
-// TODO(human): implement normalize(v: string | null): string
-// Should clean up a field value for comparison — strip currency symbols,
-// punctuation, whitespace, and normalize case so "$ 232.95" matches "232.95"
-function normalize(_v: string | null): string {
-  // TODO(human): implement this
-  throw new Error('Not implemented');
+function normalize(v: string | null): string {
+  if (!v) return '';
+  return v
+    .toLowerCase()
+    .replace(/[$,\s]/g, '')
+    .trim();
 }
 
 export function matchField(
