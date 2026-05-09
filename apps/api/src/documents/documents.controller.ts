@@ -22,6 +22,7 @@ import type { DocumentDetailDto } from './dto/document-detail.dto';
 const TEN_MB = 10 * 1024 * 1024;
 
 @Controller('api/v1/documents')
+@SkipThrottle({ benchmark: true })
 export class DocumentsController {
   constructor(private readonly docs: DocumentsService) {}
 
@@ -66,6 +67,8 @@ export class DocumentsController {
 
   @Public()
   @Get(':id/file')
+  @Throttle({ default: { ttl: 60_000, limit: 300 } })
+  @SkipThrottle({ upload: true, ocr: true })
   getFile(
     @Param('id') id: string,
     @Query('token') token: string,
