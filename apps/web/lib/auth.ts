@@ -5,6 +5,16 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import type { Role } from '@invoices-ocr/shared-types';
 import { internalFetch } from './internal-api';
 import { env } from './env';
+import { secretFingerprint } from './secret-fingerprint';
+
+// One-shot no cold start do server: imprime o fingerprint do secret
+// pra cruzar com o log "[Bootstrap] NEXTAUTH_SECRET fingerprint: <fp>"
+// emitido pela API. Mesmo fingerprint → secret sincronizado entre
+// os dois services. Diferentes → mismatch (independente do que o
+// dashboard do Railway mostre). Pulado durante build estático do Next.
+if (process.env.NEXT_PHASE !== 'phase-production-build') {
+  console.log(`[bootstrap] NEXTAUTH_SECRET fingerprint: ${secretFingerprint(env.NEXTAUTH_SECRET)}`);
+}
 
 type Callbacks = NonNullable<NextAuthOptions['callbacks']>;
 type SignInArgs = Parameters<NonNullable<Callbacks['signIn']>>[0];

@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { UnauthorizedException } from '@nestjs/common';
+import { Logger, UnauthorizedException } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { JwtStrategy } from './jwt.strategy';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -58,5 +58,29 @@ describe('JwtStrategy', () => {
     await expect(
       strategy.decryptAndValidate('not.a.valid.jwe'),
     ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  // Regressão: catch silencioso (catch {}) escondeu a causa-raiz do
+  // incidente de prod (decryption operation failed → secret mismatch).
+  // Agora logamos err.message para visibilidade — não muda comportamento
+  // (ainda lança UnauthorizedException), só adiciona rastro.
+  it('decryptAndValidate loga warn com a mensagem do jose ao falhar', async () => {
+    const warnSpy = jest
+      .spyOn(Logger.prototype, 'warn')
+      .mockImplementation(() => {});
+    try {
+      await expect(
+        strategy.decryptAndValidate('not.a.valid.jwe'),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      const msg = String((warnSpy.mock.calls as unknown[][])[0][0]);
+      expect(msg).toMatch(/JWE decrypt failed/);
+      // O jose normalmente diz algo tipo "Invalid Compact JWE" para um
+      // token malformado como 'not.a.valid.jwe'. Não fixamos o texto exato
+      // (depende da versão), só asseguramos que existe alguma razão.
+      expect(msg.length).toBeGreaterThan('JWE decrypt failed: '.length);
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 });
