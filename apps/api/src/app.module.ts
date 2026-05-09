@@ -25,7 +25,7 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
     EventEmitterModule.forRoot({ wildcard: false, maxListeners: 10 }),
     ThrottlerModule.forRoot([
       { name: 'default', ttl: 60_000, limit: 60 },
-      { name: 'upload', ttl: 60_000, limit: 5 },
+      { name: 'upload', ttl: 60_000, limit: 30 },
       { name: 'ocr', ttl: 60_000, limit: 3 },
     ]),
     PrismaModule,
