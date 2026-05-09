@@ -31,7 +31,7 @@ describe('<Topbar />', () => {
     expect(screen.getByText('Invoices')).toBeInTheDocument();
   });
 
-  it('Início é link, Minhas notas e Chat estão disabled', () => {
+  it('Desktop nav: Início é link, Minhas notas e Chat estão disabled', () => {
     renderTopbar();
     const nav = screen.getByRole('navigation', { name: /primary/i });
     expect(within(nav).getByRole('link', { name: 'Início' })).toHaveAttribute('href', '/');
@@ -40,6 +40,22 @@ describe('<Topbar />', () => {
       expect(item).toHaveAttribute('aria-disabled', 'true');
       expect(item.className).toMatch(/pointer-events-none/);
     }
+  });
+
+  it('Desktop nav só aparece em lg+ (hidden lg:flex)', () => {
+    renderTopbar();
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+    expect(nav.className).toMatch(/hidden/);
+    expect(nav.className).toMatch(/lg:flex/);
+  });
+
+  it('Mobile hamburger trigger existe (lg:hidden) com aria-label', () => {
+    renderTopbar();
+    const trigger = screen.getByRole('button', {
+      name: messages.topbar.nav.menu_label,
+    });
+    expect(trigger).toBeInTheDocument();
+    expect(trigger.className).toMatch(/lg:hidden/);
   });
 
   it('NÃO renderiza search nem workspace switcher (simplificado)', () => {

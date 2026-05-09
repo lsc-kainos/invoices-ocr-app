@@ -24,7 +24,8 @@
     "nav": {
       "home": "Início",
       "list": "Minhas notas",
-      "chat": "Chat"
+      "chat": "Chat",
+      "menu_label": "Abrir menu"
     },
     "user_menu_label": "Conta",
     "menu": {
