@@ -121,7 +121,8 @@ export function ActiveUploadsProvider({ children }: { children: ReactNode }) {
         setActiveUploads(list);
 
         const signature = listSignature(list);
-        if (signature !== lastSignature) {
+        const hasRunning = list.some((d) => d.status === 'OCR_RUNNING');
+        if (signature !== lastSignature || hasRunning) {
           delayMs = INITIAL_DELAY_MS;
         } else {
           delayMs = Math.min(delayMs * 2, MAX_DELAY_MS);
