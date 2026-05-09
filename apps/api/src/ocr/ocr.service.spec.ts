@@ -107,4 +107,10 @@ describe('OcrService', () => {
     expect(docs.markFailed).toHaveBeenCalledWith('d1', 'unknown');
     expect(provider.extract).not.toHaveBeenCalled();
   });
+
+  // O branch PDF (mime=application/pdf) chama pdfToImage que carrega
+  // pdfjs-dist via dynamic import com cleanup async fora do await — gera
+  // "import after Jest env torn down" em CI. Cobertura real desse caminho
+  // vive no E2E (apps/api/test/documents.e2e-spec.ts) e no spec dedicado de
+  // pdfToImage (skip por default; RUN_PDF_INTEGRATION=1 ativa local).
 });
