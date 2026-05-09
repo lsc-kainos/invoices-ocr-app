@@ -61,9 +61,8 @@ describe('BenchmarkService', () => {
 
   it('emits 2 progress events + 1 complete for 2 samples', async () => {
     mockedLoad.mockResolvedValue([makeSample('a.jpg'), makeSample('b.jpg')]);
-    const provider = {
-      extract: jest.fn().mockResolvedValue(makeFixture()),
-    } as unknown as OpenAiOcrProvider;
+    const extract = jest.fn().mockResolvedValue(makeFixture());
+    const provider = { extract } as unknown as OpenAiOcrProvider;
 
     const service = new BenchmarkService(provider);
     const events: BenchmarkEvent[] = [];
@@ -74,7 +73,7 @@ describe('BenchmarkService', () => {
     expect(progress).toHaveLength(2);
     expect(complete).toHaveLength(1);
     expect(progress[0].type === 'progress' && progress[0].score).toBeDefined();
-    expect(provider.extract).toHaveBeenCalledTimes(2);
+    expect(extract).toHaveBeenCalledTimes(2);
   });
 
   it('continues after extract error and reports error in event', async () => {

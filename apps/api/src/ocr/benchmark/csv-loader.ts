@@ -54,11 +54,11 @@ export async function loadCsvSamples(
   samplesDir: string,
 ): Promise<BenchmarkSample[]> {
   const content = await fs.readFile(join(samplesDir, 'index.csv'), 'utf-8');
-  const rows = parse(content, {
+  const rows: Record<string, string>[] = parse(content, {
     columns: true,
     skip_empty_lines: true,
     relax_quotes: true,
     relax_column_count: true,
-  }) as Record<string, string>[];
+  });
   return rows.map(parseRow);
 }

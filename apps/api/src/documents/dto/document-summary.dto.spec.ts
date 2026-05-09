@@ -20,12 +20,12 @@ describe('toSummaryDto', () => {
   };
 
   it('mapeia retryCount do row Prisma', () => {
-    const dto = toSummaryDto(baseDoc as never);
+    const dto = toSummaryDto(baseDoc);
     expect(dto.retryCount).toBe(2);
   });
 
   it('mantém retryCount=0 em doc novo', () => {
-    const dto = toSummaryDto({ ...baseDoc, retryCount: 0 } as never);
+    const dto = toSummaryDto({ ...baseDoc, retryCount: 0 });
     expect(dto.retryCount).toBe(0);
   });
 });

@@ -3,16 +3,16 @@
 // file-type é ESM-only e usa dynamic import real — não funciona no Jest sem
 // --experimental-vm-modules. Mockamos detectFileType com magic bytes inline.
 jest.mock('./helpers/detect-file-type', () => ({
-  detectFileType: jest.fn().mockImplementation(async (buf: Buffer) => {
+  detectFileType: jest.fn().mockImplementation((buf: Buffer) => {
     if (buf[0] === 0xff && buf[1] === 0xd8)
-      return { ext: 'jpg', mime: 'image/jpeg' };
+      return Promise.resolve({ ext: 'jpg', mime: 'image/jpeg' });
     if (buf[0] === 0x89 && buf[1] === 0x50)
-      return { ext: 'png', mime: 'image/png' };
+      return Promise.resolve({ ext: 'png', mime: 'image/png' });
     if (buf[0] === 0x25 && buf[1] === 0x50)
-      return { ext: 'pdf', mime: 'application/pdf' };
+      return Promise.resolve({ ext: 'pdf', mime: 'application/pdf' });
     if (buf[0] === 0x50 && buf[1] === 0x4b)
-      return { ext: 'zip', mime: 'application/zip' };
-    return undefined;
+      return Promise.resolve({ ext: 'zip', mime: 'application/zip' });
+    return Promise.resolve(undefined);
   }),
 }));
 
@@ -369,7 +369,7 @@ describe('DocumentsService', () => {
         ...(doc as object),
         status: DocumentStatus.QUEUED,
         failureReason: null,
-      } as never);
+      });
 
       const result = await svc.retry('u1', 'doc1');
 
@@ -400,7 +400,7 @@ describe('DocumentsService', () => {
         id: 'doc1',
         userId: 'u1',
         status: DocumentStatus.OCR_RUNNING,
-      } as never);
+      });
       await expect(svc.retry('u1', 'doc1')).rejects.toThrow(ConflictException);
       expect(events.emit).not.toHaveBeenCalled();
     });
