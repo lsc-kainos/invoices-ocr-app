@@ -9,9 +9,12 @@ interface TabsPaneProps {
   doc: DocumentDetail;
 }
 
+// Formata como "DD/MM/AAAA HH:MM" usando UTC pra evitar mismatch
+// SSR/CSR (toLocaleString varia por timezone do runtime).
 function formatHistoryDate(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}/${d.getUTCFullYear()} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`;
 }
 
 export function TabsPane({ doc }: TabsPaneProps) {

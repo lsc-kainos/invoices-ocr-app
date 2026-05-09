@@ -77,7 +77,10 @@ export const authOptions: NextAuthOptions = {
       clientId: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,
     }),
-    ...(process.env.NODE_ENV === 'test'
+    // E2E_TEST=1 ativa o provider de credenciais usado pelos testes
+    // Playwright. NODE_ENV sozinho não basta porque `next dev` força
+    // NODE_ENV=development; usamos uma flag dedicada.
+    ...(process.env.NODE_ENV === 'test' || process.env.E2E_TEST === '1'
       ? [
           CredentialsProvider({
             id: 'e2e-test',

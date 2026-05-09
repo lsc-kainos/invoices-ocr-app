@@ -1,0 +1,134 @@
+import { test, expect, type Page } from '@playwright/test';
+import { PrismaClient } from '@prisma/client';
+import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
+
+const prisma = new PrismaClient();
+
+const SAMPLES_DIR = join(__dirname, '..', '..', '..', 'samples');
+const INVOICE_JPG = join(SAMPLES_DIR, 'invoice-en.jpg');
+
+test.beforeEach(async () => {
+  await prisma.document.deleteMany({
+    where: { user: { email: { startsWith: 'playwright-' } } },
+  });
+  await prisma.user.deleteMany({
+    where: { email: { startsWith: 'playwright-' } },
+  });
+});
+
+test.afterAll(async () => {
+  await prisma.document.deleteMany({
+    where: { user: { email: { startsWith: 'playwright-' } } },
+  });
+  await prisma.user.deleteMany({
+    where: { email: { startsWith: 'playwright-' } },
+  });
+  await prisma.$disconnect();
+});
+
+async function loginAs(page: Page, email: string) {
+  await page.goto('/login');
+  const csrfRes = await page.request.get('/api/auth/csrf');
+  const { csrfToken } = (await csrfRes.json()) as { csrfToken: string };
+  await page.request.post('/api/auth/callback/e2e-test', {
+    form: { csrfToken, email, callbackUrl: '/' },
+    failOnStatusCode: false,
+  });
+  await page.goto('/');
+}
+
+async function uploadFile(page: Page, filePath: string, filename: string, mime: string) {
+  const buf = readFileSync(filePath);
+  return page.request.post('/api/upload', {
+    multipart: {
+      file: { name: filename, mimeType: mime, buffer: buf },
+    },
+    failOnStatusCode: false,
+  });
+}
+
+async function pollUntilReady(
+  page: Page,
+  docId: string,
+  maxAttempts = 6,
+  delayMs = 2000,
+): Promise<{ status: string; extractedText: string | null }> {
+  for (let i = 0; i < maxAttempts; i++) {
+    await page.waitForTimeout(delayMs);
+    const r = await page.request.get(`/api/documents/${docId}`, {
+      failOnStatusCode: false,
+    });
+    if (r.ok()) {
+      const body = (await r.json()) as {
+        status: string;
+        extractedText: string | null;
+      };
+      if (body.status === 'READY' || body.status === 'FAILED') return body;
+    }
+  }
+  throw new Error('document never reached READY/FAILED');
+}
+
+test('upload via API → READY → detail page renderiza com texto bruto', async ({ page }) => {
+  await loginAs(page, `playwright-up-${Date.now()}@test.local`);
+
+  // Confirma que a home renderiza a página de upload
+  await expect(page.getByRole('heading', { name: 'Nova nota', level: 1 })).toBeVisible({
+    timeout: 15_000,
+  });
+
+  // Upload via API (mais determinístico que setInputFiles + dropzone)
+  const upload = await uploadFile(page, INVOICE_JPG, 'invoice.jpg', 'image/jpeg');
+  expect(upload.status()).toBe(201);
+  const created = (await upload.json()) as { id: string; status: string };
+  expect(created.status).toBe('QUEUED');
+
+  // Aguarda processamento (mock = ~800ms)
+  const finished = await pollUntilReady(page, created.id);
+  expect(finished.status).toBe('READY');
+  expect(finished.extractedText).toBeTruthy();
+
+  // Navega para detail page
+  await page.goto(`/documents/${created.id}`);
+  await expect(page.getByRole('heading', { name: 'Campos extraídos' })).toBeVisible({
+    timeout: 10_000,
+  });
+
+  // Tab "Texto bruto" mostra o conteúdo
+  await page.getByRole('tab', { name: 'Texto bruto' }).click();
+  await expect(page.locator('pre')).toContainText(/.+/, { timeout: 10_000 });
+});
+
+test('upload arquivo não suportado → 400', async ({ page }) => {
+  await loginAs(page, `playwright-bad-${Date.now()}@test.local`);
+  const docx = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00]);
+  const r = await page.request.post('/api/upload', {
+    multipart: {
+      file: { name: 'fake.docx', mimeType: 'application/octet-stream', buffer: docx },
+    },
+    failOnStatusCode: false,
+  });
+  expect(r.status()).toBe(400);
+});
+
+test('user A não vê documento de user B → 404', async ({ page }) => {
+  await loginAs(page, `playwright-a-${Date.now()}@test.local`);
+  const upload = await uploadFile(page, INVOICE_JPG, 'invoice.jpg', 'image/jpeg');
+  expect(upload.status()).toBe(201);
+  const created = (await upload.json()) as { id: string };
+
+  // Logout
+  await page.getByRole('button', { name: /Conta/i }).click();
+  await page.getByRole('menuitem', { name: 'Sair' }).click();
+  await expect(page).toHaveURL(/\/login/);
+
+  // Login como B
+  await loginAs(page, `playwright-b-${Date.now()}@test.local`);
+
+  // GET ao doc de A → 404
+  const r = await page.request.get(`/api/documents/${created.id}`, {
+    failOnStatusCode: false,
+  });
+  expect(r.status()).toBe(404);
+});
