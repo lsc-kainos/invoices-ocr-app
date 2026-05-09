@@ -19,7 +19,7 @@ describe('MockOcrProvider', () => {
     const seen = new Set<string>();
     for (const seed of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) {
       const r = await provider.extract(Buffer.from(seed), 'image/jpeg');
-      seen.add(r.summary.core.tipo ?? 'null');
+      seen.add(r.summary.core.invoiceNumber ?? 'null');
     }
     expect(seen.size).toBeGreaterThanOrEqual(2);
   }, 15_000);

@@ -1,16 +1,22 @@
-export type InvoiceTipo = 'NF-e' | 'NFS-e' | 'Boleto' | 'Recibo' | 'Outro';
-
 export interface InvoiceCore {
-  tipo: InvoiceTipo | null;
-  numero: string | null;
-  dataEmissao: string | null;
-  cnpjEmitente: string | null;
-  razaoSocial: string | null;
-  cnpjDestinatario: string | null;
-  razaoSocialDestinatario: string | null;
-  valorTotal: string | null;
-  chaveAcesso: string | null;
-  cfop: string | null;
+  invoiceNumber: string | null;
+  invoiceDate: string | null;
+  dueDate: string | null;
+  sellerName: string | null;
+  sellerAddress: string | null;
+  clientName: string | null;
+  clientAddress: string | null;
+  tax: string | null;
+  discount: string | null;
+  total: string | null;
+  paymentMethod: string | null;
+}
+
+export interface InvoiceItem {
+  description: string;
+  quantity: string | null;
+  unitPrice: string | null;
+  totalPrice: string | null;
 }
 
 export interface InvoiceExtra {
@@ -21,5 +27,7 @@ export interface InvoiceExtra {
 
 export interface InvoiceSummary {
   core: InvoiceCore;
+  items: InvoiceItem[];
   extras: InvoiceExtra[];
+  narrative: string;
 }

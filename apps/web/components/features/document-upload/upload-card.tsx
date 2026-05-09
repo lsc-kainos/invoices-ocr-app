@@ -47,7 +47,8 @@ export function UploadCard({ doc }: UploadCardProps) {
   const tRetry = useTranslations('upload.retry');
   const { retry, isPending } = useDocumentRetry();
 
-  const tipo = doc.summary?.core.tipo ?? 'Doc';
+  // TODO(f2.5): rebuild upload-card chip without `tipo` (universal schema)
+  const tipo = 'Doc';
   const ladder = LADDER[doc.status];
   const isReady = doc.status === 'READY';
   const isFailed = doc.status === 'FAILED';

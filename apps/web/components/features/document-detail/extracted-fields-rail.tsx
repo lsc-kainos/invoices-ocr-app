@@ -5,36 +5,49 @@ import { cn } from '@/lib/utils';
 import type { InvoiceCore, InvoiceSummary } from '@invoices-ocr/shared-types';
 
 const FIELD_KEYS = [
-  'tipo',
-  'numero',
-  'dataEmissao',
-  'chaveAcesso',
-  'cnpjEmitente',
-  'razaoSocial',
-  'cnpjDestinatario',
-  'razaoSocialDestinatario',
-  'valorTotal',
-  'cfop',
+  'invoiceNumber',
+  'invoiceDate',
+  'dueDate',
+  'sellerName',
+  'sellerAddress',
+  'clientName',
+  'clientAddress',
+  'tax',
+  'discount',
+  'total',
+  'paymentMethod',
 ] as const satisfies ReadonlyArray<keyof InvoiceCore>;
 
-const MONO_KEYS = new Set(['chaveAcesso', 'cnpjEmitente', 'cnpjDestinatario', 'cfop', 'numero']);
+const MONO_KEYS = new Set<keyof InvoiceCore>(['invoiceNumber']);
 
 interface ExtractedFieldsRailProps {
   summary: InvoiceSummary | null;
 }
 
 export function ExtractedFieldsRail({ summary }: ExtractedFieldsRailProps) {
-  const t = useTranslations('document.fields');
-  const empty = t('empty');
+  const t = useTranslations('document');
+  const tFields = useTranslations('document.fields');
+  const empty = tFields('empty');
 
   return (
     <aside className="border-border bg-card flex flex-col gap-4 rounded-md border p-4">
       <header>
         <h2 className="text-foreground text-[12px] font-semibold tracking-wide uppercase">
-          {t('title')}
+          {tFields('title')}
         </h2>
-        <p className="text-muted-foreground mt-1 text-[11px]">{t('hint')}</p>
+        <p className="text-muted-foreground mt-1 text-[11px]">{tFields('hint')}</p>
       </header>
+
+      {summary?.narrative ? (
+        <section className="flex flex-col gap-1">
+          <h3 className="text-muted-foreground text-[10px] tracking-wide uppercase">
+            {t('narrative')}
+          </h3>
+          <blockquote className="border-primary/40 bg-muted/40 text-foreground rounded-sm border-l-2 px-3 py-2 text-[12px] leading-relaxed">
+            {summary.narrative}
+          </blockquote>
+        </section>
+      ) : null}
 
       <dl className="flex flex-col gap-3">
         {FIELD_KEYS.map((key) => {
@@ -42,7 +55,7 @@ export function ExtractedFieldsRail({ summary }: ExtractedFieldsRailProps) {
           return (
             <div key={key} className="flex flex-col gap-0.5">
               <dt className="text-muted-foreground text-[10px] tracking-wide uppercase">
-                {t(key)}
+                {tFields(key)}
               </dt>
               <dd
                 className={cn(
@@ -56,23 +69,45 @@ export function ExtractedFieldsRail({ summary }: ExtractedFieldsRailProps) {
             </div>
           );
         })}
+      </dl>
 
-        {summary?.extras?.length ? (
-          <>
-            <hr className="border-border" />
-            {summary.extras.map((extra, idx) => (
-              <div key={`${extra.label}-${idx}`} className="flex flex-col gap-0.5">
-                <dt className="text-muted-foreground text-[10px] tracking-wide uppercase">
-                  {extra.label}
-                </dt>
-                <dd className={cn('text-foreground text-[12px]', extra.mono && 'font-mono')}>
-                  {extra.value}
-                </dd>
+      {summary?.items?.length ? (
+        <section className="flex flex-col gap-2">
+          <h3 className="text-muted-foreground text-[10px] tracking-wide uppercase">
+            {t('items.title')}
+          </h3>
+          <div className="flex flex-col gap-2">
+            {summary.items.map((item, idx) => (
+              <div key={idx} className="bg-muted/40 flex flex-col gap-1 rounded-sm px-3 py-2">
+                <span className="text-foreground text-[12px]">{item.description}</span>
+                <div className="text-muted-foreground flex gap-3 text-[11px]">
+                  {item.quantity != null && <span>{item.quantity}</span>}
+                  {item.unitPrice != null && <span>{item.unitPrice}</span>}
+                  {item.totalPrice != null && (
+                    <span className="text-foreground ml-auto font-medium">{item.totalPrice}</span>
+                  )}
+                </div>
               </div>
             ))}
-          </>
-        ) : null}
-      </dl>
+          </div>
+        </section>
+      ) : null}
+
+      {summary?.extras?.length ? (
+        <dl className="flex flex-col gap-3">
+          <hr className="border-border" />
+          {summary.extras.map((extra, idx) => (
+            <div key={`${extra.label}-${idx}`} className="flex flex-col gap-0.5">
+              <dt className="text-muted-foreground text-[10px] tracking-wide uppercase">
+                {extra.label}
+              </dt>
+              <dd className={cn('text-foreground text-[12px]', extra.mono && 'font-mono')}>
+                {extra.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
     </aside>
   );
 }

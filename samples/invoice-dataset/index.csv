@@ -1,0 +1,1222 @@
+File Name,Json Data,OCRed Text
+batch1-0006.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Duncan-Davis"",
+    ""client_address"": ""PSC 2324, Box 6632\nAPO AP 93827"",
+    ""seller_name"": ""Obrien Group"",
+    ""seller_address"": ""6217 Boyd Ville Apt. 758\nRobbinsberg, AZ 54997"",
+    ""invoice_number"": ""72128555"",
+    ""invoice_date"": ""12/25/2013"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Fatawa Islamiyah (Islamic Verdicts) (8 Volume Set)"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""219.78""
+    },
+    {
+      ""description"": ""Sasinowski M-Legacy Of Ra BOOK NEW"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""21.34""
+    },
+    {
+      ""description"": ""Time Life Books: The Old West Series ~ Complete 26 Volumes + Master Index mn853"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""461.83""
+    },
+    {
+      ""description"": ""Tumbling by Caela Carter"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""14.82""
+    },
+    {
+      ""description"": ""How to Win Friends & Influence People"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""14.56""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""66.58"",
+    ""discount"": """",
+    ""total"": ""732.34""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 72128555 Date of issue: 12/25/2013 Seller: Client: Obrien Group Duncan-Davis 6217 Boyd Ville Apt: 758 PSC 2324, Box 6632 Robbinsberg, AZ 54997 APO AP 93827 Tax Id: 905-82-5399 Tax Id: 917-86-7656 IBAN: GBZIQMAA96406297569205 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth Fatawa Islamiyah (Islamic 2,00 each 99,90 199,80 10% 219,78 Verdicts) (8 Volume Set) 2 Sasinowski M-Legacy Of Ra 1,00 each 19,40 19,40 10% 21,34 BOOK NEW 3 Time Life Books: The Old West 3,00 each 139,95 419,85 10% 461,83 Series Complete 26 Volumes Master Index mn853 Tumbling by Caela Carter 3,00 each 4,49 13,47 10% 14,82 5 How to Win Friends Influence 2,00 each 6,62 13,24 10% 14,56 People SUMMARY VAT [%] Net worth VAT Gross worth 10% 665,76 66,58 732,34 Total $ 665,76 $ 66,58 $ 732,34"
+batch1-0004.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Castillo LLC"",
+    ""client_address"": ""70391 Kelsey Terrace\nGarcialand, VT 41740"",
+    ""seller_name"": ""Reyes, Holloway and Lee"",
+    ""seller_address"": ""38676 Johnson Burg Suite 666\nWest Rebeccamouth, SD 02588"",
+    ""invoice_number"": ""16273983"",
+    ""invoice_date"": ""04/01/2017"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Handmade Thick round warm crochet Rug Carpet Mat 97% acrylic 3% me Floor Decor"",
+      ""quantity"": ""4.00"",
+      ""total_price"": ""197.96""
+    },
+    {
+      ""description"": ""Rug White Moroccan Beni Ourain Trellis Shag Area Rug Authentic Handmade Carpet"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""539.00""
+    },
+    {
+      ""description"": ""Abstract Living Room Carpet Home Decor Nordic Style Bedside Area Rug Floor Mats"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""26.41""
+    },
+    {
+      ""description"": ""Leopard Printed Rug Skin Mat Leather Faux Fur Animals Area Rugs Home Carpets"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""21.44""
+    },
+    {
+      ""description"": ""1pc Exquisite Durable Foot Cloth Christmas Carpet Xmas Cushion for Kitchen"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""34.25""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""74.46"",
+    ""discount"": """",
+    ""total"": ""819.06""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 16273983 Date of issue: 04/01/2017 Seller: Client: Reyes, Holloway and Lee Castillo LLC 38676 Johnson Burg Suite 666 70391 Kelsey Terrace West Rebeccamouth, SD 02588 Garcialand, VT 41740 Tax Id: 909-83-7738 Tax Id: 901-88-0463 IBAN: GBOGVWUL52026848004193 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1. Handmade Thick round warm 4,00 each 44,99 179,96 10% 197,96 crochet Rug Carpet Mat 97% acrylic 3% me Floor Decor 2 Rug White Moroccan Beni 2,00 each 245,00 490,00 10% 539,00 Ourain Trellis Shag Area Rug Authentic Handmade Carpet 3 Abstract Living Room Carpet 1,00 each 24,01 24,01 10% 26,41 Home Decor Nordic Style Bedside Area Rug Floor Mats Leopard Printed Rug Skin Mat 1,00 each 19,49 19,49 10% 21,44 Leather Faux Fur Animals Area Rugs Home Carpets 5 lpc Exquisite Durable Foot 2,00 each 15,57 31,14 10% 34,25 Cloth Christmas Carpet Xmas Cushion for Kitchen SUMMARY VAT [%] Net worth VAT Gross worth 10% 744,60 74,46 819,06 Total $ 744,60 $ 74,46 $ 819,06"
+batch1-0009.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Johnson Ltd"",
+    ""client_address"": ""86731 Ryan Throughway Suite 743\nWest Jason, CT 15849"",
+    ""seller_name"": ""Padilla-Miller"",
+    ""seller_address"": ""53017 Lopez Locks\nAlecborough, OH 49620"",
+    ""invoice_number"": ""81978187"",
+    ""invoice_date"": ""01/17/2013"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Wine Bottle Holder"",
+      ""quantity"": ""5,00"",
+      ""total_price"": ""59,13""
+    },
+    {
+      ""description"": ""Cuisinart Stainless Steel Electric\nWine Opener - CWO-25 - Brand\nNew in the Box"",
+      ""quantity"": ""3,00"",
+      ""total_price"": ""65,67""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""11,34"",
+    ""discount"": """",
+    ""total"": ""124,79""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 81978187 Date of issue: 01/17/2013 Seller: Client: Padilla-Miller Johnson Ltd 53017 Lopez Locks 86731 Ryan Throughway Suite 743 Alecborough, OH 49620 West Jason, CT 15849 Tax Id: 957-92-5322 Tax Id: 922-87-4664 IBAN: GB9IVPMR74805066714957 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1 Wine Bottle Holder 5,00 each 10,75 53,75 10% 59,13 2 Cuisinart Stainless Steel Electric 3,00 each 19,90 59,70 10% 65,67 Wine Opener CWO-25 Brand New in the Box SUMMARY VAT [%] Net worth VAT Gross worth 10% 113,45 11,34 124,79 Total $ 113,45 $ 11,34 $ 124,79"
+batch1-0007.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Tapia LLC"",
+    ""client_address"": ""53393 Peters Overpass\nBoothside, WY 76847"",
+    ""seller_name"": ""Wood, Simpson and Summers"",
+    ""seller_address"": ""7000 Graves Ville\nJuliastad, OH 02764"",
+    ""invoice_number"": ""11580833"",
+    ""invoice_date"": ""11/24/2019"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Dell Optiplex SFF Desktop Computer Windows 10 4GB 160GB"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""98.99""
+    },
+    {
+      ""description"": ""Dell Desktop Computer Intel Core 2 Duo 8GB 1TB HD\nWindows 10 PC 22\"" LCD Wifi"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""230.84""
+    },
+    {
+      ""description"": ""HP 6200 Pro Core i7 3.4GHz Quad Core 16GB 500GB Computer"",
+      ""quantity"": ""5.00"",
+      ""total_price"": ""1411.74""
+    },
+    {
+      ""description"": ""Vintage Microsolutions Pentium 133mhz Desktop Tower PC Windows 95 5.25 Floppy"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""1287.00""
+    },
+    {
+      ""description"": ""Dell OptiPlex 7060 SFF Computer, 8th Gen Core i5, 8GB DDR4, New 240GB SSD, DVD"",
+      ""quantity"": ""4.00"",
+      ""total_price"": ""891.00""
+    },
+    {
+      ""description"": ""Custom Gaming PC Computer FX-6300 3.5GHz 8GB RAM 128GB SSD 1 TB HDD RX 580 4GB"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""494.99""
+    },
+    {
+      ""description"": ""Custom Build HP Desktop Computer 16GB | 2TB | SSD | Windows 10 Windows 7 PC WiFi"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""723.80""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""467.12"",
+    ""discount"": """",
+    ""total"": ""5138.35""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 11580833 Date of issue: 11/24/2019 Seller: Client: Wood, Simpson and Summers Tapia LLC 7000 Graves Ville 53393 Peters Overpass Juliastad, OH 02764 Boothside, WY 76847 Tax Id: 968-86-1662 Tax Id: 979-96-3992 IBAN: GB61VHVS67246807986062 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1. Dell Optiplex SFF Desktop 1,00 each 89,99 89,99 10% 98,99 Computer Windows 10 4GB 160GB 2 Dell Desktop ComputerDIntel 3,00 each 69,95 209,85 10% 230,84 Core 2 Duo 8GB 1TB HD [Windows 10 PC 22 LCD Wifi 3 HP 6200 Pro Core i7 3.4GHz 5,00 each 256,68 1 283,40 10% 1 411,74 Quad Core 16GB 500GB Computer Vintage Microsolutions Pentium 3,00 each 390,00 1 170,00 10% 1 287,00 133mhz Desktop Tower PC Windows 95 5.25 Floppy 5 Dell OptiPlex 7060 SFF 4,00 each 202,50 810,00 10% 891,00 Computer, 8th Gen Core i5, 8GB DDR4, New 240GB SSD DVD 6 Custom Gaming PC Computer 1,00 each 449,99 449,99 10% 494,99 FX-6300 3.SGHz 8GB RAM 128GB SSD 1 TB HDD RX 580 4GB Custom Build HP Desktop 2,00 each 329,00 658,00 10% 723,80 Computer 16GB 2TB SSD Windows 10 Windows PC WiFi SUMMARY VAT [%] Net worth VAT Gross worth 10% 4 671,23 467,12 5 138,35 Total $ 4 671,23 $ 467,12 $ 5 138,35"
+batch1-0008.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Haas and Sons"",
+    ""client_address"": ""65628 Brittany Dale\nWalterschester, LA 26239"",
+    ""seller_name"": ""Hall-Boyd"",
+    ""seller_address"": ""8719 Reed Street Apt. 120\nEast Michelleborough, KY 93895"",
+    ""invoice_number"": ""74589240"",
+    ""invoice_date"": ""12/08/2013"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""3D Printed Mat Vortex Illusion\nLiving room Rug Carpet Floors\nDoors Round Mat"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""38.38""
+    },
+    {
+      ""description"": ""New Golden Brown Oriental Rug\n4X6 Oushak Chobi Floral\nHand-Knotted Foyer Carpet"",
+      ""quantity"": ""5.00"",
+      ""total_price"": ""1 279.58""
+    },
+    {
+      ""description"": ""YILONG 5.5'x8' Handknotted\nSilk Area Rugs Home Decor\nClassic Blue Carpet 0790"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""11 616.00""
+    },
+    {
+      ""description"": ""Pretty Woman Small Large Long\nFloor Carpet Area Rugs Various\nSize Soft Rug"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""39.93""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""1 179.44"",
+    ""discount"": """",
+    ""total"": ""12 973,88""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": ""GB51FSWB55572342266497"",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 74589240 Date of issue: 12/08/2013 Seller: Client: Hall-Boyd Haas and Sons 8719 Reed Street Apt: 120 65628 Brittany Dale East Michelleborough, KY 93895 Walterschester, LA 26239 Tax Id: 977-76-9492 Tax Id: 981-73-4585 IBAN: GBSIFSWB55572342266497 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 3D Printed Mat Vortex Illusion 3,00 each 11,63 34,89 10% 38,38 Living room Rug Carpet Floors Doors Round Mat 2 New Golden Brown Oriental Rug 5,00 each 232,65 1 163,25 10% 1 279,58 4X6 Oushak Chobi Floral Hand-Knotted Foyer Carpet 3 YILONG 5.5'x8' Handknotted 1,00 each 10 560,00 10 560,00 10% 11 616,00 Silk Area Rugs Home Decor Classic Blue Carpet 0790 Pretty Woman Small Large Long 1,00 each 36,30 36,30 10% 39,93 Floor Carpet Area Rugs Various Size Soft Rug SUMMARY VAT [%] Net worth VAT Gross worth 10% 11 794,44 1 179,44 12 973,88 Total $ 11 794,44 $1 179,44 $ 12 973,88"
+batch1-0002.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Duncan PLC"",
+    ""client_address"": ""Unit 8799 Box 0703\nDPO AP 81970"",
+    ""seller_name"": ""Fitzpatrick and Sons"",
+    ""seller_address"": ""00480 Cook Cove\nSpencerport, UT 12036"",
+    ""invoice_number"": ""12847181"",
+    ""invoice_date"": ""03/03/2012"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""HP Desktop Computer PC Core i5 16GB 2TB HD 256GB SSD 22\"" LCD Windows 10"",
+      ""quantity"": ""4.00"",
+      ""total_price"": ""615.78""
+    },
+    {
+      ""description"": ""CUSTOM BUILT AMD RYZEN THREADRIPPER GAMING COMPUTER, 32 GB RAM,"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""4 620.00""
+    },
+    {
+      ""description"": ""Fast Dell Optiplex Desktop PC Computer Dual Core 3.4Ghz 8GB 1TB Win 10 Pro WIFI"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""238.70""
+    },
+    {
+      ""description"": ""Dell Optiplex 790 Computer i7 @3.40 Ghz Quad Core 250GB 4GB Working"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""527.97""
+    },
+    {
+      ""description"": ""Vintage Microsolutions Pentium 133mhz Desktop Tower PC Windows 95 5.25 Floppy"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""858.00""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""623.68"",
+    ""discount"": """",
+    ""total"": ""6 860.45""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 12847181 Date of issue: 03/03/2012 Seller: Client: Fitzpatrick and Sons Duncan PLC 00480 Cook Cove Unit 8799 Box 0703 Spencerport; UT 12036 DPO AP 81970 Tax Id: 998-99-5253 Tax Id: 911-82-7132 IBAN: GB9ZPBPQ73499358975916 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth HP Desktop Computer PC [] 4,00 each 139,95 559,80 10% 615,78 Core i5 16GB 2TB HD 256GB SSD 22"" LCD [] Windows 10 2 CUSTOM BUILT AMD RYZEN 3,00 each 1 400,00 4 200,00 10% 620,00 THREADRIPPER GAMING COMPUTER 32 GB RAM; 3 Fast Dell Optiplex Desktop PC 1,00 each 217,00 217,00 10% 238,70 Computer Dual Core 3.4Ghz 8GB 1TB Win 10 Pro WIFI Dell Optiplex 790 Computer i7 3,00 each 159,99 479,97 10% 527,97 3.40 Ghz Quad Core 250GB 4GB Working 5 Vintage Microsolutions Pentium 2,00 each 390,00 780,00 10% 858,00 133mhz Desktop Tower PC Windows 95 5.25 Floppy SUMMARY VAT [%] Net worth VAT Gross worth 10% 6 236,77 623,68 6 860,45 Total $ 6 236,77 623,68 $ 6 860,45"
+batch1-0010.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Collins, Barrett and Schroeder"",
+    ""client_address"": ""2314 Beard Via\nKellybury, GA 19687"",
+    ""seller_name"": ""Michael, Farrell and Lee"",
+    ""seller_address"": ""95360 Washington Inlet\nPort Sandraview, CT 01507"",
+    ""invoice_number"": ""99314100"",
+    ""invoice_date"": ""06/25/2014"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Real Madrid Inflatable Chair (SG16136)"",
+      ""quantity"": ""5.00"",
+      ""total_price"": ""241.73""
+    },
+    {
+      ""description"": ""60 Inches Marble Dinning Table Top Inlay Work Lawn Table with Multi Color Stones"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""6 331.60""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""597.58"",
+    ""discount"": """",
+    ""total"": ""6 573.33""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 99314100 Date of issue: 06/25/2014 Seller: Client: Michael, Farrell and Lee Collins, Barrett and Schroeder 95360 Washington Inlet 2314 Beard Via Port Sandraview, CT 01507 Kellybury, GA 19687 Tax Id: 993-76-1179 Tax Id: 908-81-7850 IBAN: GBZOWFQR49970703277369 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1. Real Madrid Inflatable Chair 5,00 each 43,95 219,75 10% 241,73 (SG16136) 2 60 Inches Marble Dinning Table 1,00 each 5 756,00 5 756,00 10% 6 331,60 Top Inlay Work Lawn Table with Multi Color Stones SUMMARY VAT [%] Net worth VAT Gross worth 10% 5 975,75 597,58 6 573,33 Total $ 5 975,75 $ 597,58 $ 6 573,33"
+batch1-0003.jpg,"{""invoice"": {""client_name"": ""Rios, Oneill and Rowe"", ""client_address"": ""3571 Tina Trafficway\nBuckleyland, LA 97688"", ""seller_name"": ""Palmer Ltd"", ""seller_address"": ""9790 Bauer Hills Apt. 146\nSouth Patriciation, SD 32497"", ""invoice_number"": ""19471831"", ""invoice_date"": ""04/09/2014"", ""due_date"": """"}, ""items"": [{""description"": ""15\""x15\"" White Decorative Coffee Table Top Lápis Lazuli Marquetery Patio Décor"", ""quantity"": ""3.00"", ""total_price"": ""2 131,04""}, {""description"": ""4'x2' Marble Dining Table Top Pietra Dura Birds Inlay Art Furniture Decors B444"", ""quantity"": ""5.00"", ""total_price"": ""10 120,55""}, {""description"": ""60 Inches Marble Dinning Table Top Hand Inlaid Garden Table with Gemstones"", ""quantity"": ""5.00"", ""total_price"": ""32 494,00""}], ""subtotal"": {""tax"": ""4 067,78"", ""discount"": """", ""total"": ""44 745,59""}, ""payment_instructions"": {""due_date"": """", ""bank_name"": """", ""account_number"": """", ""payment_method"": """"}}","Invoice no: 19471831 Date of issue: 04/09/2014 Seller: Client: Palmer Ltd Rios, Oneill and Rowe 9790 Bauer Hills Apt: 146 3571 Tina Trafficway South Patriciaton, SD 32497 Buckleyland, LA 97688 Tax Id: 924-71-1106 Tax Id: 922-72-5979 IBAN: GBOSYUTG50853913677557 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1 15""xl5 White Decorative 3,00 each 645,77 1 937,31 10% 2 131,04 Coffee Table Top Lapis Lazuli Marquetery Patio Decor 2 4'x2 Marble Dining Table Top 5,00 each 1 840,10 9 200,50 10% 10 120,55 Pietra Dura Birds Inlay Art Furniture Decors B444 3 60 Inches Marble Dinning Table 5,00 each 5 908,00 29 540,00 10% 32 494,00 Top Hand Inlaid Garden Table with Gemstones SUMMARY VAT [%] Net worth VAT Gross worth 10% 40 677,81 4 067,78 44 745,59 Total $ 40 677,81 $ 4 067,78 $ 44 745,59"
+batch1-0005.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Deleon, Davila and Allen"",
+    ""client_address"": ""355 King Lake Suite 071\nSouth Haleyshire, KY 55765"",
+    ""seller_name"": ""Johnson-Martin"",
+    ""seller_address"": ""3836 Moore Ports\nNorth Michael, MO 01844"",
+    ""invoice_number"": ""89969473"",
+    ""invoice_date"": ""10/29/2016"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Wild West Wine"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""59.40""
+    },
+    {
+      ""description"": ""Press Wine 15L Fruit Cider\nApple Crusher Juice Grape\nStainless Maker Grapes New"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""613.80""
+    },
+    {
+      ""description"": ""Wine Rack Holder Iron Art\nHanging Racks Glass Cup\nStemware Shelf Mounted 2\nColor"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""61.87""
+    },
+    {
+      ""description"": ""Rust Proof Three Rows Tool\nWine Glass Holder Simple Iron\nWire Home Hanging Rack"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""25.43""
+    },
+    {
+      ""description"": ""VTG 1970s MCM Brown Steel\nTube Wall or Desk Mounted\n12-Wine Rack Bottle Holder"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""37.40""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""72.54"",
+    ""discount"": """",
+    ""total"": ""797.91""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 89969473 Date of issue: 10/29/2016 Seller: Client: Johnson-Martin Deleon, Davila and Allen 3836 Moore Ports 355 King Lake Suite 071 North Michael, MO 01844 South Haleyshire, KY 55765 Tax Id: 972-82-0713 Tax Id: 944-77-3882 IBAN: GB71GBDG68039919194335 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1 Wild West Wine 2,00 each 27,00 54,00 10% 59,40 2 Press Wine 15L Fruit Cider 2,00 each 279,00 558,00 10% 613,80 Apple Crusher Juice Grape Stainless Maker Grapes New 3 Wine Rack Holder Iron Art 3,00 each 18,75 56,25 10% 61,87 Hanging Racks Glass Cup Stemware Shelf Mounted 2 Color Rust Proof Three Rows Tool 2,00 each 11,56 23,12 10% 25,43 Wine Glass Holder Simple Iron Wire Home Hanging Rack 5 VTG 1970s MCM Brown Steel 1,00 each 34,00 34,00 10% 37,40 Tube Wall or Desk Mounted 12-Wine Rack Bottle Holder SUMMARY VAT [%] Net worth VAT Gross worth 10% 725,37 72,54 797,91 Total $ 725,37 $ 72,54 $ 797,91"
+batch1-0001.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Becker Ltd"",
+    ""client_address"": ""8012 Stewart Summit Apt. 455\nNorth Douglas, AZ 95355"",
+    ""seller_name"": ""Andrews, Kirby and Valdez"",
+    ""seller_address"": ""58861 Gonzalez Prairie\nLake Daniellefurt, IN 57228"",
+    ""invoice_number"": ""51109338"",
+    ""invoice_date"": ""04/13/2013"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""CLEARANCE! Fast Dell Desktop Computer PC DUAL CORE WINDOWS 10 4/8/16GB RAM"",
+      ""quantity"": ""3,00"",
+      ""total_price"": ""689,70""
+    },
+    {
+      ""description"": ""HP T520 Thin Client Computer AMD GX-212JC 1.2GHz 4GB RAM TESTED !! READ BELOW!!"",
+      ""quantity"": ""5,00"",
+      ""total_price"": ""207,63""
+    },
+    {
+      ""description"": ""gaming pc desktop computer"",
+      ""quantity"": ""1,00"",
+      ""total_price"": ""440,00""
+    },
+    {
+      ""description"": ""12-Core Gaming Computer Desktop PC Tower Affordable GAMING PC 8GB AMD Vega RGB"",
+      ""quantity"": ""3,00"",
+      ""total_price"": ""1 534,14""
+    },
+    {
+      ""description"": ""Custom Build Dell Optiplex 9020 MT i5-4570 3.20GHz Desktop Computer PC"",
+      ""quantity"": ""5,00"",
+      ""total_price"": ""1 220,95""
+    },
+    {
+      ""description"": ""Dell Optiplex 990 MT Computer PC Quad Core i7 3.4GHz 16GB 2TB HD Windows 10 Pro"",
+      ""quantity"": ""4,00"",
+      ""total_price"": ""1 187,78""
+    },
+    {
+      ""description"": ""Dell Core 2 Duo Desktop Computer | Windows XP Pro | 4GB | 500GB"",
+      ""quantity"": ""5,00"",
+      ""total_price"": ""924,00""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""564,02"",
+    ""discount"": """",
+    ""total"": ""6 204,19""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 51109338 Date of issue: 04/13/2013 Seller: Client: Andrews, Kirby and Valdez Becker Ltd 58861 Gonzalez Prairie 8012 Stewart Summit Apt: 455 Lake Daniellefurt; IN 57228 North Douglas, AZ 95355 Tax Id: 945-82-2137 Tax Id: 942-80-0517 IBAN: GBZSMCRLO6841367619257 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth CLEARANCE! Fast Dell Desktop 3,00 each 209,00 627,00 10% 689,70 Computer PC DUAL CORE WINDOWS 10 4/8/16GB RAM 2 HP T520 Thin Client Computer 5,00 each 37,75 188,75 10% 207,63 AMD GX-21ZJC 1.2GHz 4GB RAM TESTED !!READ BELOWW! 3 gaming pc desktop computer 1,00 each 400,00 400,00 10% 440,00 12-Core Gaming Computer 3,00 each 464,89 1 394,67 10% 1 534,14 Desktop PC Tower Affordable GAMING PC 8GB AMD Vega RGB 5 Custom Build Dell Optiplex 9020 5,00 each 221,99 1 109,95 10% 1 220,95 MT i5-4570 3.2OGHz Desktop Computer PC 6 Dell Optiplex 990 MT Computer 4,00 each 269,95 1 079,80 10% 1 187,78 PC Quad Core i7 3.4GHz 16GB 2TB HD Windows 10 Pro Dell Core 2 Duo Desktop 5,00 each 168,00 840,00 10% 924,00 Computer Windows XP Pro 4GB S0OGB SUMMARY VAT [%] Net worth VAT Gross worth 10% 5 640,17 564,02 6 204,19 Total $ 5 640,17 564,02 $ 6 204,19"
+batch1-0500.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Ellis and Sons"",
+    ""client_address"": ""85942 Tucker Plains Apt. 982\nHernandezchester, SC 88596"",
+    ""seller_name"": ""Carrillo, Lara and Hooper"",
+    ""seller_address"": ""USNV Jones\nFPO AE 13513"",
+    ""invoice_number"": ""34476404"",
+    ""invoice_date"": ""07/24/2018"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Pack 3 Artificial Sheepskin Seat Pads 30cm Round Pad Floor Area Carpets"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""15.64""
+    },
+    {
+      ""description"": ""Soft Sheepskin Mat Faux Fur Rug Small Shaggy Non Slip Floor Carpet Yellow"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""18.48""
+    },
+    {
+      ""description"": ""Chindi Rugs Carpet New Design Bohemian Garden Yoga Mat Indian Kilim Coverlet"",
+      ""quantity"": ""4.00"",
+      ""total_price"": ""131.96""
+    },
+    {
+      ""description"": ""YILONG 9'x12' Oversize Handmade Silk Carpet Antistatic Luxurious Area Rug TJ107A"",
+      ""quantity"": ""4.00"",
+      ""total_price"": ""34 320.00""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""3 135,10"",
+    ""discount"": """",
+    ""total"": ""34 486,08""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 34476404 Date of issue: 07/24/2018 Seller: Client: Carrillo, Lara and Hooper Ellis and Sons USNV Jones 85942 Tucker Plains Apt: 982 FPO AE 13513 Hernandezchester, SC 88596 Tax Id: 975-86-1582 Tax Id: 902-92-1120 IBAN: GB14UTZB2O101973421914 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth Pack 3 Artificial Sheepskin Seat 1,00 each 14,22 14,22 10% 15,64 Pads 30cm Round Pad Floor Area Carpets 2 Soft Sheepskin Mat Faux Fur 2,00 each 8,40 16,80 10% 18,48 Rug Small Shaggy Non Slip Floor Carpet Yellow 3 Chindi Rugs Carpet New Design 4,00 each 29,99 119,96 10% 131,96 Bohemian Garden Mat Indian Kilim Coverlet YILONG 9'xl2' Oversize 4,00 each 7 800,00 31 200,00 10% 34 320,00 Handmade Silk Carpet Antistatic Luxurious Area Rug TJIOZA SUMMARY VAT [%] Net worth VAT Gross worth 10% 31 350,98 3 135,10 34 486,08 Total $ 31 350,98 $ 3 135,10 $ 34 486,08 Yoga"
+batch1-0501.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Thompson PLC"",
+    ""client_address"": ""810 Adkins Canyon\nKristinton, ND 66973"",
+    ""seller_name"": ""Wood-Kim"",
+    ""seller_address"": ""8881 Nicholas Grove\nWest Andrewshire, WA 71685"",
+    ""invoice_number"": ""18999056"",
+    ""invoice_date"": ""07/29/2011"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""NINTENDO 64 CONSOLE Plus 2 GAMES Barely Played With in PARTIAL ORIGINAL BOX"",
+      ""quantity"": ""3,00"",
+      ""total_price"": ""164,97""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""15,00"",
+    ""discount"": """",
+    ""total"": ""164,97""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": ""GB96KZTB85221072973831"",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 18999056 Date of issue: 07/29/2011 Seller: Client: Wood-Kim Thompson PLC 8881 Nicholas Grove 810 Adkins Canyon West Andrewshire, WA 71685 Kristinton, ND 66973 Tax Id: 900-76-1437 Tax Id: 934-91-7704 IBAN: GB96KZTB85221072973831 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth NINTENDO 64 CONSOLE Plus 2 3,00 each 49,99 149,97 10% 164,97 GAMES Barely Played With in PARTIAL ORIGINAL BOX SUMMARY VAT [%] Net worth VAT Gross worth 10% 149,97 15,00 164,97 Total $ 149,97 $ 15,00 $ 164,97"
+batch1-0502.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Haynes-Woods"",
+    ""client_address"": ""USNV Gilbert\nFPO AP 32645"",
+    ""seller_name"": ""Hall-Martinez"",
+    ""seller_address"": ""3197 Jillian Forks Suite 115\nKimchester, HI 43821"",
+    ""invoice_number"": ""33289699"",
+    ""invoice_date"": ""12/24/2012"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Nintendo GameCube Console\nDOL-001 Black w/ Controller,\nPower, A/V,"",
+      ""quantity"": ""5.00"",
+      ""total_price"": ""439.95""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""40.00"",
+    ""discount"": """",
+    ""total"": ""439.95""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 33289699 Date of issue: 12/24/2012 Seller: Client: Hall-Martinez Haynes-Woods 3197 Jillian Forks Suite 115 USNV Gilbert Kimchester, HI 43821 FPO AP 32645 Tax Id: 941-80-9599 Tax Id: 953-82-2864 IBAN: GB3ZHGAS20083011657056 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth Nintendo GameCube Console 5,00 each 79,99 399,95 10% 439,95 DOL-001 Black w/ Controller, Power, AV _ SUMMARY VAT [%] Net worth VAT Gross worth 10% 399,95 40,00 439,95 Total $ 399,95 $ 40,00 $ 439,95"
+batch1-0503.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Peters LLC"",
+    ""client_address"": ""27910 Lindsey Inlet\nPort Martinside, NM 22708"",
+    ""seller_name"": ""Hensley, Harrison and Miller"",
+    ""seller_address"": ""9983 Gonzalez Shoal Suite 223\nJeffreyberg, ND 71223"",
+    ""invoice_number"": ""22758345"",
+    ""invoice_date"": ""12/21/2015"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Selmash Lux Home Alcohol Distiller Kit for wine brewing, 15 20 30 l"",
+      ""quantity"": ""4.00"",
+      ""total_price"": ""694.76""
+    },
+    {
+      ""description"": ""Rabbit Wine Bottle Opener Corkscrew Set With Foil Cutter"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""13.20""
+    },
+    {
+      ""description"": ""Frosted Satin Wine Goblet Glasses Crooked Stem Set Of 3"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""70.40""
+    },
+    {
+      ""description"": ""2 Hand Blown Wine Water Goblet Glass Art Mexico Pulled Feather Iridescent Swirl"",
+      ""quantity"": ""4.00"",
+      ""total_price"": ""131.96""
+    },
+    {
+      ""description"": ""50L/70L Moonshine Still Home Alcohol Oil Distiller Wine Making Water Brew Kit"",
+      ""quantity"": ""5.00"",
+      ""total_price"": ""1783.81""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""244.92"",
+    ""discount"": """",
+    ""total"": ""2694.13""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 22758345 Date of issue: 12/21/2015 Seller: Client: Hensley, Harrison and Miller Peters LLC 9983 Gonzalez Shoal Suite 223 27910 Lindsey Inlet Jeffreyberg, ND 71223 Port Martinside, NM 22708 Tax Id: 941-70-5402 Tax Id: 942-74-5002 IBAN: GB36KYWK10385657483744 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1. Selmash Lux Home Alcohol 4,00 each 157,90 631,60 10% 694,76 Distiller Kit for wine brewing, 15 20 30 2 Rabbit Wine Bottle Opener 1,00 each 12,00 12,00 10% 13,20 Corkscrew Set With Foil Cutter 3 Frosted Satin Wine Goblet 2,00 each 32,00 64,00 10% 70,40 Glasses Crooked Stem Set Of 3 2 Hand Blown Wine Water 4,00 each 29,99 119,96 10% 131,96 Goblet Glass Art Mexico Pulled Feather Iridescent Swirl 5 50L/70L Moonshine Still Home 5,00 each 324,33 1 621,65 10% 1 783,81 Alcohol Oil Distiller Wine Making Water Brew Kit SUMMARY VAT [%] Net worth VAT Gross worth 10% 2 449,21 244,92 2 694,13 Total $ 2 449,21 $ 244,92 $ 2 694,13"
+batch1-0504.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Bradley-Daniel"",
+    ""client_address"": ""26018 Erica Mission Suite 050\nNew Scottborough, NY 56048"",
+    ""seller_name"": ""Anderson, Gentry and Williams"",
+    ""seller_address"": ""1469 Theresa Grove\nGarzaberg, NY 16415"",
+    ""invoice_number"": ""79036267"",
+    ""invoice_date"": ""09/16/2016"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""HP ProDesk G1 Desktop Computer Core i3 3.4GHz 8GB 500GB HD 19\"" LCD Windows 10 PC"",
+      ""quantity"": ""4,00"",
+      ""total_price"": ""527.78""
+    },
+    {
+      ""description"": ""Dell Optiplex SFF Desktop Computer Windows 10 4GB 160GB"",
+      ""quantity"": ""5,00"",
+      ""total_price"": ""494.95""
+    },
+    {
+      ""description"": ""Dell Desktop Computer Intel Core 2 Duo 8GB 1TB HD Windows 10 PC 22\"" LCD Wifi"",
+      ""quantity"": ""2,00"",
+      ""total_price"": ""153.89""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""106.97"",
+    ""discount"": """",
+    ""total"": ""1176.62""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 79036267 Date of issue: 09/16/2016 Seller: Client: Anderson, Gentry and Williams Bradley-Daniel 1469 Theresa Grove 26018 Erica Mission Suite 050 Garzaberg, NY 16415 New Scottborough, NY 56048 Tax Id: 940-81-6212 Tax Id: 903-76-2071 IBAN: GBO6EYSH87132118408113 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1. HP ProDesk G1 Desktop 4,00 each 119,95 479,80 10% 527,78 Computer Core i3 3.4GHz 8GB 5OOGB HD 19"" LCD Windows 10 PC 2 Dell Optiplex SFF Desktop 5,00 each 89,99 449,95 10% 494,95 Computer Windows 10 4GB 160GB 3 Dell Desktop ComputerIIntel 2,00 each 69,95 139,90 10% 153,89 Core 2 Duo 8GB 1TB HD OWindows 10 PC 22 LCD Wifi SUMMARY VAT [%] Net worth VAT Gross worth 10% 1 069,65 106,97 1 176,62 Total $ 1 069,65 106,97 $ 1 176,62"
+batch1-0505.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Scott Ltd"",
+    ""client_address"": ""6958 Ramirez Crest\nMooremouth, NJ 37424"",
+    ""seller_name"": ""Weaver-Barber"",
+    ""seller_address"": ""60902 Steven Trace\nTylerland, MΑ 82522"",
+    ""invoice_number"": ""11556735"",
+    ""invoice_date"": ""03/07/2014"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Stemware Rack Display Kitchen\nWine Glass Holder Bottle\nCarbon Steel Free Punch"",
+      ""quantity"": ""5,00"",
+      ""total_price"": ""232,76""
+    },
+    {
+      ""description"": ""Refinery Wine Opener"",
+      ""quantity"": ""5,00"",
+      ""total_price"": ""55,00""
+    },
+    {
+      ""description"": ""Wine Glasses Goblets Pair Clear\nGlass"",
+      ""quantity"": ""5,00"",
+      ""total_price"": ""66,00""
+    },
+    {
+      ""description"": ""Unicorn Wine Bottle Display"",
+      ""quantity"": ""2,00"",
+      ""total_price"": ""34,87""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""35,33"",
+    ""discount"": """",
+    ""total"": ""388,63""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 11556735 Date of issue: 03/07/2014 Seller: Client: Weaver-Barber Scott Ltd 60902 Steven Trace 6958 Ramirez Crest Tylerland, MA 82522 Mooremouth, NJ 37424 Tax Id: 995-97-3608 Tax Id: 939-73-8621 IBAN: GBSZSVCE08751937948089 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth Stemware Rack Display Kitchen 5,00 each 42,32 211,60 10% 232,76 Wine Glass Holder Bottle Carbon Steel Free Punch 2 Refinery Wine Opener 5,00 each 10,00 50,00 10% 55,00 3 Wine Glasses Goblets Pair Clear 5,00 each 12,00 60,00 10% 66,00 Glass Unicorn Wine Bottle Display 2,00 each 15,85 31,70 10% 34,87 SUMMARY VAT [%] Net worth VAT Gross worth 10% 353,30 35,33 388,63 Total $ 353,30 $ 35,33 $ 388,63"
+batch1-0506.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Gilbert, Spencer and Anderson"",
+    ""client_address"": ""PSC 7207, Box 5750\nAPO AA 48779"",
+    ""seller_name"": ""Norman-Best"",
+    ""seller_address"": ""5217 Morris Mountain Apt. 600\nNorth Danielshire, MI 66538"",
+    ""invoice_number"": ""35382296"",
+    ""invoice_date"": ""09/07/2016"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Nintendo Gameboy Pocket\nConsole Clear Purple with Box\nMGB-001 Japan Tested 53"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""280.50""
+    },
+    {
+      ""description"": ""HUGE Sony PlayStation 3\nConsole Lot w/ 30 Games!\nSystem Bundle PS3"",
+      ""quantity"": ""5.00"",
+      ""total_price"": ""1 649.72""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""175.48"",
+    ""discount"": """",
+    ""total"": ""1 930.23""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 35382296 Date of issue: 09/07/2016 Seller: Client: Norman-Best Gilbert; Spencer and Anderson 5217 Morris Mountain Apt: 600 PSC 7207, Box 5750 North Danielshire, MI 66538 APO AA 48779 Tax Id: 900-99-6175 Tax Id: 982-92-4270 IBAN: GB97SVBJ13467617537698 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1. Nintendo Gameboy Pocket 3,00 each 85,00 255,00 10% 280,50 Console Clear Purple with Box MGB-001 Japan Tested 53 2 HUGE Sony PlayStation 3 5,00 each 299,95 1 499,75 10% 1 649,72 Console Lot w/ 30 Games! System Bundle PS3 SUMMARY VAT [%] Net worth VAT Gross worth 10% 1 754,75 175,48 1 930,23 Total $ 1 754,75 $ 175,48 $ 1 930,23"
+batch1-0507.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Wilson PLC"",
+    ""client_address"": ""200 Gregory Junctions\nJamesmouth, NV 63642"",
+    ""seller_name"": ""Abbott, Martinez and Nunez"",
+    ""seller_address"": ""700 Jennings Shoals Apt. 008\nWoodsborough, DC 14098"",
+    ""invoice_number"": ""64661204"",
+    ""invoice_date"": ""12/19/2016"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Ryzen Gaming Computer"",
+      ""quantity"": ""3,00"",
+      ""total_price"": ""2 481,60""
+    },
+    {
+      ""description"": ""Dell OptiPlex 7060 SFF\nComputer, 8th Gen Core i5, 8GB\nDDR4, New 240GB SSD, DVD"",
+      ""quantity"": ""4,00"",
+      ""total_price"": ""891,00""
+    },
+    {
+      ""description"": ""Custom Build HP Desktop\nComputer 16GB | 2TB | SSD |\nWindows 10 Windows 7 PC WiFi"",
+      ""quantity"": ""2,00"",
+      ""total_price"": ""723,80""
+    },
+    {
+      ""description"": ""HP T520 Thin Client Computer\nAMD GX-212JC 1.2GHz 4GB RAM\nTESTED !!READ BELOW!!"",
+      ""quantity"": ""5,00"",
+      ""total_price"": ""207,63""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""391,28"",
+    ""discount"": """",
+    ""total"": ""4 304,03""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 64661204 Date of issue: 12/19/2016 Seller: Client: Abbott, Martinez and Nunez Wilson PLC 700 Jennings Shoals Apt: 008 200 Gregory Junctions Woodsborough, DC 14098 Jamesmouth, NV 63642 Tax Id: 911-78-8806 Tax Id: 917-70-4830 IBAN: GB6OAMAZ11977251874745 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1. Ryzen Gaming Computer 3,00 each 752,00 2 256,00 10% 2 481,60 2 Dell OptiPlex 7060 SFF 4,00 each 202,50 810,00 10% 891,00 Computer, 8th Gen Core i5, 8GB DDR4, New 240GB SSD, DVD 3 Custom Build HP Desktop 2,00 each 329,00 658,00 10% 723,80 Computer 16GB 2TB SSD Windows 10 Windows PC WiFi HP T520 Thin Client Computer 5,00 each 37,75 188,75 10% 207,63 AMD GX-212JC 1.2GHz 4GB RAM TESTED !!READ BELOWW! SUMMARY VAT [%] Net worth VAT Gross worth 10% 3 912,75 391,28 4 304,03 Total $ 3 912,75 $ 391,28 $ 4 304,03"
+batch1-0508.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Johnson Ltd"",
+    ""client_address"": ""326 Gonzalez Throughway Suite 496\nLake Johnborough, FL 59208"",
+    ""seller_name"": ""Adams, Hess and Davis"",
+    ""seller_address"": ""225 Gonzales Crest Apt. 419\nHolmesview, OK 39540"",
+    ""invoice_number"": ""95545504"",
+    ""invoice_date"": ""04/06/2012"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Xhilaration Womens L Burgandy\nBoho Embroidered Festival Mini\nDress NEW"",
+      ""quantity"": ""4.00"",
+      ""total_price"": ""65.78""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""5.98"",
+    ""discount"": """",
+    ""total"": ""65.78""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": ""GB87IPTJ05582977551180"",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 95545504 Date of issue: 04/06/2012 Seller: Client: Adams, Hess and Davis Johnson Ltd 225 Gonzales Crest Apt. 419 326 Gonzalez Throughway Suite 496 Holmesview, OK 39540 Lake Johnborough, FL 59208 Tax Id: 927-95-7389 Tax Id: 998-79-7169 IBAN: GB8ZIPTJO5582977551180 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth Xhilaration Womens L Burgandy 4,00 each 14,95 59,80 10% 65,78 Boho Embroidered Festival Mini Dress NEW SUMMARY VAT [%] Net worth VAT Gross worth 10% 59,80 5,98 65,78 Total $ 59,80 $ 5,98 $ 65,78"
+batch1-0509.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Chavez, Ortega and Hunt"",
+    ""client_address"": ""466 Laura Hills\nNew Ruth, AK 68704"",
+    ""seller_name"": ""King-Aguilar"",
+    ""seller_address"": ""595 Hoffman Prairie\nSouth James, MT 62369"",
+    ""invoice_number"": ""66919860"",
+    ""invoice_date"": ""05/11/2021"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""The Wire in the Blood (Tony Hill and Carol Jordan, Book 2) by McDermid New+-"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""49.90""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""4.54"",
+    ""discount"": """",
+    ""total"": ""49.90""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": ""GB96NPWF24313123989624"",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 66919860 Date of issue: 05/11/2021 Seller: Client: King-Aguilar Chavez, Ortega and Hunt 595 Hoffman Prairie 466 Laura Hills South James, MT 62369 New Ruth, AK 68704 Tax Id: 967-76-8099 Tax Id: 912-81-4088 IBAN: GB96NPWF24313123989624 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth The Wire in the Blood (Tony Hill 3,00 each 15,12 45,36 10% 49,90 and Carol Jordan, Book 2) by McDermid New+- SUMMARY VAT [%] Net worth VAT Gross worth 10% 45,36 4,54 49,90 Total $ 45,36 $ 4,54 $ 49,90"
+batch1-0510.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Davis-Olson"",
+    ""client_address"": ""03296 Larry Locks Suite 711\nBoothland, OK 16934"",
+    ""seller_name"": ""Haney LLC"",
+    ""seller_address"": ""299 Lopez Turnpike\nPort Ashleystad, CT 96543"",
+    ""invoice_number"": ""51033885"",
+    ""invoice_date"": ""10/20/2020"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Nike Shoes Size 7"",
+      ""quantity"": ""5.00"",
+      ""total_price"": ""47.58""
+    },
+    {
+      ""description"": ""DC Kids Pixie 3 Sneaker\n(Toddler/Little Kid/Big Kid) Color\nWHITE/BATTLESHIP"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""181.50""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""20.83"",
+    ""discount"": """",
+    ""total"": ""229.08""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 51033885 Date of issue: 10/20/2020 Seller: Client: Haney LLC Davis-Olson 299 Lopez Turnpike 03296 Larry Locks Suite 711 Port Ashleystad, CT 96543 Boothland, OK 16934 Tax Id: 983-71-0760 Tax Id: 924-85-0788 IBAN: GB72WXZQ30602505765427 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1 Nike Shoes Size 7 5,00 each 8,65 43,25 10% 47,58 2 DC Kids Pixie 3 Sneaker 3,00 each 55,00 165,00 10% 181,50 (Toddler/Little Kid/Big Kid) Color WHITEIBATTLESHIP SUMMARY VAT [%] Net worth VAT Gross worth 10% 208,25 20,83 229,08 Total $ 208,25 $ 20,83 $ 229,08"
+batch1-1009.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Garcia and Sons"",
+    ""client_address"": ""6500 Diana Terrace Suite 601\nNew Laura, DC 84719"",
+    ""seller_name"": ""Johnson Group"",
+    ""seller_address"": ""41474 Alexa Valley\nMaddoxside, DC 90699"",
+    ""invoice_number"": ""13044521"",
+    ""invoice_date"": ""01/02/2013"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""6'x3' Marble Dining Table Hakik Pietradura Inlay Room Outdoor Mosaic Decor H3143"",
+      ""quantity"": ""3,00"",
+      ""total_price"": ""28 482,04""
+    },
+    {
+      ""description"": ""6'x3' White Marble Living Room Dining Table Top Marquetry Inlay Furniture H4743A"",
+      ""quantity"": ""4,00"",
+      ""total_price"": ""24 596,92""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""4 825,36"",
+    ""discount"": """",
+    ""total"": ""53 078,96""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 13044521 Date of issue: 01/02/2013 Seller: Client: Johnson Group Garcia and Sons 41474 Alexa Valley 6500 Diana Terrace Suite 601 Maddoxside_ DC 90699 New Laura, DC 84719 Tax Id: 942-98-3474 Tax Id: 961-71-7742 IBAN: GBZ6MFUI00830050935765 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1 6'x3' Marble Dining Table Hakik 3,00 each 8 630,92 25 892,76 10% 28 482,04 Pietradura Inlay Room Outdoor Mosaic Decor H3143 2 6'x3' White Marble Living Room 4,00 each 5 590,21 22 360,84 10% 24 596,92 Dining Table Top Marquetry Inlay Furniture H4743A SUMMARY VAT [%] Net worth VAT Gross worth 10% 48 253,60 4 825,36 53 078,96 Total $ 48 253,60 $ 4 825,36 $ 53 078,96"
+batch1-1002.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Gonzales PLC"",
+    ""client_address"": ""22587 Mia Cape\nJeremiahmouth, IN 15364"",
+    ""seller_name"": ""Kent LLC"",
+    ""seller_address"": ""073 Henry Mountain Apt. 314\nAllenbury, AR 83554"",
+    ""invoice_number"": ""88834769"",
+    ""invoice_date"": ""08/18/2011"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Wonder Nation Kids Blue Mout Alien Slippers House Shoes Size 5"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""37.38""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""3.40"",
+    ""discount"": """",
+    ""total"": ""37.38""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 88834769 Date of issue: 08/18/2011 Seller: Client: Kent LLC Gonzales PLC 073 Henry Mountain Apt: 314 22587 Mia Cape Allenbury, AR 83554 Jeremiahmouth, IN 15364 Tax Id: 945-74-3857 Tax Id: 983-77-6600 IBAN: GBS9LHKM54828280927726 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1 Wonder Nation Kids Blue Mout 2,00 each 16,99 33,98 10% 37,38 Alien Slippers House Shoes Size SUMMARY VAT [%] Net worth VAT Gross worth 10% 33,98 3,40 37,38 Total $ 33,98 $ 3,40 $ 37,38"
+batch1-1001.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Marshall-Perez"",
+    ""client_address"": ""15760 Freeman Spur Apt. 935\nSouth Timothyhaven, DE 52742"",
+    ""seller_name"": ""Johnson PLC"",
+    ""seller_address"": ""4332 Tina Lakes Suite 445\nChrisburgh, WV 43352"",
+    ""invoice_number"": ""70284416"",
+    ""invoice_date"": ""04/15/2012"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Wine Glasses Set Of 4"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""13.20""
+    },
+    {
+      ""description"": ""Beautiful Blue Dolphin Wine\nBottle Stopper New In Box"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""19.77""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""3.00"",
+    ""discount"": """",
+    ""total"": ""32.97""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 70284416 Date of issue: 04/15/2012 Seller: Client: Johnson PLC Marshall-Perez 4332 Tina Lakes Suite 445 15760 Freeman Spur Apt: 935 Chrisburgh, WV 43352 South Timothyhaven, DE 52742 Tax Id: 973-86-4868 Tax Id: 987-99-8588 IBAN: GBISSYHN68815141579564 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1 Wine Glasses Set Of 4 2,00 each 6,00 12,00 10% 13,20 2 Beautiful Blue Dolphin Wine 3,00 each 5,99 17,97 10% 19,77 Bottle Stopper New In Box SUMMARY VAT [%] Net worth VAT Gross worth 10% 29,97 3,00 32,97 Total $ 29,97 $ 3,00 $ 32,97"
+batch1-1008.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Robertson-Davis"",
+    ""client_address"": ""175 Bobby Inlet\nMooremouth, WI 38635"",
+    ""seller_name"": ""Green, Sanchez and Shannon"",
+    ""seller_address"": ""10056 Wright Mission Suite 229\nColeside, CO 49749"",
+    ""invoice_number"": ""26388025"",
+    ""invoice_date"": ""09/01/2018"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""14 Colors Women Spaghetti Strap Bodycon Mini Dress Sexy Party Club Wear Dresses"",
+      ""quantity"": ""4.00"",
+      ""total_price"": ""20.72""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""1.88"",
+    ""discount"": """",
+    ""total"": ""20.72""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": ""GB88UACG16491215528907"",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 26388025 Date of issue: 09/01/2018 Seller: Client: Green, Sanchez and Shannon Robertson-Davis 10056 Wright Mission Suite 229 175 Bobby Inlet Coleside, CO 49749 Mooremouth; WI 38635 Tax Id: 992-75-0742 Tax Id: 923-92-7597 IBAN: GB88UACG16491215528907 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1. 14 Colors Women Spaghetti 4,00 each 4,71 18,84 10% 20,72 Strap Bodycon Mini Dress Sexy Party Club Wear Dresses SUMMARY VAT [%] Net worth VAT Gross worth 10% 18,84 1,88 20,72 Total $ 18,84 $ 1,88 $ 20,72"
+batch1-1004.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Walker Group"",
+    ""client_address"": ""8440 Emily Gateway Apt. 318\nChelseastad, WI 92393"",
+    ""seller_name"": ""Hughes-Hernandez"",
+    ""seller_address"": ""943 Keith Gateway\nSextonland, IA 44573"",
+    ""invoice_number"": ""99096943"",
+    ""invoice_date"": ""10/08/2018"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Sperry Top-Sider Boys Toddlers Lace Tie Boat Shoes Brown 13M New"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""82.92""
+    },
+    {
+      ""description"": ""RICOSTA BGE boys everyday casual sandals NEW Size 33/ US 2"",
+      ""quantity"": ""1.00"",
+      ""total_price"": ""49.50""
+    },
+    {
+      ""description"": ""Florsheim kid's boys Lace Up Oxford Suede Dress Shoes Size 6M Solid Beige"",
+      ""quantity"": ""3.00"",
+      ""total_price"": ""98.97""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""21.04"",
+    ""discount"": """",
+    ""total"": ""231.39""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 99096943 Date of issue: 10/08/2018 Seller: Client: Hughes-Hernandez Walker Group 943 Keith Gateway 8440 Emily Gateway Apt: 318 Sextonland, IA 44573 Chelseastad, WI 92393 Tax Id: 960-92-1196 Tax Id: 976-83-0903 IBAN: GB83CSXU98872324709301 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1. Sperry Top-Sider Boys Toddlers 2,00 each 37,69 75,38 10% 82,92 Lace Tie Boat Shoes Brown 13M New 2 RICOSTA BGE boys everyday 1,00 each 45,00 45,00 10% 49,50 casual sandals NEW Size 33/ US 2 3 Florsheim kid's boys Lace Up 3,00 each 29,99 89,97 10% 98,97 Oxford Suede Dress Shoes Size 6M Solid Beige SUMMARY VAT [%] Net worth VAT Gross worth 10% 210,35 21,04 231,39 Total $ 210,35 $ 21,04 $ 231,39"
+batch1-1006.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Bowen-Schroeder"",
+    ""client_address"": ""USNS York\nFPO AA 32796"",
+    ""seller_name"": ""Phillips Group"",
+    ""seller_address"": ""94999 Alicia Fort\nNew Ann, NJ 47542"",
+    ""invoice_number"": ""43551281"",
+    ""invoice_date"": ""11/02/2014"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Dell Desktop Computer Tower\nQuad Intel Core i5 8GB 1TB HD\nDVD Wifi Windows 10 PC"",
+      ""quantity"": ""3,00"",
+      ""total_price"": ""494,83""
+    },
+    {
+      ""description"": ""Dell Optiplex Core i7 Desktop\nComputer PC 8GB 1TB HD DVD\nWindows 10 Pro"",
+      ""quantity"": ""5,00"",
+      ""total_price"": ""1 264,73""
+    },
+    {
+      ""description"": ""Dell Optiplex 9010 PC Computer\nIntel Core"",
+      ""quantity"": ""3,00"",
+      ""total_price"": ""329,67""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""189,93"",
+    ""discount"": """",
+    ""total"": ""2 089,23""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 43551281 Date of issue: 11/02/2014 Seller: Client: Phillips Group Bowen-Schroeder 94999 Alicia Fort USNS York New Ann, NJ 47542 FPO AA 32796 Tax Id: 945-72-4005 Tax Id: 997-87-9215 IBAN: GB9ZGRCPO9909713884000 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1. Dell Desktop Computer Tower 3,00 each 149,95 449,85 10% 494,83 Quad Intel Core i5 8GB 1TB HD DVD Wifi Windows 10 PC 2 Dell Optiplex Core i7 Desktop 5,00 each 229,95 1 149,75 10% 1 264,73 Computer PC 8GB 1TB HD DVD Windows 10 Pro 3 Dell Optiplex 9010 PC Computer 3,00 each 99,90 299,70 10% 329,67 Intel Core SUMMARY VAT [%] Net worth VAT Gross worth 10% 1 899,30 189,93 2 089,23 Total $ 1 899,30 189,93 $ 2 089,23"
+batch1-1003.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Cross-Estrada"",
+    ""client_address"": ""7297 Smith Roads\nLake Sherri, TN 88469"",
+    ""seller_name"": ""Mccullough-Bradley"",
+    ""seller_address"": ""457 Vargas Brook Suite 967\nEast James, MA 63095"",
+    ""invoice_number"": ""40394912"",
+    ""invoice_date"": ""03/23/2020"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Microsoft Xbox One X 1TB 4k Ultra HD Console black controller works great 1787"",
+      ""quantity"": ""5,00"",
+      ""total_price"": ""1 369,50""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""124,50"",
+    ""discount"": """",
+    ""total"": ""1 369,50""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": ""GB76GUQO07697012433171"",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 40394912 Date of issue: 03/23/2020 Seller: Client: Mccullough-Bradley Cross-Estrada 457 Vargas Brook Suite 967 7297 Smith Roads East James, MA 63095 Lake Sherri, TN 88469 Tax Id: 905-94-2945 Tax Id: 915-81-8637 IBAN: GB76GUQ007697012433171 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth Microsoft Xbox One X 1TB 4k 5,00 each 249,00 1 245,00 10% 1 369,50 Ultra HD Console black controller works great 1787 SUMMARY VAT [%] Net worth VAT Gross worth 10% 1 245,00 124,50 1 369,50 Total $ 1 245,00 $ 124,50 $ 1 369,50"
+batch1-1007.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Wilson PLC"",
+    ""client_address"": ""667 Wu Ports\nMarshallmouth, AK 03373"",
+    ""seller_name"": ""Gregory, Patterson and Fischer"",
+    ""seller_address"": ""439 Hunter Land\nSouth Jameschester, MT 09091"",
+    ""invoice_number"": ""12222347"",
+    ""invoice_date"": ""03/18/2017"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""Zara Yellow Shift Dress XS"",
+      ""quantity"": ""5.00"",
+      ""total_price"": ""136.13""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""12.38"",
+    ""discount"": """",
+    ""total"": ""136.13""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 12222347 Date of issue: 03/18/2017 Seller: Client: Gregory , Patterson and Fischer Wilson PLC 439 Hunter Land 667 Wu Ports South Jameschester, MT 09091 Marshallmouth, AK 03373 Tax Id: 958-94-6606 Tax Id: 928-91-2431 IBAN: GBIOYCPS61791374226282 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 1 Zara Yellow Shift Dress XS 5,00 each 24,75 123,75 10% 136,13 SUMMARY VAT [%] Net worth VAT Gross worth 10% 123,75 12,38 136,13 Total $ 123,75 $ 12,38 $ 136,13"
+batch1-1005.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Hopkins, Graves and Baker"",
+    ""client_address"": ""36477 Baker Groves Apt. 526\nLake Veronicatown, NC 12403"",
+    ""seller_name"": ""Elliott, Simon and Taylor"",
+    ""seller_address"": ""365 Tyler Plaza\nLake Jessica, ND 82382"",
+    ""invoice_number"": ""72744145"",
+    ""invoice_date"": ""03/29/2016"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""18\"" Marble White Top Chess Table Handmade Collectible Black Friday Gift Décor"",
+      ""quantity"": ""5.00"",
+      ""total_price"": ""3085.50""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""280.50"",
+    ""discount"": """",
+    ""total"": ""3085.50""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 72744145 Date of issue: 03/29/2016 Seller: Client: Elliott, Simon and Taylor Hopkins, Graves and Baker 365 Tyler Plaza 36477 Baker Groves Apt: 526 Lake Jessica, ND 82382 Lake Veronicatown, NC 12403 Tax Id: 953-92-2203 Tax Id: 900-91-6751 IBAN: GB21SZAV32374970565640 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth 18"" Marble White Top Chess 5,00 each 561,00 2 805,00 10% 3 085,50 Table Handmade Collectible Black Friday Gift Decor SUMMARY VAT [%] Net worth VAT Gross worth 10% 2 805,00 280,50 3 085,50 Total $ 2 805,00 $ 280,50 $ 3 085,50"
+batch1-1010.jpg,"
+{
+  ""invoice"": {
+    ""client_name"": ""Morgan-Houston"",
+    ""client_address"": ""Unit 7818 Box 2581\nDPO AE 12541"",
+    ""seller_name"": ""Martin LLC"",
+    ""seller_address"": ""373 Mitchell Rapids Apt. 442\nNorth Toniview, VT 89868"",
+    ""invoice_number"": ""10457894"",
+    ""invoice_date"": ""08/21/2012"",
+    ""due_date"": """"
+  },
+  ""items"": [
+    {
+      ""description"": ""ELTOW Modular Plastic Wine Rack 3-Pack Stackable Display and Fridge Storage S..."",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""52.78""
+    },
+    {
+      ""description"": ""Hanging Wine Cup Rack Goblet Inverted Holder Stemware Display Shelf Drainer"",
+      ""quantity"": ""2.00"",
+      ""total_price"": ""59.14""
+    },
+    {
+      ""description"": ""Wine Rack Holder Iron Art Hanging Racks Glass Cup Stemware Shelf Mounted 2 Color"",
+      ""quantity"": ""5.00"",
+      ""total_price"": ""103.13""
+    }
+  ],
+  ""subtotal"": {
+    ""tax"": ""19.55"",
+    ""discount"": """",
+    ""total"": ""215.04""
+  },
+  ""payment_instructions"": {
+    ""due_date"": """",
+    ""bank_name"": """",
+    ""account_number"": """",
+    ""payment_method"": """"
+  }
+}
+","Invoice no: 10457894 Date of issue: 08/21/2012 Seller: Client: Martin LLC Morgan-Houston 373 Mitchell Rapids Apt: 442 Unit 7818 Box 2581 North Toniview, VT 89868 DPO AE 12541 Tax Id: 910-97-1825 Tax Id: 928-94-8925 IBAN: GB94MXC26324174236375 ITEMS No. Description Qty UM Net price Net worth VAT [%] Gross worth ELTOW Modular Plastic Wine 2,00 each 23,99 47,98 10% 52,78 Rack 3-Pack Stackable Display and Fridge Storage $._ 2 Hanging Wine Cup Rack Goblet 2,00 each 26,88 53,76 10% 59,14 Inverted Holder Stemware Display Shelf Drainer 3 Wine Rack Holder Iron Art 5,00 each 18,75 93,75 10% 103,13 Hanging Racks Glass Cup Stemware Shelf Mounted 2 Color SUMMARY VAT [%] Net worth VAT Gross worth 10% 195,49 19,55 215,04 Total $ 195,49 $ 19,55 $ 215,04"

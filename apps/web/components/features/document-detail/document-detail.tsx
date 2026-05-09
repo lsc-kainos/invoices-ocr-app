@@ -29,9 +29,9 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
   const tDisabled = useTranslations('disabled');
   const tUpload = useTranslations('upload');
   const doc = useDocumentDetail(initialDoc);
-  const razao = doc.summary?.core.razaoSocial ?? null;
-  const valor = doc.summary?.core.valorTotal ?? null;
-  const data = doc.summary?.core.dataEmissao ?? null;
+  const razao = doc.summary?.core.sellerName ?? null;
+  const valor = doc.summary?.core.total ?? null;
+  const data = doc.summary?.core.invoiceDate ?? null;
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-5 px-6 py-6">
