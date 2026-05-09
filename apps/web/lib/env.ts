@@ -8,8 +8,7 @@ const schema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().min(1),
   GITHUB_CLIENT_ID: z.string().min(1),
   GITHUB_CLIENT_SECRET: z.string().min(1),
-  ADMIN_EMAILS: z.string().optional().default(''),
-  DATABASE_URL: z.string().url(),
+  INTERNAL_SERVICE_TOKEN: z.string().min(32),
 });
 
 type Env = z.infer<typeof schema>;
@@ -31,8 +30,7 @@ function load(): Env {
       GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ?? '',
       GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID ?? '',
       GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET ?? '',
-      ADMIN_EMAILS: process.env.ADMIN_EMAILS ?? '',
-      DATABASE_URL: process.env.DATABASE_URL ?? 'postgresql://build:build@localhost:5432/build',
+      INTERNAL_SERVICE_TOKEN: process.env.INTERNAL_SERVICE_TOKEN ?? '',
     } as Env;
     return cached;
   }
@@ -44,8 +42,7 @@ function load(): Env {
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
-    ADMIN_EMAILS: process.env.ADMIN_EMAILS,
-    DATABASE_URL: process.env.DATABASE_URL,
+    INTERNAL_SERVICE_TOKEN: process.env.INTERNAL_SERVICE_TOKEN,
   });
   return cached;
 }

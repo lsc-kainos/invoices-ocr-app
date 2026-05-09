@@ -1,9 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('@/lib/prisma', () => ({ prisma: {} }));
+vi.mock('@/lib/internal-api', () => ({ internalFetch: vi.fn() }));
 vi.mock('@/lib/env', () => ({
   env: {
-    ADMIN_EMAILS: '',
     GOOGLE_CLIENT_ID: 'g-id',
     GOOGLE_CLIENT_SECRET: 'g-secret',
     GITHUB_CLIENT_ID: 'gh-id',
@@ -11,7 +10,7 @@ vi.mock('@/lib/env', () => ({
     NEXTAUTH_SECRET: 'a'.repeat(32),
     NEXTAUTH_URL: 'http://localhost:3000',
     API_URL: 'http://localhost:3001',
-    DATABASE_URL: 'postgresql://x:x@localhost:5432/x',
+    INTERNAL_SERVICE_TOKEN: 'x'.repeat(32),
   },
 }));
 

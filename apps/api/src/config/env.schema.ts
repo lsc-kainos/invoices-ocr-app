@@ -12,6 +12,17 @@ export const envSchema = z
       .string()
       .min(32, 'NEXTAUTH_SECRET deve ter pelo menos 32 chars'),
 
+    // Service-to-service token usado pelo web pra chamar endpoints
+    // internos da API (ex: sync de usuário no fluxo de login do NextAuth).
+    INTERNAL_SERVICE_TOKEN: z
+      .string()
+      .min(32, 'INTERNAL_SERVICE_TOKEN deve ter pelo menos 32 chars'),
+
+    // CSV de emails que recebem role ADMIN no upsert. String vazia = sem
+    // admins. Migrado do web pra cá porque a determinação de role é
+    // regra de negócio do backend.
+    ADMIN_EMAILS: z.string().optional().default(''),
+
     // F2 — OCR / Storage
     // String vazia é tratada como ausente (.env mantém o nome da var como
     // placeholder em dev local sem chave configurada).

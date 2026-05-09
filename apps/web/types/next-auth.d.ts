@@ -1,4 +1,4 @@
-import type { Role } from '@prisma/client';
+import type { Role } from '@invoices-ocr/shared-types';
 import 'next-auth';
 import 'next-auth/jwt';
 

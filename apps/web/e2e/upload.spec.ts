@@ -1,33 +1,34 @@
 import { test, expect, type Page } from '@playwright/test';
-import { PrismaClient } from '@prisma/client';
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 
-const prisma = new PrismaClient();
+const API_URL = process.env.API_URL ?? 'http://localhost:3001';
+const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN ?? '';
 
 const SAMPLES_DIR = join(__dirname, '..', '..', '..', 'samples');
 const INVOICE_JPG = join(SAMPLES_DIR, 'invoice-en.jpg');
 
-test.beforeEach(async () => {
-  await prisma.document.deleteMany({
-    where: { user: { email: { startsWith: 'playwright-' } } },
-  });
-  await prisma.user.deleteMany({
-    where: { email: { startsWith: 'playwright-' } },
-  });
-});
+const createdEmails = new Set<string>();
+
+async function deleteTestUser(email: string) {
+  await fetch(`${API_URL}/api/v1/internal/users/by-email`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-internal-token': INTERNAL_TOKEN,
+    },
+    body: JSON.stringify({ email }),
+  }).catch(() => undefined);
+}
 
 test.afterAll(async () => {
-  await prisma.document.deleteMany({
-    where: { user: { email: { startsWith: 'playwright-' } } },
-  });
-  await prisma.user.deleteMany({
-    where: { email: { startsWith: 'playwright-' } },
-  });
-  await prisma.$disconnect();
+  for (const email of createdEmails) {
+    await deleteTestUser(email);
+  }
 });
 
 async function loginAs(page: Page, email: string) {
+  createdEmails.add(email);
   await page.goto('/login');
   const csrfRes = await page.request.get('/api/auth/csrf');
   const { csrfToken } = (await csrfRes.json()) as { csrfToken: string };
@@ -113,7 +114,9 @@ test('upload arquivo não suportado → 400', async ({ page }) => {
 });
 
 test('user A não vê documento de user B → 404', async ({ page }) => {
-  await loginAs(page, `playwright-a-${Date.now()}@test.local`);
+  const emailA = `playwright-a-${Date.now()}@test.local`;
+  const emailB = `playwright-b-${Date.now()}@test.local`;
+  await loginAs(page, emailA);
   const upload = await uploadFile(page, INVOICE_JPG, 'invoice.jpg', 'image/jpeg');
   expect(upload.status()).toBe(201);
   const created = (await upload.json()) as { id: string };
@@ -124,7 +127,7 @@ test('user A não vê documento de user B → 404', async ({ page }) => {
   await expect(page).toHaveURL(/\/login/);
 
   // Login como B
-  await loginAs(page, `playwright-b-${Date.now()}@test.local`);
+  await loginAs(page, emailB);
 
   // GET ao doc de A → 404
   const r = await page.request.get(`/api/documents/${created.id}`, {
