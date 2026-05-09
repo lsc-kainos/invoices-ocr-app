@@ -23,7 +23,7 @@ export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
   const t = useTranslations('topbar');
   const navItems: NavItem[] = [
     { key: 'home', label: t('nav.home'), href: '/', enabled: true },
-    { key: 'list', label: t('nav.list'), href: '#', enabled: false },
+    { key: 'list', label: t('nav.list'), href: '/documents', enabled: true },
     { key: 'chat', label: t('nav.chat'), href: '/chat', enabled: true },
   ];
 
