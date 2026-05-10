@@ -1,7 +1,6 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { MockLlmProvider } from './providers/mock-llm.provider';
-import { ToolsRegistry } from './tools/tools-registry';
 
 describe('ChatService.runConversation (sem tool)', () => {
   it('persiste assistant e retorna content quando LLM responde direto', async () => {

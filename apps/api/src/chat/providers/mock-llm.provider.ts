@@ -7,6 +7,7 @@ import type { LlmCompleteParams, LlmProvider } from './llm-provider.interface';
 
 @Injectable()
 export class MockLlmProvider implements LlmProvider {
+  // eslint-disable-next-line @typescript-eslint/require-await
   async complete(params: LlmCompleteParams): Promise<ChatCompletion> {
     const lastMsg = params.messages[params.messages.length - 1];
     const text = typeof lastMsg.content === 'string' ? lastMsg.content : '';

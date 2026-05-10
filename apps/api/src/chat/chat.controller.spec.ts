@@ -43,7 +43,7 @@ describe('ChatController', () => {
   it('GET sessions chama listSessions com user.id e limit padrão', async () => {
     svc.listSessions.mockResolvedValue([]);
     const q = { limit: 50 };
-    const r = await ctrl.listSessions({ id: 'u1' }, q as never);
+    const r = await ctrl.listSessions({ id: 'u1' }, q);
     expect(svc.listSessions).toHaveBeenCalledWith('u1', 50);
     expect(r).toEqual([]);
   });
@@ -68,7 +68,7 @@ describe('ChatController', () => {
     const r = await ctrl.sendWorkspaceMessage(
       { id: 'u1' },
       's1',
-      { content: 'oi' } as any,
+      { content: 'oi' },
       req,
       res,
     );
@@ -96,7 +96,7 @@ describe('ChatController', () => {
     const r = await ctrl.sendDocumentMessage(
       { id: 'u1' },
       'd1',
-      { content: 'pergunta' } as any,
+      { content: 'pergunta' },
       req,
       res,
     );

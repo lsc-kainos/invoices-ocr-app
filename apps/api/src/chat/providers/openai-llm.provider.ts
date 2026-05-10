@@ -24,6 +24,6 @@ export class OpenaiLlmProvider implements LlmProvider {
       tools: params.tools.length > 0 ? params.tools : undefined,
       tool_choice: params.tools.length > 0 ? 'auto' : undefined,
       stream: false,
-    }) as Promise<ChatCompletion>;
+    });
   }
 }

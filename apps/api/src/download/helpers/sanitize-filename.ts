@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-control-regex
 const FORBIDDEN = /[\x00-\x1f\x7f"\\/:*?<>|]/g;
 
 export function sanitizeFilenameForZip(name: string): string {

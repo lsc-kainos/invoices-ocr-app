@@ -13,9 +13,7 @@ describe('OpenaiLlmProvider', () => {
     await provider.complete({
       model: 'gpt-4o-mini',
       messages: [{ role: 'user', content: 'oi' }],
-      tools: [
-        { type: 'function', function: { name: 'foo', parameters: {} as any } },
-      ],
+      tools: [{ type: 'function', function: { name: 'foo', parameters: {} } }],
     });
 
     expect(createMock).toHaveBeenCalledWith(

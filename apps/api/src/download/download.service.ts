@@ -8,7 +8,8 @@ import {
 } from '@nestjs/common';
 import archiver from 'archiver';
 import { Readable } from 'node:stream';
-import { DocumentStatus } from '@prisma/client';
+import { ChatRole, DocumentStatus } from '@prisma/client';
+import type { InvoiceSummary } from '@invoices-ocr/shared-types';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   STORAGE_SERVICE,
@@ -53,7 +54,7 @@ export class DownloadService {
       where: { userId, documentId: doc.id },
       include: {
         messages: {
-          where: { role: { not: 'TOOL' as any } },
+          where: { role: { not: ChatRole.TOOL } },
           orderBy: { createdAt: 'asc' },
           select: { role: true, content: true, createdAt: true },
         },
@@ -61,7 +62,8 @@ export class DownloadService {
     });
 
     const extractedBuf = buildExtractedTextFile(doc.extractedText);
-    const narrative = (doc.summary as any)?.narrative;
+    const summary = doc.summary as InvoiceSummary | null;
+    const narrative = summary?.narrative;
     const narrativeBuf = buildExtractedTextFile(
       typeof narrative === 'string' ? narrative : null,
     );
@@ -77,7 +79,7 @@ export class DownloadService {
 
     const archive = archiver('zip', { zlib: { level: 6 } });
 
-    archive.on('warning', (err: any) => {
+    archive.on('warning', (err: Error & { code?: string }) => {
       if (err.code !== 'ENOENT')
         this.logger.warn({ event: 'download.zip_warning', err });
     });
@@ -98,7 +100,7 @@ export class DownloadService {
     archive.append(extractedBuf, { name: 'extracted-text.txt' });
     archive.append(narrativeBuf, { name: 'narrative.txt' });
     archive.append(transcriptStr, { name: 'chat-transcript.md' });
-    archive.finalize();
+    void archive.finalize();
 
     return {
       stream: archive,
