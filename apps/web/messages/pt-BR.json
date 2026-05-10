@@ -212,6 +212,38 @@
       "error_generic": "Não foi possível baixar agora. Tente de novo."
     }
   },
+  "benchmark": {
+    "tabs": {
+      "run": "Executar",
+      "history": "Histórico"
+    },
+    "runner": {
+      "button": "Executar Benchmark",
+      "running": "Executando…",
+      "saved": "Run salvo",
+      "viewHistory": "Ver no histórico"
+    },
+    "history": {
+      "title": "Histórico de runs",
+      "refresh": "Atualizar",
+      "empty": "Nenhum run encontrado",
+      "loading": "Carregando…"
+    },
+    "detail": {
+      "title": "Detalhes do run",
+      "model": "Modelo",
+      "dataset": "Dataset",
+      "duration": "Duração",
+      "createdAt": "Data",
+      "runner": "Executado por",
+      "score": "Score médio",
+      "passed": "Passaram",
+      "failed": "Falharam",
+      "promptSnapshot": "Prompt",
+      "results": "Resultados por amostra",
+      "close": "Fechar"
+    }
+  },
   "disabled": {
     "f3": "Disponível na próxima versão",
     "f4": "Disponível na próxima versão"
