@@ -73,6 +73,24 @@ export class DownloadService {
     try {
       originalBuf = await this.storage.read(doc.storagePath);
     } catch (err) {
+      const code = (err as NodeJS.ErrnoException)?.code;
+      // Arquivo físico sumiu — marca FAILED e devolve 404. UI mostra
+      // mensagem clara em vez de "tente de novo" indefinido.
+      if (code === 'ENOENT') {
+        await this.prisma.document.update({
+          where: { id: documentId },
+          data: {
+            status: DocumentStatus.FAILED,
+            failureReason: 'storage_missing',
+          },
+        });
+        this.logger.warn({
+          event: 'download.storage_missing',
+          documentId,
+          path: doc.storagePath,
+        });
+        throw new NotFoundException({ code: 'storage_missing' });
+      }
       this.logger.error({ event: 'download.storage_failed', documentId, err });
       throw new ServiceUnavailableException({ code: 'storage_unavailable' });
     }

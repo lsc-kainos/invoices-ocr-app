@@ -185,7 +185,28 @@ export class DocumentsService implements DocumentOps {
       throw new UnauthorizedException();
     }
 
-    const buffer = await this.storage.read(doc.storagePath);
+    let buffer: Buffer;
+    try {
+      buffer = await this.storage.read(doc.storagePath);
+    } catch (err) {
+      // Arquivo físico sumiu (volume recriado, perdido em redeploy sem volume,
+      // etc.). Marca como FAILED para a UI parar de tentar ler e oferecer retry.
+      const code = (err as NodeJS.ErrnoException)?.code;
+      if (code === 'ENOENT') {
+        await this.prisma.document.update({
+          where: { id },
+          data: {
+            status: DocumentStatus.FAILED,
+            failureReason: 'storage_missing',
+          },
+        });
+        this.logger.warn(
+          `Document file missing on disk docId=${id} path=${doc.storagePath} → marked FAILED`,
+        );
+        throw new NotFoundException({ code: 'storage_missing' });
+      }
+      throw err;
+    }
     res.setHeader('Content-Type', doc.mime);
     res.setHeader(
       'Content-Disposition',

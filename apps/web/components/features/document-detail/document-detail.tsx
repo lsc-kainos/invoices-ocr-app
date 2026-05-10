@@ -1,6 +1,8 @@
 'use client';
 
+import { useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ChevronLeft } from 'lucide-react';
 import { DownloadButton } from '@/components/features/document-download/download-button';
@@ -26,10 +28,21 @@ interface DocumentDetailProps {
 export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
   const t = useTranslations('document');
   const tUpload = useTranslations('upload');
+  const router = useRouter();
   const doc = useDocumentDetail(initialDoc);
   const razao = doc.summary?.core.sellerName ?? null;
   const valor = doc.summary?.core.total ?? null;
   const data = doc.summary?.core.invoiceDate ?? null;
+
+  // Quando o viewer falha em carregar (storage_missing → 404 do API),
+  // dispara refresh do RSC para puxar o status atualizado (que o backend
+  // já marcou como FAILED). Sem isso a UI ficaria travada em READY com
+  // botão de download habilitado.
+  const handleLoadError = useCallback(() => {
+    if (doc.status === 'READY') {
+      router.refresh();
+    }
+  }, [doc.status, router]);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-5 px-6 py-6">
@@ -37,6 +50,10 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="/">{tUpload('breadcrumb.home')}</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/documents">{t('breadcrumb.list')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -49,7 +66,7 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Link
-              href="/"
+              href="/documents"
               aria-label={t('header.back')}
               className="text-muted-foreground hover:text-foreground"
             >
@@ -74,7 +91,12 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
       <section className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex min-w-0 flex-col gap-4">
           <div className="bg-muted/30 aspect-[3/4] w-full overflow-hidden rounded-md lg:aspect-auto lg:h-[44vh]">
-            <DocumentViewer mime={doc.mime} src={doc.fileUrl} filename={doc.filename} />
+            <DocumentViewer
+              mime={doc.mime}
+              src={doc.fileUrl}
+              filename={doc.filename}
+              onLoadError={handleLoadError}
+            />
           </div>
 
           <div className="border-border bg-card min-h-[280px] rounded-md border p-4">
