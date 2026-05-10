@@ -5,13 +5,23 @@ function makePrismaMock() {
   const findFirst = jest.fn();
   const create = jest.fn();
   const update = jest.fn();
+  const updateMany = jest.fn();
   const findMany = jest.fn();
   const findUnique = jest.fn();
   const $transaction = jest.fn(async (cb: (tx: any) => Promise<any>) =>
-    cb({ llmConfig: { findFirst, create, update, findMany, findUnique } }),
+    cb({
+      llmConfig: {
+        findFirst,
+        create,
+        update,
+        updateMany,
+        findMany,
+        findUnique,
+      },
+    }),
   );
   return {
-    llmConfig: { findFirst, create, update, findMany, findUnique },
+    llmConfig: { findFirst, create, update, updateMany, findMany, findUnique },
     $transaction,
   } as any;
 }
@@ -126,13 +136,14 @@ describe('LlmConfigService', () => {
         id: 'cfg2',
         active: true,
       });
+      prisma.llmConfig.updateMany.mockResolvedValue({ count: 1 });
       const svc = new LlmConfigService(prisma);
 
       await svc.activate('cfg2');
 
       expect(prisma.$transaction).toHaveBeenCalled();
-      expect(prisma.llmConfig.update).toHaveBeenCalledWith({
-        where: { key_version: { key: LlmConfigKey.EXTRACTOR, version: 1 } },
+      expect(prisma.llmConfig.updateMany).toHaveBeenCalledWith({
+        where: { key: LlmConfigKey.EXTRACTOR, active: true },
         data: { active: false },
       });
       expect(prisma.llmConfig.update).toHaveBeenCalledWith({
@@ -150,6 +161,7 @@ describe('LlmConfigService', () => {
         active: false,
       });
       prisma.llmConfig.update.mockResolvedValue({});
+      prisma.llmConfig.updateMany.mockResolvedValue({ count: 1 });
       const svc = new LlmConfigService(prisma);
 
       await svc.findActive(LlmConfigKey.EXTRACTOR);
@@ -157,6 +169,25 @@ describe('LlmConfigService', () => {
       await svc.findActive(LlmConfigKey.EXTRACTOR);
 
       expect(prisma.llmConfig.findFirst).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('listAll', () => {
+    it('inclui creator para resolver email', async () => {
+      const prisma = makePrismaMock();
+      prisma.llmConfig.findMany.mockResolvedValue([
+        { ...baseConfig, creator: { email: 'a@b.com' } },
+      ]);
+      const svc = new LlmConfigService(prisma);
+
+      const result = await svc.listAll();
+
+      expect(prisma.llmConfig.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          include: { creator: { select: { email: true } } },
+        }),
+      );
+      expect(result[0]).toMatchObject({ creator: { email: 'a@b.com' } });
     });
   });
 });

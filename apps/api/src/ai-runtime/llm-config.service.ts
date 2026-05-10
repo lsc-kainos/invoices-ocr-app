@@ -61,8 +61,8 @@ export class LlmConfigService {
     if (!target) throw new NotFoundException(`LlmConfig ${id} not found`);
 
     const result = await this.prisma.$transaction(async (tx) => {
-      await tx.llmConfig.update({
-        where: { key_version: { key: target.key, version: target.version } },
+      await tx.llmConfig.updateMany({
+        where: { key: target.key, active: true },
         data: { active: false },
       });
       return tx.llmConfig.update({
@@ -75,9 +75,12 @@ export class LlmConfigService {
     return result;
   }
 
-  async listAll(): Promise<LlmConfig[]> {
+  async listAll(): Promise<
+    (LlmConfig & { creator: { email: string } | null })[]
+  > {
     return this.prisma.llmConfig.findMany({
       orderBy: [{ key: 'asc' }, { version: 'desc' }],
+      include: { creator: { select: { email: true } } },
     });
   }
 

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -63,6 +64,12 @@ export class LlmConfigController {
   @Post()
   @Throttle({ default: { ttl: 60_000, limit: 10 } })
   async create(@Body() dto: CreateLlmConfigDto, @Req() req: AuthRequest) {
+    const allowed = availableModels(process.env);
+    if (!allowed.some((m) => m.id === dto.model)) {
+      throw new BadRequestException(
+        `Model '${dto.model}' is not available. Available: ${allowed.map((m) => m.id).join(', ')}`,
+      );
+    }
     const created = await this.service.createVersion(req.user.id, {
       key: dto.key,
       model: dto.model,
