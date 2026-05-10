@@ -66,14 +66,12 @@ function makeService(extract: jest.Mock, findActiveMock?: jest.Mock) {
   const llmConfig = {
     findActive:
       findActiveMock ??
-      jest
-        .fn()
-        .mockResolvedValue({
-          id: 'cfg1',
-          model: 'gpt-4o',
-          prompt: 'p',
-          params: {},
-        }),
+      jest.fn().mockResolvedValue({
+        id: 'cfg1',
+        model: 'gpt-4o',
+        prompt: 'p',
+        params: {},
+      }),
   } as unknown as LlmConfigService;
   const persistence = {
     persist: jest.fn().mockResolvedValue({ id: 'run1' }),

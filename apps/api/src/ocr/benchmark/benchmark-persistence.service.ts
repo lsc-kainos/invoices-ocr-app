@@ -26,14 +26,22 @@ const include = {
   llmConfig: { select: { key: true, version: true } },
 } as const;
 
-type RunRow = Awaited<
-  ReturnType<PrismaService['benchmarkRun']['findFirst']>
-> & {
+interface RunRow {
+  id: string;
+  modelSnapshot: string;
+  promptSnapshot: string;
+  paramsSnapshot: Prisma.JsonValue;
+  datasetVersion: string;
+  sampleCount: number;
+  aggregate: Prisma.JsonValue;
+  results: Prisma.JsonValue;
+  durationMs: number;
+  createdAt: Date;
   runner: { email: string };
   llmConfig: { key: string; version: number } | null;
-};
+}
 
-function toDto(row: NonNullable<RunRow>): BenchmarkRunDto {
+function toDto(row: RunRow): BenchmarkRunDto {
   return {
     id: row.id,
     runByEmail: row.runner.email,
@@ -42,18 +50,18 @@ function toDto(row: NonNullable<RunRow>): BenchmarkRunDto {
     modelSnapshot: row.modelSnapshot,
     datasetVersion: row.datasetVersion,
     sampleCount: row.sampleCount,
-    aggregate: row.aggregate as BenchmarkAggregate,
+    aggregate: row.aggregate as unknown as BenchmarkAggregate,
     durationMs: row.durationMs,
     createdAt: row.createdAt.toISOString(),
   };
 }
 
-function toDetailDto(row: NonNullable<RunRow>): BenchmarkRunDetailDto {
+function toDetailDto(row: RunRow): BenchmarkRunDetailDto {
   return {
     ...toDto(row),
     promptSnapshot: row.promptSnapshot,
     paramsSnapshot: row.paramsSnapshot as Record<string, unknown>,
-    results: row.results as BenchmarkSampleResult[],
+    results: row.results as unknown as BenchmarkSampleResult[],
   };
 }
 
@@ -85,7 +93,7 @@ export class BenchmarkPersistenceService {
       orderBy: { createdAt: 'desc' },
       take: limit,
     });
-    return rows.map((row) => toDto(row as NonNullable<RunRow>));
+    return rows.map((row) => toDto(row as unknown as RunRow));
   }
 
   async findById(id: string): Promise<BenchmarkRunDetailDto | null> {
@@ -94,6 +102,6 @@ export class BenchmarkPersistenceService {
       include,
     });
     if (!row) return null;
-    return toDetailDto(row as NonNullable<RunRow>);
+    return toDetailDto(row);
   }
 }

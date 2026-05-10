@@ -1,45 +1,49 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { BenchmarkRunDetailDto } from '@invoices-ocr/shared-types';
 
 export function useRunDetail(id: string | null) {
   const [detail, setDetail] = useState<BenchmarkRunDetailDto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const cancelledRef = useRef(false);
 
   useEffect(() => {
-    if (!id) {
-      setDetail(null);
-      return;
-    }
+    cancelledRef.current = false;
 
-    let cancelled = false;
+    if (!id) {
+      return () => {
+        cancelledRef.current = true;
+      };
+    }
 
     const fetchDetail = async () => {
       setIsLoading(true);
       setError(null);
       try {
         const res = await fetch(`/api/admin/benchmark/runs/${id}`);
-        if (cancelled) return;
+        if (cancelledRef.current) return;
         if (!res.ok) {
           setError(`HTTP ${res.status}`);
           return;
         }
         const data = (await res.json()) as BenchmarkRunDetailDto;
-        if (!cancelled) setDetail(data);
+        if (!cancelledRef.current) setDetail(data);
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Unknown error');
+        if (!cancelledRef.current) setError(e instanceof Error ? e.message : 'Unknown error');
       } finally {
-        if (!cancelled) setIsLoading(false);
+        if (!cancelledRef.current) setIsLoading(false);
       }
     };
 
     void fetchDetail();
 
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
     };
   }, [id]);
 
-  return { detail, isLoading, error };
+  const resolvedDetail = id ? detail : null;
+
+  return { detail: resolvedDetail, isLoading, error };
 }

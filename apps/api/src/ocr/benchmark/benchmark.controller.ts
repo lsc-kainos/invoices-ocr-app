@@ -61,7 +61,8 @@ export class BenchmarkController {
 
   @Get('benchmark/runs/:id')
   async getRun(@Param('id') id: string): Promise<BenchmarkRunDetailDto> {
-    const run = await this.persistence.findById(id);
+    const run: BenchmarkRunDetailDto | null =
+      await this.persistence.findById(id);
     if (!run) throw new NotFoundException(`BenchmarkRun ${id} not found`);
     return run;
   }

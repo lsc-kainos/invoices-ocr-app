@@ -157,7 +157,7 @@ export class BenchmarkService {
       paramsSnapshot: activeConfig.params as Record<string, unknown>,
       datasetVersion,
       sampleCount: samples.length,
-      aggregate: { ...aggregate, errorCounts } as Record<string, unknown>,
+      aggregate: { ...aggregate, errorCounts },
       results: collectedResults,
       durationMs: Date.now() - startTime,
     });
