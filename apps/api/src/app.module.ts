@@ -12,6 +12,7 @@ import { StorageModule } from './storage/storage.module';
 import { DocumentsModule } from './documents/documents.module';
 import { OcrModule } from './ocr/ocr.module';
 import { BenchmarkModule } from './ocr/benchmark/benchmark.module';
+import { QueuesAdminModule } from './admin/queues.module';
 import { ChatModule } from './chat/chat.module';
 import { DownloadModule } from './download/download.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
@@ -49,6 +50,7 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
     ChatModule,
     DownloadModule,
     ...(process.env.NODE_ENV !== 'test' ? [BenchmarkModule] : []),
+    ...(process.env.BULL_BOARD_ENABLED === 'true' ? [QueuesAdminModule] : []),
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: LoggerInterceptor },
