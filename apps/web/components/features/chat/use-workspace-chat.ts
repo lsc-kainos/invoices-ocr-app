@@ -12,6 +12,10 @@ export function useWorkspaceChat(activeSessionId?: string) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Lista de sessões busca apenas no mount. Para evitar pressão no throttle
+  // (chat: 15 req/min), NÃO refazer fetch em cada troca de sessão. O hook
+  // mantém a lista coerente via update otimista em createSession e refetch
+  // pontual em send (após resposta do LLM, que pode ter mudado o título).
   useEffect(() => {
     let alive = true;
     fetch('/api/chat/sessions')
@@ -49,7 +53,16 @@ export function useWorkspaceChat(activeSessionId?: string) {
   const createSession = useCallback(async () => {
     const res = await fetch('/api/chat/sessions', { method: 'POST' });
     if (!res.ok) return;
-    const { id } = await res.json();
+    const { id, createdAt } = (await res.json()) as {
+      id: string;
+      createdAt: string;
+    };
+    // Update otimista: prepend a sessão nova na sidebar SEM refetch — evita
+    // round-trip e pressão no throttle. Title vem null (preenchido na 1a
+    // mensagem). Se o componente foi remontado em /chat/[id], o useEffect
+    // de mount cuida; se persistiu (App Router segmento [id]), o setSessions
+    // aqui é o que faz a sessão aparecer na lista.
+    setSessions((prev) => [{ id, title: null, createdAt, updatedAt: createdAt }, ...prev]);
     router.push(`/chat/${id}`);
   }, [router]);
 
