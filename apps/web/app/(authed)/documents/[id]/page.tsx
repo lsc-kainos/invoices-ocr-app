@@ -3,6 +3,8 @@ import { cookies, headers } from 'next/headers';
 import type { DocumentDetail } from '@invoices-ocr/shared-types';
 import { DocumentDetailView } from '@/components/features/document-detail/document-detail';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DocumentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   // RSC chama o route handler local (que já injeta Bearer via apiFetch).

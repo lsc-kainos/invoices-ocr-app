@@ -215,6 +215,8 @@
     "empty_state_subtitle": "Toque em uma sugestão ou digite abaixo.",
     "tab_conversa": "Conversa",
     "no_sessions": "Sem conversas ainda. Crie uma nova na sidebar.",
+    "select_conversation_title": "Selecione uma conversa",
+    "select_conversation_subtitle": "Escolha uma conversa na lista ao lado ou crie uma nova.",
     "suggestion_workspace_1": "Quais notas vencem este mês?",
     "suggestion_workspace_2": "Soma do valor total das notas de janeiro",
     "suggestion_workspace_3": "Liste as notas com CFOP 5102",

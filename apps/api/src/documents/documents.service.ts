@@ -120,7 +120,7 @@ export class DocumentsService implements DocumentOps {
           : {}),
       },
       orderBy: { updatedAt: 'desc' },
-      take: 50,
+      take: q.limit ?? 50,
     });
     return rows.map(toSummaryDto);
   }
