@@ -47,17 +47,14 @@ type RunContext = {
 
 @Injectable()
 export class ChatService {
-  private readonly logger: Logger;
+  private readonly logger = new Logger(ChatService.name);
 
   constructor(
     private readonly prisma: PrismaService,
     @Inject(LLM_PROVIDER) private readonly llm: LlmProvider,
     private readonly tools: ToolsRegistry,
     private readonly config: ConfigService,
-    logger?: Logger,
-  ) {
-    this.logger = logger ?? new Logger(ChatService.name);
-  }
+  ) {}
 
   get streamingEnabled(): boolean {
     return this.config.get<boolean>('CHAT_STREAMING') === true;
