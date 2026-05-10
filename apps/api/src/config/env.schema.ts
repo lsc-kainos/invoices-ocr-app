@@ -56,7 +56,9 @@ export const envSchema = z
 
     // Fila distribuída (BullMQ)
     REDIS_URL: z.string().url().default('redis://localhost:6379'),
-    BULL_BOARD_ENABLED: z.coerce.boolean().default(false),
+    BULL_BOARD_ENABLED: z
+      .preprocess((v) => v === 'true' || v === true, z.boolean())
+      .default(false),
     BULL_BOARD_BASIC_AUTH_USER: z.string().optional(),
     BULL_BOARD_BASIC_AUTH_PASSWORD: z.string().optional(),
   })
@@ -98,15 +100,20 @@ export const envSchema = z
         }
       }
     }
-    if (
-      env.BULL_BOARD_ENABLED &&
-      (!env.BULL_BOARD_BASIC_AUTH_USER || !env.BULL_BOARD_BASIC_AUTH_PASSWORD)
-    ) {
+    if (env.BULL_BOARD_ENABLED && !env.BULL_BOARD_BASIC_AUTH_USER) {
       ctx.addIssue({
         code: 'custom',
         path: ['BULL_BOARD_BASIC_AUTH_USER'],
         message:
-          'BULL_BOARD_BASIC_AUTH_USER e BULL_BOARD_BASIC_AUTH_PASSWORD são obrigatórios quando BULL_BOARD_ENABLED=true',
+          'BULL_BOARD_BASIC_AUTH_USER é obrigatória quando BULL_BOARD_ENABLED=true',
+      });
+    }
+    if (env.BULL_BOARD_ENABLED && !env.BULL_BOARD_BASIC_AUTH_PASSWORD) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['BULL_BOARD_BASIC_AUTH_PASSWORD'],
+        message:
+          'BULL_BOARD_BASIC_AUTH_PASSWORD é obrigatória quando BULL_BOARD_ENABLED=true',
       });
     }
   });
