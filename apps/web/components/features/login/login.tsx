@@ -17,20 +17,6 @@ const ERROR_KEYS = [
 ] as const;
 type ErrorKey = (typeof ERROR_KEYS)[number];
 
-// Layout SEMPRE em duas colunas (lg:grid-cols-2). Sem split dinâmico —
-// a tentativa anterior de animar grid-template-columns de [1fr_0fr] →
-// [1fr_1fr] deixava o card clipped no canto direito quando o React
-// state ficava preso (bfcache, hidratação fora de ordem, ou Cache-
-// Control: no-store ignorado pelo browser).
-//
-// Cada elemento ainda anima individualmente via cascade de delays —
-// posições finais são corretas desde o 1º paint, animação é só
-// fade+slide entrando.
-//
-// Botões: <form> POST nativo (NÃO signIn() JS), sem disabled. Se 1ª
-// submissão sair com csrfToken vazio, NextAuth redireciona pra
-// /login?error=Configuration; 2ª já tem o token. UX "2º clique" é
-// aceitável.
 const slide = 'animate-in fade-in-0 slide-in-from-bottom-2 fill-mode-both';
 
 export function Login() {
@@ -49,14 +35,9 @@ export function Login() {
     getCsrfToken().then((token) => setCsrfToken(token ?? ''));
   }, []);
 
-  // Se o user clicar antes do useEffect popular o csrfToken, intercepta
-  // o submit, busca o token na hora, injeta no input e re-submete. Sem
-  // isso, 1º clique sai com csrf vazio → NextAuth rejeita → "página
-  // atualiza" e só o 2º clique funciona.
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (csrfToken) return; // happy path: form submete naturalmente
+    if (csrfToken) return;
     e.preventDefault();
-    // Captura form sincronamente — após await, React limpa e.currentTarget
     const form = e.currentTarget;
     const token = await getCsrfToken();
     if (!token) return;
@@ -70,17 +51,23 @@ export function Login() {
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
-      {/* Editorial column — desktop only */}
-      <div className="border-border bg-background hidden flex-col justify-between border-r px-14 py-10 lg:flex">
+      {/* Editorial column - desktop only */}
+      <div
+        className="border-border/40 bg-background relative hidden flex-col justify-between border-r px-8 py-8 lg:flex lg:px-14 lg:py-10"
+        style={{
+          backgroundImage:
+            'radial-gradient(ellipse at 70% 20%, oklch(0.15 0.06 40 / 0.10) 0%, transparent 60%)',
+        }}
+      >
         <div className={`${slide} duration-500`}>
-          <Logo />
+          <Logo size={28} />
         </div>
         <div className="flex max-w-[420px] flex-col gap-5">
-          <h1 className="animate-in fade-in-0 zoom-in-95 fill-mode-both text-foreground text-4xl font-semibold tracking-tight delay-300 duration-1000">
+          <h1 className="animate-in fade-in-0 zoom-in-95 fill-mode-both text-foreground text-3xl font-semibold tracking-tight delay-300 duration-1000 lg:text-4xl">
             {t('headline')}
           </h1>
           <p
-            className={`${slide} text-muted-foreground text-base leading-relaxed delay-[900ms] duration-700`}
+            className={`${slide} text-muted-foreground text-sm leading-relaxed delay-[900ms] duration-700 lg:text-base`}
           >
             {t('subtitle')}
           </p>
@@ -90,15 +77,15 @@ export function Login() {
         </span>
       </div>
 
-      {/* Auth card */}
-      <div className="flex items-center justify-center px-6 py-10">
+      {/* Auth card - full width on mobile, centered on desktop */}
+      <div className="flex items-center justify-center px-4 py-8 sm:px-6 sm:py-10">
         <div className="w-full max-w-[360px]">
           {/* Mobile mini hero */}
-          <div className="mb-10 flex flex-col gap-3 lg:hidden">
+          <div className="mb-8 flex flex-col gap-3 lg:hidden sm:mb-10">
             <div className={`${slide} duration-500`}>
-              <Logo />
+              <Logo size={28} />
             </div>
-            <h1 className="animate-in fade-in-0 zoom-in-95 fill-mode-both text-foreground text-2xl font-semibold tracking-tight delay-150 duration-700">
+            <h1 className="animate-in fade-in-0 zoom-in-95 fill-mode-both text-foreground text-xl font-semibold tracking-tight delay-150 duration-700 sm:text-2xl">
               {t('headline')}
             </h1>
             <p
@@ -108,7 +95,7 @@ export function Login() {
             </p>
           </div>
 
-          <h2 className={`${slide} text-2xl font-medium tracking-tight delay-200 duration-700`}>
+          <h2 className={`${slide} text-xl font-medium tracking-tight delay-200 duration-700 sm:text-2xl`}>
             {t('card.title')}
           </h2>
           <p
@@ -126,7 +113,7 @@ export function Login() {
             </div>
           )}
 
-          <div className={`${slide} flex flex-col gap-2 delay-700 duration-700`}>
+          <div className={`${slide} flex flex-col gap-2.5 delay-700 duration-700`}>
             <form
               action="/api/auth/signin/google"
               method="POST"
@@ -137,9 +124,9 @@ export function Login() {
               <input type="hidden" name="callbackUrl" value="/" />
               <Button
                 type="submit"
-                variant="secondary"
+                variant="outline"
                 size="lg"
-                className="w-full justify-center gap-2.5 transition-transform active:scale-[0.98]"
+                className="border-primary/20 hover:border-primary/40 hover:bg-primary/5 w-full justify-center gap-2.5 transition-all hover:shadow-[0_0_20px_-5px_var(--primary)] active:scale-[0.98]"
                 aria-label={t('card.google')}
               >
                 <GoogleLogo size={15} />
@@ -156,9 +143,9 @@ export function Login() {
               <input type="hidden" name="callbackUrl" value="/" />
               <Button
                 type="submit"
-                variant="secondary"
+                variant="outline"
                 size="lg"
-                className="w-full justify-center gap-2.5 transition-transform active:scale-[0.98]"
+                className="border-primary/20 hover:border-primary/40 hover:bg-primary/5 w-full justify-center gap-2.5 transition-all hover:shadow-[0_0_20px_-5px_var(--primary)] active:scale-[0.98]"
                 aria-label={t('card.github')}
               >
                 <GithubLogo size={15} />
@@ -168,7 +155,7 @@ export function Login() {
           </div>
 
           <div
-            className={`${slide} border-border text-muted-foreground mt-6 border-t pt-4 text-[11px] leading-relaxed delay-1000 duration-500`}
+            className={`${slide} border-border/40 text-muted-foreground mt-6 border-t pt-4 text-[11px] leading-relaxed delay-1000 duration-500`}
           >
             <a href="#" className="hover:underline">
               {t('card.terms')}
