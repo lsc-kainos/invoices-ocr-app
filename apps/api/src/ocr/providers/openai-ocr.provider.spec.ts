@@ -72,7 +72,7 @@ describe('OpenAiOcrProvider', () => {
         content: string | Array<{ type: string; image_url?: { url: string } }>;
       }>;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
     const callArg: unknown = parseMock.mock.calls[0]?.[0];
     const call = callArg as ChatCall;
     expect(call.model).toBe('gpt-4o');

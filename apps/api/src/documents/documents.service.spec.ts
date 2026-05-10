@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 // file-type é ESM-only e usa dynamic import real — não funciona no Jest sem
 // --experimental-vm-modules. Mockamos detectFileType com magic bytes inline.
 jest.mock('./helpers/detect-file-type', () => ({

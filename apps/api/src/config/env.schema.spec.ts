@@ -9,6 +9,7 @@ const validRaw = {
   VOLUME_ROOT: '/tmp/volume',
   STORAGE_URL_SECRET: 'b'.repeat(32),
   INTERNAL_SERVICE_TOKEN: 'x'.repeat(32),
+  LLM_PROVIDER: 'mock',
 };
 
 function omit<T extends Record<string, unknown>>(
@@ -79,6 +80,7 @@ describe('validateEnv', () => {
       VOLUME_ROOT: '/tmp/v',
       STORAGE_URL_SECRET: 'b'.repeat(32),
       INTERNAL_SERVICE_TOKEN: 'x'.repeat(32),
+      LLM_PROVIDER: 'mock',
     });
     expect(env.NEXTAUTH_SECRET).toHaveLength(32);
   });

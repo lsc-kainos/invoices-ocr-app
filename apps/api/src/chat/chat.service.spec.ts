@@ -1,7 +1,6 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { MockLlmProvider } from './providers/mock-llm.provider';
-import { ToolsRegistry } from './tools/tools-registry';
 
 describe('ChatService.runConversation (sem tool)', () => {
   it('persiste assistant e retorna content quando LLM responde direto', async () => {
@@ -15,16 +14,10 @@ describe('ChatService.runConversation (sem tool)', () => {
       getOpenAiSchemas: () => [],
       getHandler: () => null,
     } as any;
-    const service = new ChatService(
-      {} as any,
-      llm,
-      registry,
-      {
-        get: (k: string) =>
-          (({ CHAT_MODEL: 'mock', CHAT_MAX_TOOL_ITERATIONS: 3 }) as any)[k],
-      } as any,
-      console as any,
-    );
+    const service = new ChatService({} as any, llm, registry, {
+      get: (k: string) =>
+        (({ CHAT_MODEL: 'mock', CHAT_MAX_TOOL_ITERATIONS: 3 }) as any)[k],
+    } as any);
 
     const result = await (service as any).runConversation({
       userId: 'u1',

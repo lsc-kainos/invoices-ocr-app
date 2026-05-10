@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type {
-  ChatCompletionAssistantMessageParam,
+  ChatCompletion,
   ChatCompletionMessageParam,
 } from 'openai/resources/chat/completions';
 import { ChatRole } from '@prisma/client';
@@ -47,17 +47,14 @@ type RunContext = {
 
 @Injectable()
 export class ChatService {
-  private readonly logger: Logger;
+  private readonly logger = new Logger(ChatService.name);
 
   constructor(
     private readonly prisma: PrismaService,
     @Inject(LLM_PROVIDER) private readonly llm: LlmProvider,
     private readonly tools: ToolsRegistry,
     private readonly config: ConfigService,
-    logger?: Logger,
-  ) {
-    this.logger = logger ?? new Logger(ChatService.name);
-  }
+  ) {}
 
   get streamingEnabled(): boolean {
     return this.config.get<boolean>('CHAT_STREAMING') === true;
@@ -252,28 +249,32 @@ export class ChatService {
         messages: conversation,
         tools: this.tools.getOpenAiSchemas(),
         stream: false,
-      })) as any;
+      })) as ChatCompletion;
 
       const message = resp.choices[0].message;
+      const functionCalls = (message.tool_calls ?? []).filter(
+        (c): c is Extract<typeof c, { type: 'function' }> =>
+          c.type === 'function',
+      );
 
-      if (message.tool_calls?.length) {
+      if (functionCalls.length) {
         await ctx.persist({
           role: 'ASSISTANT',
           content: message.content ?? '',
-          toolCallId: message.tool_calls[0].id,
-          toolName: message.tool_calls[0].function.name,
+          toolCallId: functionCalls[0].id,
+          toolName: functionCalls[0].function.name,
           toolArgs: JSON.parse(
-            message.tool_calls[0].function.arguments || '{}',
-          ),
+            functionCalls[0].function.arguments || '{}',
+          ) as object,
         });
 
         conversation.push({
           role: 'assistant',
           content: message.content ?? null,
-          tool_calls: message.tool_calls,
-        } as ChatCompletionAssistantMessageParam);
+          tool_calls: functionCalls,
+        });
 
-        for (const call of message.tool_calls) {
+        for (const call of functionCalls) {
           const handler = this.tools.getHandler(call.function.name);
           if (!handler) {
             this.logger.error({
@@ -282,7 +283,7 @@ export class ChatService {
             });
             throw new InternalServerErrorException({ code: 'unknown_tool' });
           }
-          const args = JSON.parse(call.function.arguments || '{}');
+          const args = JSON.parse(call.function.arguments || '{}') as object;
           const output = await handler(args, { userId: ctx.userId });
           const outputJson = JSON.stringify(output);
 
