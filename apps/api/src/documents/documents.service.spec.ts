@@ -16,7 +16,7 @@ jest.mock('./helpers/detect-file-type', () => ({
 
 import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { getQueueToken } from '@nestjs/bullmq';
 import {
   BadRequestException,
   ConflictException,
@@ -28,9 +28,9 @@ import { createHmac } from 'node:crypto';
 import { DocumentsService } from './documents.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { STORAGE_SERVICE } from '../storage/storage.service';
+import { OCR_QUEUE_NAME } from '../ocr/queues/ocr.queue';
 import type { Document } from '@prisma/client';
 import { DocumentStatus } from '@prisma/client';
-import { DocumentUploadedEvent } from './events/document-uploaded.event';
 
 const SECRET = 'a'.repeat(32);
 
@@ -94,7 +94,7 @@ describe('DocumentsService', () => {
     };
   };
   let storage: { put: jest.Mock; read: jest.Mock };
-  let events: { emit: jest.Mock };
+  let ocrQueue: { add: jest.Mock; remove: jest.Mock };
 
   beforeEach(async () => {
     prisma = {
@@ -125,7 +125,10 @@ describe('DocumentsService', () => {
       put: jest.fn().mockResolvedValue(undefined),
       read: jest.fn().mockResolvedValue(Buffer.from('x')),
     };
-    events = { emit: jest.fn() };
+    ocrQueue = {
+      add: jest.fn().mockResolvedValue(undefined),
+      remove: jest.fn().mockResolvedValue(undefined),
+    };
     const cfg = {
       getOrThrow: (k: string) =>
         ({ STORAGE_URL_SECRET: SECRET, UPLOAD_MAX_BYTES: 10_485_760 })[k] as
@@ -138,7 +141,7 @@ describe('DocumentsService', () => {
         DocumentsService,
         { provide: PrismaService, useValue: prisma },
         { provide: STORAGE_SERVICE, useValue: storage },
-        { provide: EventEmitter2, useValue: events },
+        { provide: getQueueToken(OCR_QUEUE_NAME), useValue: ocrQueue },
         { provide: ConfigService, useValue: cfg },
       ],
     }).compile();
@@ -151,9 +154,10 @@ describe('DocumentsService', () => {
       expect(storage.put).toHaveBeenCalled();
       expect(prisma.document.create).toHaveBeenCalled();
       expect(prisma.document.update).toHaveBeenCalled();
-      expect(events.emit).toHaveBeenCalledWith(
-        'document.uploaded',
-        expect.objectContaining({ documentId: dto.id }),
+      expect(ocrQueue.add).toHaveBeenCalledWith(
+        'process',
+        { documentId: dto.id },
+        expect.objectContaining({ jobId: dto.id, attempts: 3 }),
       );
       expect(dto.status).toBeDefined();
     });
@@ -179,7 +183,7 @@ describe('DocumentsService', () => {
           DocumentsService,
           { provide: PrismaService, useValue: prisma },
           { provide: STORAGE_SERVICE, useValue: storage },
-          { provide: EventEmitter2, useValue: events },
+          { provide: getQueueToken(OCR_QUEUE_NAME), useValue: ocrQueue },
           { provide: ConfigService, useValue: cfgHuge },
         ],
       }).compile();
@@ -380,9 +384,10 @@ describe('DocumentsService', () => {
           ocrCompletedAt: null,
         },
       });
-      expect(events.emit).toHaveBeenCalledWith(
-        DocumentUploadedEvent.NAME,
-        expect.objectContaining({ documentId: 'doc1' }),
+      expect(ocrQueue.add).toHaveBeenCalledWith(
+        'process',
+        { documentId: 'doc1' },
+        expect.objectContaining({ jobId: 'doc1', attempts: 3 }),
       );
       expect(result.status).toBe('QUEUED');
     });
@@ -390,7 +395,7 @@ describe('DocumentsService', () => {
     it('doc inexistente ou de outro user → NotFoundException', async () => {
       prisma.document.findFirst.mockResolvedValue(null);
       await expect(svc.retry('u1', 'doc1')).rejects.toThrow(NotFoundException);
-      expect(events.emit).not.toHaveBeenCalled();
+      expect(ocrQueue.add).not.toHaveBeenCalled();
     });
 
     it('status ≠ FAILED → ConflictException', async () => {
@@ -400,7 +405,7 @@ describe('DocumentsService', () => {
         status: DocumentStatus.OCR_RUNNING,
       });
       await expect(svc.retry('u1', 'doc1')).rejects.toThrow(ConflictException);
-      expect(events.emit).not.toHaveBeenCalled();
+      expect(ocrQueue.add).not.toHaveBeenCalled();
     });
   });
 });
