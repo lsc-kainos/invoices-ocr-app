@@ -6,14 +6,19 @@ import { useWorkspaceChat } from '@/components/features/chat/use-workspace-chat'
 export default function ChatIndex() {
   const t = useTranslations('chat');
   const { sessions, createSession } = useWorkspaceChat(undefined);
+  const hasSessions = sessions.length > 0;
 
   return (
     <div className="flex h-[calc(100vh-52px)]">
       <WorkspaceSidebar sessions={sessions} onCreate={createSession} />
       <main className="flex flex-1 items-center justify-center">
         <div className="max-w-md px-6 text-center">
-          <h2 className="text-foreground mb-2 text-lg font-medium">{t('empty_state_title')}</h2>
-          <p className="text-muted-foreground text-sm">{t('no_sessions')}</p>
+          <h2 className="text-foreground mb-2 text-lg font-medium">
+            {hasSessions ? t('select_conversation_title') : t('empty_state_title')}
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            {hasSessions ? t('select_conversation_subtitle') : t('no_sessions')}
+          </p>
           <button
             onClick={createSession}
             className="bg-primary text-primary-foreground mt-4 rounded-md px-4 py-2 text-sm font-medium hover:opacity-90"
