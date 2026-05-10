@@ -4,12 +4,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StorageModule } from '../storage/storage.module';
 import { DocumentsModule } from '../documents/documents.module';
 import { DocumentsService } from '../documents/documents.service';
+import { AiRuntimeModule } from '../ai-runtime/ai-runtime.module';
 import { OcrService, DOCUMENT_OPS } from './ocr.service';
 import { OcrProcessor } from './processors/ocr.processor';
 import { OCR_QUEUE_NAME } from './queues/ocr.queue';
+import { ExtractorService } from './extractor.service';
 import { OCR_PROVIDER } from './providers/ocr-provider.interface';
 import { MockOcrProvider } from './providers/mock-ocr.provider';
-import { OpenAiOcrProvider } from './providers/openai-ocr.provider';
 
 @Module({
   imports: [
@@ -17,20 +18,24 @@ import { OpenAiOcrProvider } from './providers/openai-ocr.provider';
     ConfigModule,
     StorageModule,
     forwardRef(() => DocumentsModule),
+    AiRuntimeModule,
   ],
   providers: [
     OcrService,
     OcrProcessor,
+    ExtractorService,
+    MockOcrProvider,
     {
       provide: OCR_PROVIDER,
-      inject: [ConfigService],
-      useFactory: (cfg: ConfigService) =>
-        cfg.get<string>('OCR_PROVIDER') === 'openai'
-          ? new OpenAiOcrProvider(cfg)
-          : new MockOcrProvider(),
+      inject: [ConfigService, ExtractorService, MockOcrProvider],
+      useFactory: (
+        cfg: ConfigService,
+        extractor: ExtractorService,
+        mock: MockOcrProvider,
+      ) => (cfg.get('LLM_PROVIDER') === 'mock' ? mock : extractor),
     },
     { provide: DOCUMENT_OPS, useExisting: DocumentsService },
   ],
-  exports: [OcrService],
+  exports: [OcrService, ExtractorService],
 })
 export class OcrModule {}
