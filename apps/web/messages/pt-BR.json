@@ -23,7 +23,9 @@
       "parse_failure": "A IA retornou um resultado inesperado",
       "provider_error": "Erro do serviço de IA",
       "storage_missing": "O arquivo original não está mais disponível. Por favor, envie a nota novamente.",
-      "unknown": "Falha desconhecida"
+      "unknown": "Falha desconhecida",
+      "low_confidence": "Confiança insuficiente — revise manualmente",
+      "unsupported_type": "Tipo de documento não suportado"
     }
   },
   "login": {
@@ -87,7 +89,8 @@
       "QUEUED": "Na fila",
       "OCR_RUNNING": "Extraindo",
       "READY": "Pronta",
-      "FAILED": "Falhou"
+      "FAILED": "Falhou",
+      "REJECTED": "Rejeitada"
     },
     "ladder": {
       "upload": "Upload",

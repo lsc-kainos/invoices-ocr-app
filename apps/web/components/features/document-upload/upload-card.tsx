@@ -20,7 +20,7 @@ const PROGRESS: Record<DocumentStatus, number> = {
   REJECTED: 100,
 };
 
-type StepState = 'done' | 'active' | 'pending' | 'failed';
+type StepState = 'done' | 'active' | 'pending' | 'failed' | 'warn';
 
 const LADDER: Record<
   DocumentStatus,
@@ -30,7 +30,7 @@ const LADDER: Record<
   OCR_RUNNING: { upload: 'done', ocr: 'active', structure: 'pending', ready: 'pending' },
   READY: { upload: 'done', ocr: 'done', structure: 'done', ready: 'done' },
   FAILED: { upload: 'done', ocr: 'failed', structure: 'pending', ready: 'pending' },
-  REJECTED: { upload: 'done', ocr: 'done', structure: 'failed', ready: 'pending' },
+  REJECTED: { upload: 'done', ocr: 'done', structure: 'warn', ready: 'pending' },
 };
 
 const formatSize = (bytes: number) => {
@@ -54,6 +54,7 @@ export function UploadCard({ doc }: UploadCardProps) {
   const ladder = LADDER[doc.status];
   const isReady = doc.status === 'READY';
   const isFailed = doc.status === 'FAILED';
+  const isRejected = doc.status === 'REJECTED';
   const isRunning = doc.status === 'OCR_RUNNING';
   const isAutoRetrying = isRunning && doc.retryCount > 0;
   const retryPending = isPending(doc.id);
@@ -66,6 +67,7 @@ export function UploadCard({ doc }: UploadCardProps) {
   const StepIcon = ({ state }: { state: StepState }) => {
     if (state === 'done') return <Check className="h-3 w-3" />;
     if (state === 'failed') return <X className="h-3 w-3" />;
+    if (state === 'warn') return <span className="text-[10px]">!</span>;
     if (state === 'active') return <Loader2 className="h-3 w-3 animate-spin" />;
     return <Dot className="h-3 w-3" />;
   };
@@ -123,6 +125,12 @@ export function UploadCard({ doc }: UploadCardProps) {
         </div>
       ) : null}
 
+      {isRejected && doc.rejectionReason ? (
+        <div className="mt-2 sm:mt-3">
+          <p className="text-[11px] text-amber-500">{tErrors(doc.rejectionReason)}</p>
+        </div>
+      ) : null}
+
       <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:grid-cols-1 sm:space-y-2.5">
         {(['upload', 'ocr', 'structure', 'ready'] as const).map((key) => {
           const state = ladder[key];
@@ -135,6 +143,7 @@ export function UploadCard({ doc }: UploadCardProps) {
                   state === 'active' && 'border-border bg-muted/50 text-foreground border',
                   state === 'pending' && 'border-border text-muted-foreground/50 border',
                   state === 'failed' && 'bg-destructive/15 text-destructive',
+                  state === 'warn' && 'bg-amber-500/15 text-amber-500',
                 )}
                 aria-hidden
               >
