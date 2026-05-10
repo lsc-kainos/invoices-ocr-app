@@ -32,11 +32,18 @@ export const envSchema = z
     ),
     OCR_PROVIDER: z.enum(['openai', 'mock']).default('mock'),
     OCR_MODEL: z.string().default('gpt-4o'),
-    VOLUME_ROOT: z.string().min(1, 'VOLUME_ROOT é obrigatório'),
+    VOLUME_ROOT: z.string().min(1).optional(),
     STORAGE_URL_SECRET: z
       .string()
       .min(32, 'STORAGE_URL_SECRET deve ter pelo menos 32 chars'),
     UPLOAD_MAX_BYTES: z.coerce.number().int().positive().default(10_485_760),
+
+    // Storage driver: 'volume' = Railway local FS (dev/test), 'r2' = Cloudflare R2 (prod)
+    STORAGE_DRIVER: z.enum(['volume', 'r2']).default('volume'),
+    R2_ACCOUNT_ID: z.string().optional(),
+    R2_ACCESS_KEY_ID: z.string().optional(),
+    R2_SECRET_ACCESS_KEY: z.string().optional(),
+    R2_BUCKET: z.string().optional(),
 
     // F3 — Chat / LLM
     CHAT_MODEL: z.string().default('gpt-4o-mini'),
@@ -61,6 +68,29 @@ export const envSchema = z
         path: ['OPENAI_API_KEY'],
         message: 'OPENAI_API_KEY é obrigatória quando LLM_PROVIDER=openai',
       });
+    }
+    if (env.STORAGE_DRIVER === 'volume' && !env.VOLUME_ROOT) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['VOLUME_ROOT'],
+        message: 'VOLUME_ROOT é obrigatória quando STORAGE_DRIVER=volume',
+      });
+    }
+    if (env.STORAGE_DRIVER === 'r2') {
+      for (const k of [
+        'R2_ACCOUNT_ID',
+        'R2_ACCESS_KEY_ID',
+        'R2_SECRET_ACCESS_KEY',
+        'R2_BUCKET',
+      ] as const) {
+        if (!env[k]) {
+          ctx.addIssue({
+            code: 'custom',
+            path: [k],
+            message: `${k} é obrigatória quando STORAGE_DRIVER=r2`,
+          });
+        }
+      }
     }
   });
 

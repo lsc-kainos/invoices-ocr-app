@@ -121,10 +121,30 @@ describe('validateEnv', () => {
       ).toThrow(/STORAGE_URL_SECRET/);
     });
 
-    it('exige VOLUME_ROOT', () => {
+    it('exige VOLUME_ROOT quando STORAGE_DRIVER=volume (default)', () => {
       expect(() => validateEnv(omit(validRaw, 'VOLUME_ROOT'))).toThrow(
         /VOLUME_ROOT/,
       );
+    });
+
+    it('não exige VOLUME_ROOT quando STORAGE_DRIVER=r2', () => {
+      const r2Raw = {
+        ...omit(validRaw, 'VOLUME_ROOT'),
+        STORAGE_DRIVER: 'r2',
+        R2_ACCOUNT_ID: 'acc',
+        R2_ACCESS_KEY_ID: 'kid',
+        R2_SECRET_ACCESS_KEY: 'sec',
+        R2_BUCKET: 'my-bucket',
+      };
+      expect(() => validateEnv(r2Raw)).not.toThrow();
+    });
+
+    it('exige vars R2 quando STORAGE_DRIVER=r2', () => {
+      const r2Base = {
+        ...omit(validRaw, 'VOLUME_ROOT'),
+        STORAGE_DRIVER: 'r2',
+      };
+      expect(() => validateEnv(r2Base)).toThrow(/R2_ACCOUNT_ID/);
     });
   });
 });
