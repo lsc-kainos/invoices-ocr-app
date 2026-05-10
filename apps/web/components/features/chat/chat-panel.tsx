@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Send } from 'lucide-react';
 import { ChatMessageContent } from './chat-message-content';
 import { EmptyChatState } from './empty-chat-state';
 
@@ -58,14 +59,24 @@ export function ChatPanel({
       {error && <p className="text-destructive px-4 py-2 text-sm">{t('error_generic')}</p>}
 
       <form onSubmit={handleSubmit} className="border-t p-3">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={placeholder ?? t('placeholder')}
-          disabled={loading}
-          className="w-full rounded-md border px-3 py-2"
-        />
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={placeholder ?? t('placeholder')}
+            disabled={loading}
+            className="flex-1 rounded-md border px-3 py-2"
+          />
+          <button
+            type="submit"
+            disabled={loading || !input.trim()}
+            aria-label={t('send')}
+            className="bg-primary text-primary-foreground inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-40"
+          >
+            <Send className="h-4 w-4" />
+          </button>
+        </div>
         {onClear && messages.length > 0 && (
           <button
             type="button"
