@@ -38,7 +38,7 @@ export function DocumentUpload() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-8">
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -51,26 +51,35 @@ export function DocumentUpload() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <h1 className="mt-2 text-[22px] font-medium tracking-tight">{t('title')}</h1>
+      <h1 className="mt-2 text-lg font-medium tracking-tight sm:text-[22px]">{t('title')}</h1>
       <p className="text-muted-foreground mt-1.5 text-[13px]">{t('subtitle')}</p>
 
-      <Card className="mt-6 overflow-hidden p-3">
+      <Card className="border-border/40 bg-card/50 mt-4 overflow-hidden shadow-lg shadow-black/10 sm:mt-6">
         <div
           {...getRootProps()}
           className={cn(
-            'border-border bg-background flex cursor-pointer flex-col items-center justify-center gap-3.5 rounded-md border border-dashed px-6 py-10 text-center transition-colors',
-            'hover:border-primary/30 hover:bg-muted/30',
-            isDragActive && 'border-primary/40 bg-muted/40',
+            'flex cursor-pointer flex-col items-center justify-center gap-3 rounded-lg px-4 py-10 text-center transition-all duration-300 sm:gap-4 sm:px-6 sm:py-14',
+            'border-border/40 bg-muted/20 border-2 border-dashed',
+            'hover:border-primary/40 hover:bg-primary/5 hover:shadow-[0_0_30px_-10px_var(--primary)]',
+            isDragActive &&
+              'border-primary/60 bg-primary/10 scale-[1.01] shadow-[0_0_40px_-10px_var(--primary)]',
           )}
           aria-label="dropzone"
         >
           <input {...getInputProps()} />
-          <div className="border-border bg-muted/50 text-muted-foreground grid h-9 w-9 place-items-center rounded-md border">
-            <Upload size={17} strokeWidth={1.6} />
+          <div
+            className={cn(
+              'border-primary/20 from-primary/20 grid h-12 w-12 place-items-center rounded-2xl border bg-gradient-to-br to-transparent transition-transform duration-300 sm:h-14 sm:w-14',
+              isDragActive && '-translate-y-1 scale-110',
+            )}
+          >
+            <Upload size={20} strokeWidth={1.5} className="text-primary/80" />
           </div>
           <div>
-            <div className="text-foreground text-sm font-medium">{t('dropzone.drag')}</div>
-            <div className="text-muted-foreground mt-1 text-xs">
+            <div className="text-foreground text-sm font-medium sm:text-base">
+              {t('dropzone.drag')}
+            </div>
+            <div className="text-muted-foreground mt-1 text-xs sm:mt-1.5 sm:text-sm">
               {t('dropzone.or')}{' '}
               <button
                 type="button"
@@ -78,15 +87,13 @@ export function DocumentUpload() {
                   e.stopPropagation();
                   open();
                 }}
-                className="text-foreground decoration-border hover:decoration-foreground underline underline-offset-2"
+                className="text-primary font-medium underline-offset-4 hover:underline"
               >
                 {t('dropzone.browse')}
               </button>
             </div>
           </div>
-          <div className="text-muted-foreground/80 flex items-center gap-3 text-[11px]">
-            {t('dropzone.hint')}
-          </div>
+          <div className="text-muted-foreground/60 text-xs">{t('dropzone.hint')}</div>
         </div>
       </Card>
 
@@ -101,7 +108,7 @@ export function DocumentUpload() {
         </div>
       )}
 
-      <div className="mt-6 flex flex-col gap-3">
+      <div className="mt-5 flex flex-col gap-3 sm:mt-6">
         {[
           { Icon: ShieldCheck, key: 'encrypted' as const },
           { Icon: Sparkles, key: 'auto_detect' as const },
