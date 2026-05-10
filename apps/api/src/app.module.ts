@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { EventEmitterModule } from '@nestjs/event-emitter';
+import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { validateEnv } from './config/env.schema';
 import { AuthModule } from './auth/auth.module';
@@ -25,7 +25,12 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
       isGlobal: true,
       validate: validateEnv,
     }),
-    EventEmitterModule.forRoot({ wildcard: false, maxListeners: 10 }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (cfg: ConfigService) => ({
+        connection: { url: cfg.getOrThrow<string>('REDIS_URL') },
+      }),
+    }),
     ThrottlerModule.forRoot([
       { name: 'default', ttl: 60_000, limit: 240 },
       { name: 'upload', ttl: 60_000, limit: 60 },
