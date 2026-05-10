@@ -45,3 +45,4 @@ samples/.cache/
 
 # F2 — local volume
 apps/api/.data/
+.worktrees/
