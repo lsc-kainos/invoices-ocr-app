@@ -26,13 +26,24 @@ export class CloudflareR2Provider implements StorageService {
     });
   }
 
+  private guardPath(path: string): void {
+    if (!path) throw new Error('Storage: path vazio');
+    if (path.startsWith('/'))
+      throw new Error('Storage: absolute path rejeitado');
+  }
+
   async put(path: string, buffer: Buffer): Promise<void> {
+    this.guardPath(path);
+    // ContentType não é passado intencionalmente: a interface StorageService
+    // não expõe MIME e todos os serves passam pelo proxy da API que seta
+    // Content-Type a partir do campo mime do banco de dados.
     await this.client.send(
       new PutObjectCommand({ Bucket: this.bucket, Key: path, Body: buffer }),
     );
   }
 
   async read(path: string): Promise<Buffer> {
+    this.guardPath(path);
     let body: AsyncIterable<Uint8Array> | undefined;
     try {
       const res = await this.client.send(
@@ -43,6 +54,8 @@ export class CloudflareR2Provider implements StorageService {
       const status = (err as { $metadata?: { httpStatusCode?: number } })
         ?.$metadata?.httpStatusCode;
       const name = (err as { name?: string })?.name;
+      // SDK usa 'NoSuchKey' para GetObject; status 404 cobre erros HTTP raw
+      // antes da deserialização do SDK (ex.: R2 retorna 404 sem body XML).
       if (status === 404 || name === 'NoSuchKey') {
         const enoent = new Error(
           `R2: object not found: ${path}`,
@@ -65,12 +78,14 @@ export class CloudflareR2Provider implements StorageService {
   }
 
   async delete(path: string): Promise<void> {
+    this.guardPath(path);
     await this.client.send(
       new DeleteObjectCommand({ Bucket: this.bucket, Key: path }),
     );
   }
 
   async exists(path: string): Promise<boolean> {
+    this.guardPath(path);
     try {
       await this.client.send(
         new HeadObjectCommand({ Bucket: this.bucket, Key: path }),
@@ -80,6 +95,8 @@ export class CloudflareR2Provider implements StorageService {
       const status = (err as { $metadata?: { httpStatusCode?: number } })
         ?.$metadata?.httpStatusCode;
       const name = (err as { name?: string })?.name;
+      // SDK usa 'NotFound' para HeadObject (sem body XML); 'NoSuchKey' não
+      // é emitido aqui. status 404 cobre respostas HTTP raw sem deserialização.
       if (status === 404 || name === 'NotFound') return false;
       throw err;
     }

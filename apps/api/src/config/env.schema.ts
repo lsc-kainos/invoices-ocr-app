@@ -32,7 +32,7 @@ export const envSchema = z
     ),
     OCR_PROVIDER: z.enum(['openai', 'mock']).default('mock'),
     OCR_MODEL: z.string().default('gpt-4o'),
-    VOLUME_ROOT: z.string().min(1, 'VOLUME_ROOT é obrigatório'),
+    VOLUME_ROOT: z.string().min(1).optional(),
     STORAGE_URL_SECRET: z
       .string()
       .min(32, 'STORAGE_URL_SECRET deve ter pelo menos 32 chars'),
@@ -67,6 +67,13 @@ export const envSchema = z
         code: 'custom',
         path: ['OPENAI_API_KEY'],
         message: 'OPENAI_API_KEY é obrigatória quando LLM_PROVIDER=openai',
+      });
+    }
+    if (env.STORAGE_DRIVER === 'volume' && !env.VOLUME_ROOT) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['VOLUME_ROOT'],
+        message: 'VOLUME_ROOT é obrigatória quando STORAGE_DRIVER=volume',
       });
     }
     if (env.STORAGE_DRIVER === 'r2') {

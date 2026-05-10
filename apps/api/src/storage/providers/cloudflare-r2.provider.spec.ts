@@ -1,6 +1,6 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
-import { CloudflareR2Provider } from '../cloudflare-r2.provider';
+import { CloudflareR2Provider } from './cloudflare-r2.provider';
 
 function makeProvider(): CloudflareR2Provider {
   const cfg = {
