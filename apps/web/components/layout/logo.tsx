@@ -20,7 +20,7 @@ export function Logo({ className, size = 22 }: LogoProps) {
         }}
         aria-hidden
       >
-        <span className="font-serif italic text-background">i</span>
+        <span className="text-background font-serif italic">i</span>
         <span
           className="absolute top-[3px] right-[3px] size-1 animate-pulse rounded-full"
           style={{ background: 'var(--ring)', boxShadow: '0 0 6px var(--ring)' }}
