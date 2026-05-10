@@ -22,6 +22,7 @@
       "invalid_image": "Não conseguimos ler o arquivo",
       "parse_failure": "A IA retornou um resultado inesperado",
       "provider_error": "Erro do serviço de IA",
+      "storage_missing": "O arquivo original não está mais disponível. Por favor, envie a nota novamente.",
       "unknown": "Falha desconhecida"
     }
   },
