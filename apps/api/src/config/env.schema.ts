@@ -53,6 +53,12 @@ export const envSchema = z
     CHAT_MAX_HISTORY: z.coerce.number().int().min(1).default(20),
     CHAT_MAX_TOOL_ITERATIONS: z.coerce.number().int().min(1).default(3),
     LLM_PROVIDER: z.enum(['openai', 'mock']).default('openai'),
+
+    // Fila distribuída (BullMQ)
+    REDIS_URL: z.string().url().default('redis://localhost:6379'),
+    BULL_BOARD_ENABLED: z.coerce.boolean().default(false),
+    BULL_BOARD_BASIC_AUTH_USER: z.string().optional(),
+    BULL_BOARD_BASIC_AUTH_PASSWORD: z.string().optional(),
   })
   .superRefine((env, ctx) => {
     if (env.OCR_PROVIDER === 'openai' && !env.OPENAI_API_KEY) {
@@ -91,6 +97,17 @@ export const envSchema = z
           });
         }
       }
+    }
+    if (
+      env.BULL_BOARD_ENABLED &&
+      (!env.BULL_BOARD_BASIC_AUTH_USER || !env.BULL_BOARD_BASIC_AUTH_PASSWORD)
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['BULL_BOARD_BASIC_AUTH_USER'],
+        message:
+          'BULL_BOARD_BASIC_AUTH_USER e BULL_BOARD_BASIC_AUTH_PASSWORD são obrigatórios quando BULL_BOARD_ENABLED=true',
+      });
     }
   });
 
