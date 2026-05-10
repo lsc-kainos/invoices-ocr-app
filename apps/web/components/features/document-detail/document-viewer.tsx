@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -17,23 +16,11 @@ function rewriteFileUrl(src: string): string {
 
 export function DocumentViewer({ mime, src, filename, onLoadError }: DocumentViewerProps) {
   const t = useTranslations('document.viewer');
-  // <object> não dispara onError em PDF que falha; verificamos via HEAD
-  // para detectar storage_missing (404) e notificar o pai pra re-fetch.
-  const objectRef = useRef<HTMLObjectElement>(null);
-
-  useEffect(() => {
-    if (!src || !onLoadError || mime !== 'application/pdf') return;
-    let cancelled = false;
-    const proxied = rewriteFileUrl(src);
-    fetch(proxied, { method: 'HEAD' })
-      .then((r) => {
-        if (!cancelled && !r.ok) onLoadError();
-      })
-      .catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
-  }, [src, mime, onLoadError]);
+  // Para PDF, o fallback content do <object> aparece quando o data falha
+  // — visualmente o usuário percebe e tem o link "abrir em nova aba".
+  // Auto-refresh para PDF requereria HEAD probe que dobra a banda
+  // (Next BFF auto-implementa HEAD via GET, e o API lê arquivo todo).
+  // Decisão: priorizar custo de banda; auto-refresh fica só no <img>.
 
   if (!src) {
     return (
@@ -48,7 +35,6 @@ export function DocumentViewer({ mime, src, filename, onLoadError }: DocumentVie
   if (mime === 'application/pdf') {
     return (
       <object
-        ref={objectRef}
         data={proxied}
         type="application/pdf"
         aria-label={filename}

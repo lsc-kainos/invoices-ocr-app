@@ -7,8 +7,18 @@ import type { DocumentDetail } from '@invoices-ocr/shared-types';
 const POLL_MS = 1500;
 
 export function useDocumentDetail(initial: DocumentDetail) {
-  const [doc, setDoc] = useState<DocumentDetail>(initial);
+  // Mantém o último doc obtido pelo polling. O `doc` retornado é sempre
+  // o mais recente entre (initial do RSC, polledDoc) — comparando por
+  // updatedAt. Assim, quando router.refresh() faz o RSC re-render com
+  // novo `initial` (e.g. status FAILED), a UI sincroniza imediatamente
+  // sem precisar de useEffect+setState (anti-padrão "sync prop to state").
+  const [polledDoc, setPolledDoc] = useState<DocumentDetail | null>(null);
   const router = useRouter();
+
+  const doc =
+    polledDoc && polledDoc.id === initial.id && polledDoc.updatedAt >= initial.updatedAt
+      ? polledDoc
+      : initial;
 
   useEffect(() => {
     if (initial.status === 'READY' || initial.status === 'FAILED') {
@@ -26,7 +36,7 @@ export function useDocumentDetail(initial: DocumentDetail) {
         }
         const next = (await res.json()) as DocumentDetail;
         if (!alive) return;
-        setDoc(next);
+        setPolledDoc(next);
         if (next.status === 'READY' || next.status === 'FAILED') {
           // re-roda o RSC para repopular initial e cache server-side
           router.refresh();
