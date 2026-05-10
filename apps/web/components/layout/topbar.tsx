@@ -40,32 +40,32 @@ export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
   ];
 
   return (
-    <header className="border-border bg-background flex h-[52px] flex-shrink-0 items-center gap-6 border-b px-6">
-      <Logo />
+    <header className="border-border/40 bg-background/80 sticky top-0 z-50 flex h-14 flex-shrink-0 items-center gap-3 border-b px-4 backdrop-blur-md sm:gap-4 sm:px-6 lg:gap-6">
+      <Logo size={24} />
+      <div className="bg-border/50 hidden h-6 w-px sm:block" />
 
-      {/* Desktop: nav inline */}
-      <nav className="hidden gap-1 lg:flex" aria-label="Primary">
+      {/* Desktop: nav inline with underline style */}
+      <nav className="hidden gap-6 lg:flex" aria-label="Primary">
         {navItems.map((item) =>
           item.enabled ? (
             <Link
               key={item.key}
               href={item.href}
               className={cn(
-                'text-foreground bg-secondary/40 inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium',
-                item.admin && 'text-primary',
+                'text-muted-foreground hover:text-foreground relative text-sm font-medium transition-colors',
+                item.admin && 'text-primary/80 hover:text-primary',
               )}
             >
-              {item.admin ? <ShieldCheck size={14} /> : null}
-              {item.label}
+              <span className="flex items-center gap-1.5">
+                {item.admin ? <ShieldCheck size={14} /> : null}
+                {item.label}
+              </span>
             </Link>
           ) : (
             <span
               key={item.key}
               aria-disabled="true"
-              className={cn(
-                'text-muted-foreground rounded-md px-2.5 py-1.5 text-sm',
-                'pointer-events-none opacity-40 select-none',
-              )}
+              className="text-muted-foreground pointer-events-none text-sm opacity-40 select-none"
             >
               {item.label}
             </span>
@@ -75,7 +75,7 @@ export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
 
       <div className="flex-1" />
 
-      {/* Mobile: hamburger com mesmos itens em dropdown */}
+      {/* Mobile/tablet: hamburger with dropdown */}
       <MobileNav items={navItems} label={t('nav.menu_label')} />
 
       <UserMenu user={user} />
@@ -90,12 +90,12 @@ function MobileNav({ items, label }: { items: NavItem[]; label: string }) {
         <button
           type="button"
           aria-label={label}
-          className="hover:bg-secondary/40 inline-flex size-7 items-center justify-center rounded-md transition-colors lg:hidden"
+          className="hover:bg-secondary/40 inline-flex size-9 items-center justify-center rounded-md transition-colors lg:hidden"
         >
-          <Menu size={16} />
+          <Menu size={20} />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-44">
+      <DropdownMenuContent align="end" className="w-48">
         {items.map((item) =>
           item.enabled ? (
             <DropdownMenuItem key={item.key} asChild>
