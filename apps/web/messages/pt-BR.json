@@ -179,6 +179,16 @@
     "raw": {
       "empty": "Texto ainda não disponível.",
       "extracting": "Extraindo texto..."
+    },
+    "edit": {
+      "button": "Editar",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "saving": "Salvando…",
+      "error": "Não foi possível salvar. Tente de novo.",
+      "verified": "Verificado",
+      "hint": "Corrija os campos extraídos pela IA",
+      "addItem": "Adicionar item"
     }
   },
   "documents": {

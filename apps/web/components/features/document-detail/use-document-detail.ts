@@ -11,7 +11,11 @@ export function useDocumentDetail(initial: DocumentDetail) {
   const router = useRouter();
 
   useEffect(() => {
-    if (initial.status === 'READY' || initial.status === 'FAILED') {
+    if (
+      initial.status === 'READY' ||
+      initial.status === 'FAILED' ||
+      initial.status === 'REJECTED'
+    ) {
       return;
     }
     let alive = true;
@@ -27,7 +31,7 @@ export function useDocumentDetail(initial: DocumentDetail) {
         const next = (await res.json()) as DocumentDetail;
         if (!alive) return;
         setDoc(next);
-        if (next.status === 'READY' || next.status === 'FAILED') {
+        if (next.status === 'READY' || next.status === 'FAILED' || next.status === 'REJECTED') {
           // re-roda o RSC para repopular initial e cache server-side
           router.refresh();
           return;
