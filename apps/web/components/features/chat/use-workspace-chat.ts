@@ -12,6 +12,11 @@ export function useWorkspaceChat(activeSessionId?: string) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Refetch sessions whenever activeSessionId muda — cobre dois cenários:
+  // 1. Navegação entre sessões (sidebar click) — App Router persiste o
+  //    componente no segmento [id], então useEffect com [] não rodaria.
+  // 2. Após createSession() + router.push('/chat/[novoId]') — a sessão
+  //    nova precisa aparecer na sidebar imediatamente.
   useEffect(() => {
     let alive = true;
     fetch('/api/chat/sessions')
@@ -23,7 +28,7 @@ export function useWorkspaceChat(activeSessionId?: string) {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [activeSessionId]);
 
   useEffect(() => {
     let alive = true;
