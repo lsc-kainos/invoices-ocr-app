@@ -4,7 +4,8 @@ import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { resolve } from 'node:path';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { Role, type User } from '@prisma/client';
 import { BenchmarkService } from './benchmark.service';
 
 @Controller('api/v1/admin')
@@ -17,7 +18,7 @@ export class BenchmarkController {
 
   @Post('benchmark')
   @Throttle({ benchmark: { ttl: 3_600_000, limit: 5 } })
-  async run(@Res() res: Response): Promise<void> {
+  async run(@Res() res: Response, @CurrentUser() user: User): Promise<void> {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Connection', 'keep-alive');
@@ -28,7 +29,7 @@ export class BenchmarkController {
       ? resolve(configured)
       : resolve(process.cwd(), '../../samples/invoice-dataset');
 
-    for await (const event of this.benchmark.runStream(samplesDir)) {
+    for await (const event of this.benchmark.runStream(samplesDir, user.id)) {
       res.write(`data: ${JSON.stringify(event)}\n\n`);
     }
 
