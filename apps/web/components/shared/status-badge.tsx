@@ -12,6 +12,13 @@ const TONE: Record<DocumentStatus, string> = {
   FAILED: 'bg-destructive/15 text-destructive dark:bg-destructive/20 dark:text-destructive',
 };
 
+const DOT: Record<DocumentStatus, string> = {
+  QUEUED: 'bg-muted-foreground/40',
+  OCR_RUNNING: 'bg-amber-400',
+  READY: 'bg-emerald-400',
+  FAILED: 'bg-red-400',
+};
+
 interface StatusBadgeProps {
   status: DocumentStatus;
   className?: string;
@@ -20,8 +27,10 @@ interface StatusBadgeProps {
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const t = useTranslations('upload.status');
   return (
-    <Badge variant="outline" className={cn(TONE[status], className)}>
-      {t(status)}
+    <Badge variant="outline" className={cn('flex items-center gap-1.5', TONE[status], className)}>
+      <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', DOT[status])} />
+      <span className="hidden sm:inline">{t(status)}</span>
+      <span className="sm:hidden">{t(status).slice(0, 4)}</span>
     </Badge>
   );
 }
