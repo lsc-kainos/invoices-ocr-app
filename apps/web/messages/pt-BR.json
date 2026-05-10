@@ -121,6 +121,9 @@
     }
   },
   "document": {
+    "breadcrumb": {
+      "list": "Minhas notas"
+    },
     "header": {
       "back": "Minhas notas",
       "export": "Exportar"

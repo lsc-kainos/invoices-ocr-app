@@ -40,6 +40,10 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
+            <BreadcrumbLink href="/documents">{t('breadcrumb.list')}</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
             <BreadcrumbPage className="max-w-[260px] truncate">{doc.filename}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
@@ -49,7 +53,7 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Link
-              href="/"
+              href="/documents"
               aria-label={t('header.back')}
               className="text-muted-foreground hover:text-foreground"
             >
