@@ -26,6 +26,7 @@
     "schema": "prisma/schema.prisma"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1045.0",
     "@invoices-ocr/shared-types": "*",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
