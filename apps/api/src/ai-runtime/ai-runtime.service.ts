@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { generateObject, type CoreMessage } from 'ai';
+import { generateObject, type ModelMessage } from 'ai';
 import { z } from 'zod';
 import { LlmConfigKey } from '@prisma/client';
 import { LlmConfigService } from './llm-config.service';
@@ -8,7 +8,7 @@ import { modelFor } from './providers/provider-registry';
 type GenerateOpts<T extends z.ZodTypeAny> = {
   key: LlmConfigKey;
   schema: T;
-  messages: CoreMessage[];
+  messages: ModelMessage[];
   overrides?: {
     model?: string;
     prompt?: string;
@@ -37,7 +37,7 @@ export class AiRuntimeService {
       ...(opts.overrides?.params ?? {}),
     };
 
-    const messages: CoreMessage[] = [
+    const messages: ModelMessage[] = [
       { role: 'system', content: prompt },
       ...opts.messages.filter((m) => m.role !== 'system'),
     ];

@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
+import { LlmConfig, LlmConfigKey, Prisma } from '@prisma/client';
 import { LlmConfigService } from './llm-config.service';
 import { CreateLlmConfigDto } from './dto/create-llm-config.dto';
 import { TestLlmConfigDto } from './dto/test-llm-config.dto';
@@ -22,6 +23,13 @@ import { resolve } from 'node:path';
 import { promises as fs } from 'node:fs';
 import { AiRuntimeService } from './ai-runtime.service';
 import { invoiceSummarySchema } from '../ocr/schemas/invoice-summary.schema';
+import type { Request } from 'express';
+
+interface AuthRequest extends Request {
+  user: { id: string };
+}
+
+type LlmConfigWithCreator = LlmConfig & { creator?: { email: string } };
 
 @Controller('api/v1/admin/llm-configs')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -41,25 +49,25 @@ export class LlmConfigController {
   }
 
   @Get('available-models')
-  async getAvailableModels() {
+  getAvailableModels() {
     return availableModels(process.env);
   }
 
   @Get('active/:key')
   async findActive(@Param('key') key: string) {
-    const cfg = await this.service.findActive(key as any);
+    const cfg = await this.service.findActive(key as LlmConfigKey);
     if (!cfg) throw new NotFoundException();
     return this.toDto(cfg);
   }
 
   @Post()
   @Throttle({ default: { ttl: 60_000, limit: 10 } })
-  async create(@Body() dto: CreateLlmConfigDto, @Req() req: any) {
+  async create(@Body() dto: CreateLlmConfigDto, @Req() req: AuthRequest) {
     const created = await this.service.createVersion(req.user.id, {
       key: dto.key,
       model: dto.model,
       prompt: dto.prompt,
-      params: (dto.params ?? {}) as any,
+      params: (dto.params ?? {}) as Prisma.JsonObject,
       notes: dto.notes,
     });
     return this.toDto(created);
@@ -80,7 +88,7 @@ export class LlmConfigController {
     if (!cfg) throw new NotFoundException();
 
     const samplesDir = resolve(
-      this.config.get('BENCHMARK_DATASET_DIR') ??
+      this.config.get<string>('BENCHMARK_DATASET_DIR') ??
         '../../samples/invoice-dataset',
     );
     const safePath = resolve(samplesDir, dto.sampleFilename);
@@ -108,19 +116,20 @@ export class LlmConfigController {
         overrides: {
           model: cfg.model,
           prompt: cfg.prompt,
-          params: cfg.params as any,
+          params: cfg.params as Record<string, unknown>,
         },
       });
       return { ok: true, result, durationMs: Date.now() - start };
-    } catch (err: any) {
-      const errorClass = err.message?.startsWith('refusal:')
+    } catch (err: unknown) {
+      const e = err as { message?: string; name?: string };
+      const errorClass = e.message?.startsWith('refusal:')
         ? 'refusal'
-        : err.name === 'ZodError'
+        : e.name === 'ZodError'
           ? 'parse-error'
           : 'unknown';
       return {
         ok: false,
-        error: err.message,
+        error: e.message,
         errorClass,
         durationMs: Date.now() - start,
       };
@@ -128,11 +137,11 @@ export class LlmConfigController {
   }
 
   @Post('reload-cache')
-  async reload() {
+  reload() {
     return { invalidated: this.service.reloadCache() };
   }
 
-  private toDto(c: any) {
+  private toDto(c: LlmConfigWithCreator) {
     return {
       id: c.id,
       key: c.key,

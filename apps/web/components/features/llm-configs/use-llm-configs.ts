@@ -17,24 +17,33 @@ export function useLlmConfigs() {
   const [configs, setConfigs] = useState<LlmConfigDto[]>([]);
   const [models, setModels] = useState<AvailableModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [tick, setTick] = useState(0);
 
-  const reload = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const [cfgs, mdls] = await Promise.all([
-        fetchJson<LlmConfigDto[]>('/api/admin/llm-configs'),
-        fetchJson<AvailableModel[]>('/api/admin/llm-configs/available-models'),
-      ]);
-      setConfigs(cfgs);
-      setModels(mdls);
-    } finally {
-      setIsLoading(false);
-    }
+  const reload = useCallback(() => {
+    setTick((t) => t + 1);
   }, []);
 
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    let cancelled = false;
+    void (async () => {
+      if (!cancelled) setIsLoading(true);
+      try {
+        const [cfgs, mdls] = await Promise.all([
+          fetchJson<LlmConfigDto[]>('/api/admin/llm-configs'),
+          fetchJson<AvailableModel[]>('/api/admin/llm-configs/available-models'),
+        ]);
+        if (!cancelled) {
+          setConfigs(cfgs);
+          setModels(mdls);
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tick]);
 
   async function create(input: CreateLlmConfigInput): Promise<LlmConfigDto> {
     const r = await fetch('/api/admin/llm-configs', {
@@ -44,14 +53,14 @@ export function useLlmConfigs() {
     });
     if (!r.ok) throw new Error(await r.text());
     const created = (await r.json()) as LlmConfigDto;
-    await reload();
+    reload();
     return created;
   }
 
   async function activate(id: string) {
     const r = await fetch(`/api/admin/llm-configs/${id}/activate`, { method: 'POST' });
     if (!r.ok) throw new Error(await r.text());
-    await reload();
+    reload();
   }
 
   async function test(id: string, sampleFilename: string): Promise<TestLlmConfigResult> {
@@ -65,7 +74,7 @@ export function useLlmConfigs() {
 
   async function reloadCache() {
     await fetch('/api/admin/llm-configs/reload-cache', { method: 'POST' });
-    await reload();
+    reload();
   }
 
   return {
