@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -10,6 +10,7 @@ import { UPLOAD_QUEUED_EVENT } from './events';
 
 export interface ActiveUploadsContextValue {
   activeUploads: DocumentSummary[];
+  completedUploads: DocumentSummary[];
 }
 
 export const ActiveUploadsContext = createContext<ActiveUploadsContextValue | null>(null);
@@ -46,6 +47,15 @@ function listSignature(list: DocumentSummary[]): string {
 
 export function ActiveUploadsProvider({ children }: { children: ReactNode }) {
   const [activeUploads, setActiveUploads] = useState<DocumentSummary[]>([]);
+  const [completedUploads, setCompletedUploads] = useState<DocumentSummary[]>([]);
+
+  const addCompleted = useCallback((doc: DocumentSummary) => {
+    setCompletedUploads((prev) => {
+      const without = prev.filter((d) => d.id !== doc.id);
+      return [doc, ...without].slice(0, 5);
+    });
+  }, []);
+
   const previousRef = useRef<Map<string, DocumentSummary>>(new Map());
   const router = useRouter();
   const t = useTranslations('upload');
@@ -63,6 +73,7 @@ export function ActiveUploadsProvider({ children }: { children: ReactNode }) {
         if (!alive || !Array.isArray(finished)) return;
         const slice = finished.slice(0, CATCHUP_LIMIT);
         for (const d of slice) emitToast(d, t, tErrors, router.push);
+        setCompletedUploads(slice);
       })
       .catch(() => undefined)
       .finally(() => writeLastSeen());
@@ -111,7 +122,10 @@ export function ActiveUploadsProvider({ children }: { children: ReactNode }) {
             transitions.push(
               fetch(`/api/documents/${id}`)
                 .then((r) => (r.ok ? (r.json() as Promise<DocumentSummary>) : Promise.reject()))
-                .then((detail) => emitToast(detail, t, tErrors, router.push))
+                .then((detail) => {
+                  emitToast(detail, t, tErrors, router.push);
+                  addCompleted(detail);
+                })
                 .catch(() => undefined),
             );
           }
@@ -184,7 +198,7 @@ export function ActiveUploadsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <ActiveUploadsContext.Provider value={{ activeUploads }}>
+    <ActiveUploadsContext.Provider value={{ activeUploads, completedUploads }}>
       {children}
     </ActiveUploadsContext.Provider>
   );
