@@ -81,7 +81,7 @@ export function Login() {
       <div className="flex items-center justify-center px-4 py-8 sm:px-6 sm:py-10">
         <div className="w-full max-w-[360px]">
           {/* Mobile mini hero */}
-          <div className="mb-8 flex flex-col gap-3 lg:hidden sm:mb-10">
+          <div className="mb-8 flex flex-col gap-3 sm:mb-10 lg:hidden">
             <div className={`${slide} duration-500`}>
               <Logo size={28} />
             </div>
@@ -95,7 +95,9 @@ export function Login() {
             </p>
           </div>
 
-          <h2 className={`${slide} text-xl font-medium tracking-tight delay-200 duration-700 sm:text-2xl`}>
+          <h2
+            className={`${slide} text-xl font-medium tracking-tight delay-200 duration-700 sm:text-2xl`}
+          >
             {t('card.title')}
           </h2>
           <p
