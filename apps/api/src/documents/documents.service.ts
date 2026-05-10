@@ -20,7 +20,10 @@ import {
   STORAGE_SERVICE,
   type StorageService,
 } from '../storage/storage.service';
-import type { InvoiceSummary } from '../ocr/schemas/invoice-summary.schema';
+import type {
+  InvoiceSummary,
+  InvoiceSummaryResult,
+} from '../ocr/schemas/invoice-summary.schema';
 import type { DocumentOps } from '../ocr/ocr.service';
 import { OCR_QUEUE_NAME, type OcrJobData } from '../ocr/queues/ocr.queue';
 import { sanitizeFilename } from './helpers/sanitize-filename';
@@ -278,6 +281,25 @@ export class DocumentsService implements DocumentOps {
         status: DocumentStatus.FAILED,
         failureReason: reason,
         retryCount: { increment: 1 },
+        ocrCompletedAt: new Date(),
+      },
+    });
+  }
+
+  async markRejected(
+    id: string,
+    reason: 'low_confidence' | 'unsupported_type',
+    partial: InvoiceSummaryResult,
+  ): Promise<void> {
+    await this.prisma.document.update({
+      where: { id },
+      data: {
+        status: DocumentStatus.REJECTED,
+        documentType: partial.documentType,
+        confidence: partial.confidence,
+        rejectionReason: reason,
+        summary: partial.summary as never,
+        extractedText: partial.extractedText,
         ocrCompletedAt: new Date(),
       },
     });

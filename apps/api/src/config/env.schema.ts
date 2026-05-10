@@ -61,6 +61,13 @@ export const envSchema = z
       .default(false),
     BULL_BOARD_BASIC_AUTH_USER: z.string().optional(),
     BULL_BOARD_BASIC_AUTH_PASSWORD: z.string().optional(),
+
+    // F3.2 — OCR rejection threshold (0.0–1.0). Below this, doc is REJECTED.
+    OCR_REJECT_CONFIDENCE_THRESHOLD: z.coerce
+      .number()
+      .min(0)
+      .max(1)
+      .default(0.6),
   })
   .superRefine((env, ctx) => {
     if (env.OCR_PROVIDER === 'openai' && !env.OPENAI_API_KEY) {

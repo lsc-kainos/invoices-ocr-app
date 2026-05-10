@@ -42,6 +42,7 @@ export class AiRuntimeService {
       ...opts.messages.filter((m) => m.role !== 'system'),
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const result = await generateObject({
       model: modelFor(modelId),
       schema: opts.schema,

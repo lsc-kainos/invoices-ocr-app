@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   OCR_PROVIDER,
   type OcrProvider,
@@ -10,6 +11,7 @@ import {
 import {
   invoiceSummarySchema,
   type InvoiceSummary,
+  type InvoiceSummaryResult,
 } from './schemas/invoice-summary.schema';
 import { isTransient } from './helpers/is-transient';
 import { classifyError } from './helpers/classify-error';
@@ -25,6 +27,11 @@ export interface DocumentOps {
     extractedText: string,
   ): Promise<void>;
   markFailed(id: string, reason: string): Promise<void>;
+  markRejected(
+    id: string,
+    reason: 'low_confidence' | 'unsupported_type',
+    partial: InvoiceSummaryResult,
+  ): Promise<void>;
   findByIdInternal(
     id: string,
   ): Promise<{ id: string; mime: string; storagePath: string } | null>;
@@ -38,6 +45,7 @@ export class OcrService {
     @Inject(DOCUMENT_OPS) private readonly docs: DocumentOps,
     @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
     @Inject(OCR_PROVIDER) private readonly provider: OcrProvider,
+    private readonly config: ConfigService,
   ) {}
 
   async process(docId: string): Promise<void> {
@@ -55,6 +63,36 @@ export class OcrService {
       const imageMime = isPdf ? 'image/png' : doc.mime;
       const result = await this.provider.extract(imageBuffer, imageMime);
       const parsed = invoiceSummarySchema.parse(result);
+
+      const threshold =
+        this.config.get<number>('OCR_REJECT_CONFIDENCE_THRESHOLD') ?? 0.6;
+      const ALLOWED_TYPES = [
+        'nf-e',
+        'nfs-e',
+        'boleto',
+        'invoice',
+        'receipt',
+      ] as const;
+
+      if (
+        !ALLOWED_TYPES.includes(
+          parsed.documentType as (typeof ALLOWED_TYPES)[number],
+        )
+      ) {
+        await this.docs.markRejected(docId, 'unsupported_type', parsed);
+        this.logger.log(
+          `OCR rejected docId=${docId} reason=unsupported_type type=${parsed.documentType}`,
+        );
+        return;
+      }
+      if (parsed.confidence < threshold) {
+        await this.docs.markRejected(docId, 'low_confidence', parsed);
+        this.logger.log(
+          `OCR rejected docId=${docId} reason=low_confidence confidence=${parsed.confidence}`,
+        );
+        return;
+      }
+
       await this.docs.markReady(docId, parsed.summary, parsed.extractedText);
       this.logger.log(`OCR ok docId=${docId}`);
     } catch (err) {

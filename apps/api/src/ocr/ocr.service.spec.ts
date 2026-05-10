@@ -1,4 +1,5 @@
 import { Test } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { OcrService, DOCUMENT_OPS } from './ocr.service';
 import { OCR_PROVIDER } from './providers/ocr-provider.interface';
 import { STORAGE_SERVICE } from '../storage/storage.service';
@@ -34,6 +35,7 @@ describe('OcrService', () => {
     markRunning: jest.Mock;
     markReady: jest.Mock;
     markFailed: jest.Mock;
+    markRejected: jest.Mock;
     findByIdInternal: jest.Mock;
   };
   let storage: { read: jest.Mock };
@@ -44,6 +46,7 @@ describe('OcrService', () => {
       markRunning: jest.fn().mockResolvedValue(undefined),
       markReady: jest.fn().mockResolvedValue(undefined),
       markFailed: jest.fn().mockResolvedValue(undefined),
+      markRejected: jest.fn().mockResolvedValue(undefined),
       findByIdInternal: jest.fn().mockResolvedValue({
         id: 'd1',
         mime: 'image/jpeg',
@@ -60,6 +63,10 @@ describe('OcrService', () => {
         { provide: DOCUMENT_OPS, useValue: docs },
         { provide: STORAGE_SERVICE, useValue: storage },
         { provide: OCR_PROVIDER, useValue: provider },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue(0.6) },
+        },
       ],
     }).compile();
     svc = mod.get(OcrService);
@@ -107,4 +114,67 @@ describe('OcrService', () => {
   // "import after Jest env torn down" em CI. Cobertura real desse caminho
   // vive no E2E (apps/api/test/documents.e2e-spec.ts) e no spec dedicado de
   // pdfToImage (skip por default; RUN_PDF_INTEGRATION=1 ativa local).
+
+  it('allowed type + high confidence → markReady', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'invoice',
+      confidence: 0.9,
+    };
+    provider.extract.mockResolvedValue(result);
+    await svc.process('d1');
+    expect(docs.markReady).toHaveBeenCalledWith(
+      'd1',
+      result.summary,
+      result.extractedText,
+    );
+    expect(docs.markRejected).not.toHaveBeenCalled();
+  });
+
+  it('allowed type + low confidence → markRejected(low_confidence)', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'invoice',
+      confidence: 0.4,
+    };
+    provider.extract.mockResolvedValue(result);
+    await svc.process('d1');
+    expect(docs.markRejected).toHaveBeenCalledWith(
+      'd1',
+      'low_confidence',
+      result,
+    );
+    expect(docs.markReady).not.toHaveBeenCalled();
+  });
+
+  it('unknown type → markRejected(unsupported_type)', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'unknown',
+      confidence: 0.9,
+    };
+    provider.extract.mockResolvedValue(result);
+    await svc.process('d1');
+    expect(docs.markRejected).toHaveBeenCalledWith(
+      'd1',
+      'unsupported_type',
+      result,
+    );
+    expect(docs.markReady).not.toHaveBeenCalled();
+  });
+
+  it('rejected: persists partial summary', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'unknown',
+      confidence: 0.9,
+    };
+    provider.extract.mockResolvedValue(result);
+    await svc.process('d1');
+    expect(docs.markRejected).toHaveBeenCalledWith(
+      'd1',
+      'unsupported_type',
+      result,
+    );
+  });
 });

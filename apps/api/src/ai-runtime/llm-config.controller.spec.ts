@@ -69,14 +69,14 @@ describe('LlmConfigController', () => {
   });
 
   it('list retorna todas as versões', async () => {
-    service.listAll.mockResolvedValue([baseConfig as any]);
+    service.listAll.mockResolvedValue([baseConfig]);
     const result = await controller.list();
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe('cfg1');
   });
 
   it('create chama createVersion com userId do request', async () => {
-    service.createVersion.mockResolvedValue(baseConfig as any);
+    service.createVersion.mockResolvedValue(baseConfig);
     await controller.create(
       {
         key: LlmConfigKey.EXTRACTOR,
@@ -93,7 +93,7 @@ describe('LlmConfigController', () => {
   });
 
   it('activate chama service', async () => {
-    service.activate.mockResolvedValue(baseConfig as any);
+    service.activate.mockResolvedValue(baseConfig);
     await controller.activate('cfg1');
     expect(service.activate).toHaveBeenCalledWith('cfg1');
   });
