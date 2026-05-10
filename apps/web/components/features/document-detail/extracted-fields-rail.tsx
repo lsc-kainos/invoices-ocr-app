@@ -19,6 +19,7 @@ const FIELD_KEYS = [
 ] as const satisfies ReadonlyArray<keyof InvoiceCore>;
 
 const MONO_KEYS = new Set<keyof InvoiceCore>(['invoiceNumber']);
+const CRITICAL_KEYS = new Set<keyof InvoiceCore>(['total', 'invoiceNumber', 'sellerName']);
 
 interface ExtractedFieldsRailProps {
   summary: InvoiceSummary | null;
@@ -30,7 +31,7 @@ export function ExtractedFieldsRail({ summary }: ExtractedFieldsRailProps) {
   const empty = tFields('empty');
 
   return (
-    <aside className="border-border bg-card flex flex-col gap-4 rounded-md border p-4">
+    <aside className="border-border/40 bg-card flex flex-col gap-4 rounded-lg border p-3 shadow-sm sm:p-4">
       <header>
         <h2 className="text-foreground text-[12px] font-semibold tracking-wide uppercase">
           {tFields('title')}
@@ -43,25 +44,32 @@ export function ExtractedFieldsRail({ summary }: ExtractedFieldsRailProps) {
           <h3 className="text-muted-foreground text-[10px] tracking-wide uppercase">
             {t('narrative')}
           </h3>
-          <blockquote className="border-primary/40 bg-muted/40 text-foreground rounded-sm border-l-2 px-3 py-2 text-[12px] leading-relaxed">
+          <blockquote className="border-primary/40 bg-muted/40 text-foreground rounded-sm border-l-2 px-3 py-2.5 font-serif text-[13px] leading-relaxed italic">
             {summary.narrative}
           </blockquote>
         </section>
       ) : null}
 
-      <dl className="flex flex-col gap-3">
+      <dl className="flex flex-col gap-2">
         {FIELD_KEYS.map((key) => {
           const value = summary?.core[key] ?? null;
+          const isCritical = CRITICAL_KEYS.has(key);
           return (
-            <div key={key} className="flex flex-col gap-0.5">
-              <dt className="text-muted-foreground text-[10px] tracking-wide uppercase">
-                {tFields(key)}
-              </dt>
+            <div
+              key={key}
+              className={cn(
+                'flex flex-col gap-1 rounded-lg p-2.5 transition-colors',
+                isCritical && 'bg-primary/5 border-primary/10 border',
+                !isCritical && 'hover:bg-muted/20',
+              )}
+            >
+              <dt className="text-muted-foreground/80 text-[11px] font-medium">{tFields(key)}</dt>
               <dd
                 className={cn(
-                  'text-foreground text-[12px]',
-                  MONO_KEYS.has(key) && 'font-mono',
-                  !value && 'text-muted-foreground/60',
+                  'text-foreground text-[13px] font-medium',
+                  MONO_KEYS.has(key) && 'font-mono tabular-nums',
+                  !value && 'text-muted-foreground/40 italic',
+                  isCritical && 'text-primary/90',
                 )}
               >
                 {value ?? empty}
@@ -84,7 +92,9 @@ export function ExtractedFieldsRail({ summary }: ExtractedFieldsRailProps) {
                   {item.quantity != null && <span>{item.quantity}</span>}
                   {item.unitPrice != null && <span>{item.unitPrice}</span>}
                   {item.totalPrice != null && (
-                    <span className="text-foreground ml-auto font-medium">{item.totalPrice}</span>
+                    <span className="text-foreground ml-auto font-medium tabular-nums">
+                      {item.totalPrice}
+                    </span>
                   )}
                 </div>
               </div>
@@ -95,7 +105,7 @@ export function ExtractedFieldsRail({ summary }: ExtractedFieldsRailProps) {
 
       {summary?.extras?.length ? (
         <dl className="flex flex-col gap-3">
-          <hr className="border-border" />
+          <hr className="border-border/40" />
           {summary.extras.map((extra, idx) => (
             <div key={`${extra.label}-${idx}`} className="flex flex-col gap-0.5">
               <dt className="text-muted-foreground text-[10px] tracking-wide uppercase">
