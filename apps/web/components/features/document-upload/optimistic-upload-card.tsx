@@ -20,8 +20,8 @@ export function OptimisticUploadCard({ upload }: Props) {
   const t = useTranslations('upload');
   const percent = Math.round(upload.progress * 100);
   return (
-    <Card className="border-border/60 bg-card p-3.5" data-testid="optimistic-upload-card">
-      <div className="flex items-center gap-3">
+    <Card className="border-border/60 bg-card p-3 sm:p-4" data-testid="optimistic-upload-card">
+      <div className="flex items-center gap-2 sm:gap-3">
         <Badge variant="secondary" className="font-mono text-[10px] tracking-wide uppercase">
           {t('status.UPLOADING')}
         </Badge>
@@ -32,7 +32,7 @@ export function OptimisticUploadCard({ upload }: Props) {
           </div>
         </div>
       </div>
-      <Progress value={percent} className="mt-3 h-1" />
+      <Progress value={percent} className="mt-2 h-1.5 sm:mt-3" />
     </Card>
   );
 }

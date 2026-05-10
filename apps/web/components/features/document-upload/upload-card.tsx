@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check, X, Dot } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -61,9 +61,21 @@ export function UploadCard({ doc }: UploadCardProps) {
     isReady && 'cursor-pointer hover:bg-muted/40',
   );
 
+  const StepIcon = ({ state }: { state: StepState }) => {
+    if (state === 'done') return <Check className="h-3 w-3" />;
+    if (state === 'failed') return <X className="h-3 w-3" />;
+    if (state === 'active') return <Loader2 className="h-3 w-3 animate-spin" />;
+    return <Dot className="h-3 w-3" />;
+  };
+
   const Inner = (
-    <Card className="border-border/60 bg-card p-3.5">
-      <div className="flex items-center gap-3">
+    <Card
+      className={cn(
+        'border-border/60 bg-card p-3 sm:p-4',
+        isRunning && 'animate-pulse-glow border-primary/20',
+      )}
+    >
+      <div className="flex items-center gap-2 sm:gap-3">
         <Badge variant="secondary" className="font-mono text-[10px] tracking-wide uppercase">
           {tipo}
         </Badge>
@@ -80,17 +92,17 @@ export function UploadCard({ doc }: UploadCardProps) {
       {isRunning ? (
         <div
           data-testid="ocr-spinner"
-          className="text-muted-foreground mt-3 flex items-center gap-2 text-[12px]"
+          className="text-muted-foreground mt-2 flex items-center gap-2 text-[12px] sm:mt-3"
         >
           <Loader2 size={13} className="animate-spin" aria-hidden />
           <span>{isAutoRetrying ? t('retrying') : t('progress.ocr')}</span>
         </div>
       ) : (
-        <Progress value={PROGRESS[doc.status]} className="mt-3 h-1" />
+        <Progress value={PROGRESS[doc.status]} className="mt-2 h-1.5 sm:mt-3" />
       )}
 
       {isFailed && doc.failureReason ? (
-        <div className="mt-3 flex items-start justify-between gap-3">
+        <div className="mt-2 flex flex-col gap-2 sm:mt-3 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
           <p className="text-destructive text-[11px]">{tErrors(doc.failureReason)}</p>
           <Button
             type="button"
@@ -102,47 +114,39 @@ export function UploadCard({ doc }: UploadCardProps) {
               void retry(doc.id, doc.filename);
             }}
             disabled={retryPending}
-            className="h-7 text-[11px]"
+            className="h-9 w-full text-[11px] sm:h-7 sm:w-auto"
           >
             {retryPending ? tRetry('in_progress') : tRetry('button')}
           </Button>
         </div>
       ) : null}
 
-      <div className="mt-3.5 flex items-center text-[11px]">
-        {(['upload', 'ocr', 'structure', 'ready'] as const).map((key, idx, arr) => {
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:grid-cols-1 sm:space-y-2.5">
+        {(['upload', 'ocr', 'structure', 'ready'] as const).map((key) => {
           const state = ladder[key];
           return (
-            <div key={key} className="inline-flex items-center gap-1.5 [&:not(:last-child)]:flex-1">
+            <div key={key} className="flex items-center gap-2 text-[11px] sm:gap-2.5">
               <div
                 className={cn(
-                  'flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold',
+                  'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold',
                   state === 'done' && 'bg-foreground text-background',
-                  state === 'active' && 'border-border bg-muted/50 border',
-                  state === 'pending' && 'border-border text-muted-foreground/70 border',
+                  state === 'active' && 'border-border bg-muted/50 text-foreground border',
+                  state === 'pending' && 'border-border text-muted-foreground/50 border',
                   state === 'failed' && 'bg-destructive/15 text-destructive',
                 )}
                 aria-hidden
               >
-                {state === 'done'
-                  ? '✓'
-                  : state === 'failed'
-                    ? '×'
-                    : state === 'active'
-                      ? '·'
-                      : idx + 1}
+                <StepIcon state={state} />
               </div>
               <span
                 className={cn(
-                  state === 'pending' ? 'text-muted-foreground/70' : 'text-foreground',
-                  state === 'active' && 'font-medium',
+                  state === 'pending' ? 'text-muted-foreground/50' : 'text-foreground/80',
+                  state === 'active' && 'text-foreground font-medium',
+                  state === 'failed' && 'text-destructive',
                 )}
               >
                 {t(`ladder.${key}`)}
               </span>
-              {idx < arr.length - 1 && (
-                <span className="bg-border mr-2 ml-2 hidden h-px flex-1 sm:block" />
-              )}
             </div>
           );
         })}
