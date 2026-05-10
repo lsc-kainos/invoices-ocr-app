@@ -407,5 +407,54 @@ describe('DocumentsService', () => {
       await expect(svc.retry('u1', 'doc1')).rejects.toThrow(ConflictException);
       expect(ocrQueue.add).not.toHaveBeenCalled();
     });
+
+    it('falha no enqueue Redis → restaura FAILED e relança erro', async () => {
+      const doc = {
+        id: 'doc1',
+        userId: 'u1',
+        status: DocumentStatus.FAILED,
+        failureReason: 'rate_limit',
+        filename: 'nf.pdf',
+        mime: 'application/pdf',
+        size: 100,
+        storagePath: 'u1/doc1/original.pdf',
+        summary: null,
+        extractedText: null,
+        retryCount: 1,
+        ocrStartedAt: null,
+        ocrCompletedAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as never;
+
+      prisma.document.findFirst.mockResolvedValue(doc);
+      prisma.document.update
+        .mockResolvedValueOnce({
+          ...(doc as object),
+          status: DocumentStatus.QUEUED,
+        })
+        .mockResolvedValueOnce({
+          ...(doc as object),
+          status: DocumentStatus.FAILED,
+        });
+
+      const redisErr = new Error('Redis connection refused');
+      ocrQueue.add.mockRejectedValue(redisErr);
+
+      await expect(svc.retry('u1', 'doc1')).rejects.toThrow(
+        'Redis connection refused',
+      );
+
+      expect(prisma.document.update).toHaveBeenCalledTimes(2);
+      expect(prisma.document.update).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          where: { id: 'doc1' },
+          data: expect.objectContaining({
+            status: DocumentStatus.FAILED,
+            failureReason: 'queue_error',
+          }),
+        }),
+      );
+    });
   });
 });

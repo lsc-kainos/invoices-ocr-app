@@ -158,18 +158,28 @@ export class DocumentsService implements DocumentOps {
       },
     });
 
-    await this.ocrQueue.remove(id).catch(() => undefined);
-    await this.ocrQueue.add(
-      'process',
-      { documentId: updated.id },
-      {
-        jobId: updated.id,
-        attempts: 3,
-        backoff: { type: 'exponential', delay: 5000 },
-        removeOnComplete: { age: 86400, count: 1000 },
-        removeOnFail: { age: 7 * 86400 },
-      },
-    );
+    try {
+      await this.ocrQueue.remove(id).catch(() => undefined);
+      await this.ocrQueue.add(
+        'process',
+        { documentId: updated.id },
+        {
+          jobId: updated.id,
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 5000 },
+          removeOnComplete: { age: 86400, count: 1000 },
+          removeOnFail: { age: 7 * 86400 },
+        },
+      );
+    } catch (err) {
+      await this.prisma.document
+        .update({
+          where: { id },
+          data: { status: DocumentStatus.FAILED, failureReason: 'queue_error' },
+        })
+        .catch(() => undefined);
+      throw err;
+    }
     this.logger.log(`Document retry docId=${id} user=${userId}`);
     return toSummaryDto(updated);
   }
