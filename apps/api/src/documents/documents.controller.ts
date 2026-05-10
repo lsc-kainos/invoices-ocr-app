@@ -1,7 +1,9 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Res,
@@ -16,6 +18,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Public } from '../auth/decorators/public.decorator';
 import { DocumentsService } from './documents.service';
 import { ListDocumentsQueryDto } from './dto/list-documents.query.dto';
+import { UpdateDocumentSummaryDto } from './dto/update-document-summary.dto';
 import type { DocumentSummaryDto } from './dto/document-summary.dto';
 import type { DocumentDetailDto } from './dto/document-detail.dto';
 
@@ -63,6 +66,16 @@ export class DocumentsController {
     @Param('id') id: string,
   ): Promise<DocumentSummaryDto> {
     return this.docs.retry(user.id, id);
+  }
+
+  @Patch(':id/summary')
+  @Throttle({ default: { ttl: 60_000, limit: 120 } })
+  updateSummary(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateDocumentSummaryDto,
+  ): Promise<DocumentDetailDto> {
+    return this.docs.updateSummary(user.id, id, body.summary);
   }
 
   @Public()
