@@ -305,6 +305,39 @@ export class DocumentsService implements DocumentOps {
     });
   }
 
+  async updateSummary(
+    userId: string,
+    id: string,
+    summary: InvoiceSummary,
+  ): Promise<DocumentDetailDto> {
+    const doc = await this.prisma.document.findFirst({ where: { id, userId } });
+    if (!doc) throw new NotFoundException();
+    if (doc.status !== DocumentStatus.READY) {
+      throw new BadRequestException({ code: 'documents.update.not_ready' });
+    }
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      await tx.documentEdit.create({
+        data: {
+          documentId: id,
+          editedBy: userId,
+          before: doc.summary ?? {},
+          after: summary,
+        },
+      });
+      return tx.document.update({
+        where: { id },
+        data: {
+          summary: summary,
+          verifiedAt: new Date(),
+          verifiedBy: userId,
+        },
+      });
+    });
+
+    return toDetailDto(updated, this.signFileUrl(id, userId));
+  }
+
   async findByIdInternal(
     id: string,
   ): Promise<{ id: string; mime: string; storagePath: string } | null> {

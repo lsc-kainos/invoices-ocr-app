@@ -31,6 +31,7 @@ import { STORAGE_SERVICE } from '../storage/storage.service';
 import { OCR_QUEUE_NAME } from '../ocr/queues/ocr.queue';
 import type { Document } from '@prisma/client';
 import { DocumentStatus } from '@prisma/client';
+import type { InvoiceSummary } from '../ocr/schemas/invoice-summary.schema';
 
 const SECRET = 'a'.repeat(32);
 
@@ -75,6 +76,11 @@ const baseDoc = (over: Partial<Document>): Document => {
     ocrCompletedAt: now,
     createdAt: now,
     updatedAt: now,
+    documentType: null,
+    confidence: null,
+    rejectionReason: null,
+    verifiedAt: null,
+    verifiedBy: null,
     ...over,
   };
 };
@@ -92,6 +98,10 @@ describe('DocumentsService', () => {
       update: jest.Mock;
       delete: jest.Mock;
     };
+    documentEdit: {
+      create: jest.Mock;
+    };
+    $transaction: jest.Mock;
   };
   let storage: { put: jest.Mock; read: jest.Mock };
   let ocrQueue: { add: jest.Mock; remove: jest.Mock };
@@ -120,6 +130,14 @@ describe('DocumentsService', () => {
           ),
         delete: jest.fn().mockResolvedValue(undefined),
       },
+      documentEdit: {
+        create: jest.fn().mockResolvedValue({ id: 'edit1' }),
+      },
+      $transaction: jest
+        .fn()
+        .mockImplementation(
+          async (fn: (tx: typeof prisma) => Promise<unknown>) => fn(prisma),
+        ),
     };
     storage = {
       put: jest.fn().mockResolvedValue(undefined),
@@ -455,6 +473,63 @@ describe('DocumentsService', () => {
           }),
         }),
       );
+    });
+  });
+
+  describe('updateSummary', () => {
+    it('doc not found or wrong user → NotFoundException', async () => {
+      prisma.document.findFirst.mockResolvedValue(null);
+      await expect(
+        svc.updateSummary('u1', 'doc1', {} as InvoiceSummary),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('status !== READY → BadRequestException', async () => {
+      prisma.document.findFirst.mockResolvedValue(
+        baseDoc({ status: 'OCR_RUNNING' }),
+      );
+      await expect(
+        svc.updateSummary('u1', 'doc1', {} as InvoiceSummary),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('success: creates DocumentEdit + updates Document with verifiedAt/By', async () => {
+      const oldSummary = { core: {}, items: [], extras: [], narrative: 'old' };
+      const newSummary = { core: {}, items: [], extras: [], narrative: 'new' };
+      prisma.document.findFirst.mockResolvedValue(
+        baseDoc({ status: 'READY', summary: oldSummary }),
+      );
+      prisma.document.update.mockResolvedValue(
+        baseDoc({
+          summary: newSummary,
+          verifiedAt: new Date(),
+          verifiedBy: 'u1',
+        }),
+      );
+
+      const result = await svc.updateSummary(
+        'u1',
+        'doc1',
+        newSummary as unknown as InvoiceSummary,
+      );
+
+      expect(prisma.documentEdit.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          documentId: expect.any(String),
+          editedBy: 'u1',
+          before: oldSummary,
+          after: newSummary,
+        }),
+      });
+      expect(prisma.document.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            summary: newSummary,
+            verifiedBy: 'u1',
+          }),
+        }),
+      );
+      expect(result).toBeDefined();
     });
   });
 });
