@@ -5,6 +5,8 @@ import type { InvoiceSummaryResult } from '../schemas/invoice-summary.schema';
 
 const FIXTURES: InvoiceSummaryResult[] = [
   {
+    documentType: 'nf-e',
+    confidence: 0.95,
     summary: {
       core: {
         invoiceNumber: '0023117',
@@ -71,6 +73,8 @@ const FIXTURES: InvoiceSummaryResult[] = [
       'NOTA FISCAL ELETRÔNICA\nEMITENTE: Construtora Vega Ltda.\nCNPJ: 12.345.678/0001-90\nDESTINATÁRIO: Cliente Mock S/A\nCNPJ: 98.765.432/0001-10\nVALOR TOTAL: R$ 184.520,00\nCHAVE: 3526 0412 3456 7800 0190 5500 1000 0231 1711 2345 6789',
   },
   {
+    documentType: 'nfs-e',
+    confidence: 0.92,
     summary: {
       core: {
         invoiceNumber: '0007789',
@@ -122,6 +126,8 @@ const FIXTURES: InvoiceSummaryResult[] = [
       'NOTA FISCAL DE SERVIÇOS ELETRÔNICA\nPRESTADOR: Servicos Mock Ltda\nCNPJ: 11.222.333/0001-44\nTOMADOR: Tomador Mock Ltda\nVALOR DO SERVIÇO: R$ 12.450,00',
   },
   {
+    documentType: 'receipt',
+    confidence: 0.88,
     summary: {
       core: {
         invoiceNumber: '042',

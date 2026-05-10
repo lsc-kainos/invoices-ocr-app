@@ -5,6 +5,8 @@ import { STORAGE_SERVICE } from '../storage/storage.service';
 import type { InvoiceSummaryResult } from './schemas/invoice-summary.schema';
 
 const happy: InvoiceSummaryResult = {
+  documentType: 'invoice',
+  confidence: 0.9,
   summary: {
     core: {
       invoiceNumber: null,
