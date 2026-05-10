@@ -20,7 +20,8 @@
     "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json",
     "dev": "nest start --watch",
     "typecheck": "tsc --noEmit",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:seed:llm": "ts-node prisma/seed-llm-config.ts"
   },
   "prisma": {
     "schema": "prisma/schema.prisma"
