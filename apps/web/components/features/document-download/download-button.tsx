@@ -28,6 +28,11 @@ export function DownloadButton({ documentId, filename, status, variant = 'defaul
         void download(documentId, filename);
       }}
       aria-label={t('button')}
+      className={
+        variant === 'default'
+          ? 'transition-all hover:scale-[1.02] hover:shadow-[0_0_15px_-3px_var(--primary)] active:scale-[0.98]'
+          : undefined
+      }
     >
       <Download className="h-4 w-4" />
       {variant === 'default' && <span className="ml-2">{t('button')}</span>}
