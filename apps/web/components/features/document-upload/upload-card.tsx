@@ -17,6 +17,7 @@ const PROGRESS: Record<DocumentStatus, number> = {
   OCR_RUNNING: 65,
   READY: 100,
   FAILED: 100,
+  REJECTED: 100,
 };
 
 type StepState = 'done' | 'active' | 'pending' | 'failed';
@@ -29,6 +30,7 @@ const LADDER: Record<
   OCR_RUNNING: { upload: 'done', ocr: 'active', structure: 'pending', ready: 'pending' },
   READY: { upload: 'done', ocr: 'done', structure: 'done', ready: 'done' },
   FAILED: { upload: 'done', ocr: 'failed', structure: 'pending', ready: 'pending' },
+  REJECTED: { upload: 'done', ocr: 'done', structure: 'failed', ready: 'pending' },
 };
 
 const formatSize = (bytes: number) => {
