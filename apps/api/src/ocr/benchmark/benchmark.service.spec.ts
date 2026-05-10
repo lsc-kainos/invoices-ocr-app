@@ -1,12 +1,16 @@
 import { promises as fs } from 'node:fs';
 import { BenchmarkService, type BenchmarkEvent } from './benchmark.service';
 import { loadCsvSamples, type BenchmarkSample } from './csv-loader';
-import type { OpenAiOcrProvider } from '../providers/openai-ocr.provider';
+import type { ExtractorService } from '../extractor.service';
 import type { InvoiceSummaryResult } from '../schemas/invoice-summary.schema';
 
 jest.mock('./csv-loader');
 jest.mock('node:fs', () => ({
-  promises: { readFile: jest.fn() },
+  ...jest.requireActual('node:fs'),
+  promises: {
+    ...jest.requireActual<typeof import('node:fs')>('node:fs').promises,
+    readFile: jest.fn(),
+  },
 }));
 
 const mockedLoad = loadCsvSamples as jest.MockedFunction<typeof loadCsvSamples>;
@@ -62,9 +66,9 @@ describe('BenchmarkService', () => {
   it('emits 2 progress events + 1 complete for 2 samples', async () => {
     mockedLoad.mockResolvedValue([makeSample('a.jpg'), makeSample('b.jpg')]);
     const extract = jest.fn().mockResolvedValue(makeFixture());
-    const provider = { extract } as unknown as OpenAiOcrProvider;
+    const extractor = { extract } as unknown as ExtractorService;
 
-    const service = new BenchmarkService(provider);
+    const service = new BenchmarkService(extractor);
     const events: BenchmarkEvent[] = [];
     for await (const ev of service.runStream('/fake')) events.push(ev);
 
@@ -82,9 +86,9 @@ describe('BenchmarkService', () => {
       .fn()
       .mockRejectedValueOnce(new Error('refusal: blocked'))
       .mockResolvedValueOnce(makeFixture());
-    const provider = { extract } as unknown as OpenAiOcrProvider;
+    const extractor = { extract } as unknown as ExtractorService;
 
-    const service = new BenchmarkService(provider);
+    const service = new BenchmarkService(extractor);
     const events: BenchmarkEvent[] = [];
     for await (const ev of service.runStream('/fake')) events.push(ev);
 
