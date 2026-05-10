@@ -338,4 +338,23 @@ describe('<ActiveUploadsProvider />', () => {
 
     expect(getByTestId('completed').textContent).toContain('ocr1');
   });
+
+  it('completedUploads não ultrapassa 5 — o mais antigo é descartado (FIFO)', async () => {
+    const docs = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'].map((id) => makeDoc(id, 'READY'));
+
+    fetchSpy.mockImplementation((url: string) => {
+      if (url.includes('status=READY')) return Promise.resolve(jsonResponse(docs));
+      if (url.includes('status=QUEUED')) return Promise.resolve(jsonResponse([]));
+      return Promise.resolve(jsonResponse([]));
+    });
+
+    const { getByTestId } = renderWithReader();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    const ids = getByTestId('completed').textContent?.split(',').filter(Boolean) ?? [];
+    expect(ids).toHaveLength(5);
+    expect(ids).not.toContain('d6');
+  });
 });

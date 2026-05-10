@@ -52,7 +52,7 @@ export function ActiveUploadsProvider({ children }: { children: ReactNode }) {
   const addCompleted = useCallback((doc: DocumentSummary) => {
     setCompletedUploads((prev) => {
       const without = prev.filter((d) => d.id !== doc.id);
-      return [doc, ...without].slice(0, 5);
+      return [doc, ...without].slice(0, CATCHUP_LIMIT);
     });
   }, []);
 
@@ -72,8 +72,10 @@ export function ActiveUploadsProvider({ children }: { children: ReactNode }) {
       .then((finished) => {
         if (!alive || !Array.isArray(finished)) return;
         const slice = finished.slice(0, CATCHUP_LIMIT);
-        for (const d of slice) emitToast(d, t, tErrors, router.push);
-        setCompletedUploads(slice);
+        for (const d of slice) {
+          emitToast(d, t, tErrors, router.push);
+          addCompleted(d);
+        }
       })
       .catch(() => undefined)
       .finally(() => writeLastSeen());
@@ -123,6 +125,7 @@ export function ActiveUploadsProvider({ children }: { children: ReactNode }) {
               fetch(`/api/documents/${id}`)
                 .then((r) => (r.ok ? (r.json() as Promise<DocumentSummary>) : Promise.reject()))
                 .then((detail) => {
+                  if (!alive) return;
                   emitToast(detail, t, tErrors, router.push);
                   addCompleted(detail);
                 })
