@@ -11,7 +11,7 @@ export default function WorkspaceChatPage() {
   const { sessions, messages, loading, error, createSession, send } = useWorkspaceChat(id);
 
   return (
-    <div className="flex h-[calc(100vh-52px)]">
+    <div className="flex h-[calc(100vh-56px)]">
       <WorkspaceSidebar sessions={sessions} activeId={id} onCreate={createSession} />
       <main className="flex-1">
         <ChatPanel

@@ -16,10 +16,10 @@ export function WorkspaceSidebar({
 }) {
   const t = useTranslations('chat');
   return (
-    <aside className="bg-muted/30 flex h-full w-80 flex-col border-r">
+    <aside className="bg-background/80 border-border/30 hidden h-full w-80 flex-col border-r backdrop-blur-md lg:flex">
       <button
         onClick={onCreate}
-        className="hover:bg-muted m-3 flex items-center gap-2 rounded-md border px-3 py-2 text-sm"
+        className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 m-3 flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-all"
       >
         <Plus className="h-4 w-4" />
         {t('new_conversation')}
@@ -30,17 +30,22 @@ export function WorkspaceSidebar({
             {t('sidebar_empty')}
           </p>
         )}
-        {sessions.map((s) => (
-          <Link
-            key={s.id}
-            href={`/chat/${s.id}`}
-            className={`block truncate rounded-md px-3 py-2 text-sm ${
-              s.id === activeId ? 'bg-muted font-medium' : 'hover:bg-muted/60'
-            }`}
-          >
-            {s.title ?? t('untitled')}
-          </Link>
-        ))}
+        {sessions.map((s) => {
+          const isActive = s.id === activeId;
+          return (
+            <Link
+              key={s.id}
+              href={`/chat/${s.id}`}
+              className={`block truncate rounded-lg px-3 py-2 text-sm transition-all ${
+                isActive
+                  ? 'bg-primary/10 border-l-primary text-foreground border-l-2 font-medium'
+                  : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
+              }`}
+            >
+              {s.title ?? t('untitled')}
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );
