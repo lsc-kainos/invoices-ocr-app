@@ -17,8 +17,6 @@ function rewriteFileUrl(src: string): string {
 
 export function DocumentViewer({ mime, src, filename, onLoadError }: DocumentViewerProps) {
   const t = useTranslations('document.viewer');
-  // <object> não dispara onError em PDF que falha; verificamos via HEAD
-  // para detectar storage_missing (404) e notificar o pai pra re-fetch.
   const objectRef = useRef<HTMLObjectElement>(null);
 
   useEffect(() => {
@@ -52,7 +50,7 @@ export function DocumentViewer({ mime, src, filename, onLoadError }: DocumentVie
         data={proxied}
         type="application/pdf"
         aria-label={filename}
-        className="border-border bg-background h-full w-full rounded-md border"
+        className="bg-background h-full w-full"
       >
         <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-2 p-4 text-sm">
           <p>{t('pdf_fallback')}</p>
@@ -60,7 +58,7 @@ export function DocumentViewer({ mime, src, filename, onLoadError }: DocumentVie
             href={proxied}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary underline"
+            className="text-primary underline-offset-4 hover:underline"
           >
             {t('pdf_open_in_tab')}
           </a>
@@ -75,7 +73,7 @@ export function DocumentViewer({ mime, src, filename, onLoadError }: DocumentVie
       src={proxied}
       alt={filename}
       onError={onLoadError}
-      className="border-border h-full w-full rounded-md border object-contain"
+      className="h-full w-full object-contain"
       loading="lazy"
     />
   );

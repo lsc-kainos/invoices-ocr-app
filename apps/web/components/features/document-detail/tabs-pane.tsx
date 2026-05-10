@@ -9,8 +9,6 @@ interface TabsPaneProps {
   doc: DocumentDetail;
 }
 
-// Formata como "DD/MM/AAAA HH:MM" usando UTC pra evitar mismatch
-// SSR/CSR (toLocaleString varia por timezone do runtime).
 function formatHistoryDate(iso: string): string {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -33,7 +31,7 @@ export function TabsPane({ doc }: TabsPaneProps) {
 
   return (
     <Tabs defaultValue="raw" className="flex h-full flex-col">
-      <TabsList className="self-start">
+      <TabsList className="self-start overflow-x-auto" variant="line">
         <TabsTrigger value="chat">{t('tabs.chat')}</TabsTrigger>
         <TabsTrigger value="raw">{t('tabs.raw')}</TabsTrigger>
         <TabsTrigger value="history">{t('tabs.history')}</TabsTrigger>
@@ -45,7 +43,7 @@ export function TabsPane({ doc }: TabsPaneProps) {
 
       <TabsContent value="raw" className="mt-3 flex-1 overflow-auto">
         {doc.extractedText ? (
-          <pre className="border-border bg-muted/30 text-foreground rounded-md border p-4 font-mono text-[12px] whitespace-pre-wrap">
+          <pre className="border-border/40 bg-muted/30 text-foreground rounded-lg border p-3 font-mono text-[12px] whitespace-pre-wrap sm:p-4">
             {doc.extractedText}
           </pre>
         ) : (
@@ -59,14 +57,14 @@ export function TabsPane({ doc }: TabsPaneProps) {
 
       <TabsContent value="history" className="mt-3 flex-1 overflow-auto">
         <ul className="flex flex-col gap-3">
-          <li className="border-border bg-muted/20 rounded-md border p-3 text-[12px]">
+          <li className="border-border/40 bg-muted/20 rounded-lg border p-3 text-[12px]">
             <div className="text-foreground font-medium">{t('history.upload')}</div>
             <div className="text-muted-foreground mt-0.5 text-[11px]">
               {formatHistoryDate(doc.createdAt)}
             </div>
           </li>
           {doc.ocrCompletedAt && doc.status === 'READY' ? (
-            <li className="border-border bg-muted/20 rounded-md border p-3 text-[12px]">
+            <li className="border-border/40 bg-muted/20 rounded-lg border p-3 text-[12px]">
               <div className="text-foreground font-medium">
                 {ocrSeconds !== null
                   ? t('history.ocr_done', { seconds: ocrSeconds })
@@ -78,7 +76,7 @@ export function TabsPane({ doc }: TabsPaneProps) {
             </li>
           ) : null}
           {doc.status === 'FAILED' ? (
-            <li className="border-destructive/40 bg-destructive/5 rounded-md border p-3 text-[12px]">
+            <li className="border-destructive/40 bg-destructive/5 rounded-lg border p-3 text-[12px]">
               <div className="text-destructive font-medium">{t('history.ocr_failed')}</div>
               <div className="text-muted-foreground mt-0.5 text-[11px]">
                 {tErrors(doc.failureReason ?? 'unknown')}

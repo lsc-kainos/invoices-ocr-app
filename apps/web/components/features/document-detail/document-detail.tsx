@@ -34,10 +34,6 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
   const valor = doc.summary?.core.total ?? null;
   const data = doc.summary?.core.invoiceDate ?? null;
 
-  // Quando o viewer falha em carregar (storage_missing → 404 do API),
-  // dispara refresh do RSC para puxar o status atualizado (que o backend
-  // já marcou como FAILED). Sem isso a UI ficaria travada em READY com
-  // botão de download habilitado.
   const handleLoadError = useCallback(() => {
     if (doc.status === 'READY') {
       router.refresh();
@@ -45,7 +41,7 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
   }, [doc.status, router]);
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-5 px-6 py-6">
+    <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:gap-5 sm:px-6 sm:py-6">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -57,22 +53,26 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage className="max-w-[260px] truncate">{doc.filename}</BreadcrumbPage>
+            <BreadcrumbPage className="max-w-[200px] truncate sm:max-w-[260px]">
+              {doc.filename}
+            </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
-      <header className="flex items-start justify-between gap-4">
+      <header className="flex items-start justify-between gap-3 sm:gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Link
               href="/documents"
               aria-label={t('header.back')}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
               <ChevronLeft size={16} />
             </Link>
-            <h1 className="truncate text-[20px] font-medium tracking-tight">{doc.filename}</h1>
+            <h1 className="truncate text-lg font-medium tracking-tight sm:text-[20px]">
+              {doc.filename}
+            </h1>
             <StatusBadge status={doc.status} />
           </div>
           <p className="text-muted-foreground mt-1 truncate text-[12px]">
@@ -88,9 +88,10 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
         />
       </header>
 
-      <section className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+      {/* Mobile: stacked vertically. Desktop: side-by-side grid */}
+      <section className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-5">
         <div className="flex min-w-0 flex-col gap-4">
-          <div className="bg-muted/30 aspect-[3/4] w-full overflow-hidden rounded-md lg:aspect-auto lg:h-[44vh]">
+          <div className="bg-muted/30 ring-border/50 aspect-[3/4] w-full overflow-hidden rounded-lg shadow-xl ring-1 shadow-black/20 lg:aspect-auto lg:h-[44vh]">
             <DocumentViewer
               mime={doc.mime}
               src={doc.fileUrl}
@@ -99,11 +100,12 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
             />
           </div>
 
-          <div className="border-border bg-card min-h-[280px] rounded-md border p-4">
+          <div className="border-border/40 bg-card min-h-[280px] rounded-lg border p-3 shadow-sm sm:p-4">
             <TabsPane doc={doc} />
           </div>
         </div>
 
+        {/* Rail: full-width on mobile, fixed 320px on desktop */}
         <ExtractedFieldsRail summary={doc.summary} />
       </section>
     </div>
