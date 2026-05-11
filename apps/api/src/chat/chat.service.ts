@@ -247,7 +247,13 @@ export class ChatService {
       take: max,
       select: { role: true, content: true, toolCallId: true, toolName: true },
     });
-    return all.reverse();
+    const ordered = all.reverse();
+    // Garante que o slice comeca em USER. Se o limite cortar no meio de um
+    // tool exchange (ex: ASSISTANT tool_calls fora, TOOL response dentro),
+    // o TOOL fica orfao e a OpenAI rejeita com 400. Descarta lideres
+    // ASSISTANT/TOOL ate encontrar o primeiro USER.
+    const firstUser = ordered.findIndex((m) => m.role === ChatRole.USER);
+    return firstUser === -1 ? [] : ordered.slice(firstUser);
   }
 
   private async runConversation(ctx: RunContext): Promise<{ content: string }> {
