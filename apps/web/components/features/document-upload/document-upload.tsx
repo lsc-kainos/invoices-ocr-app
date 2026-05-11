@@ -22,7 +22,7 @@ import { useActiveUploads } from '@/components/features/active-uploads/use-activ
 export function DocumentUpload() {
   const t = useTranslations('upload');
   const { uploadFiles, activeUploads: pending } = useDocumentUpload();
-  const { activeUploads } = useActiveUploads();
+  const { activeUploads, completedUploads } = useActiveUploads();
 
   const onDrop = useCallback((accepted: File[]) => uploadFiles(accepted), [uploadFiles]);
 
@@ -97,13 +97,16 @@ export function DocumentUpload() {
         </div>
       </Card>
 
-      {(pending.length > 0 || activeUploads.length > 0) && (
+      {(pending.length > 0 || activeUploads.length > 0 || completedUploads.length > 0) && (
         <div className="mt-4 space-y-3">
           {pending.map((u) => (
             <OptimisticUploadCard key={u.clientId} upload={u} />
           ))}
           {activeUploads.map((doc) => (
             <UploadCard key={doc.id} doc={doc} />
+          ))}
+          {completedUploads.map((doc) => (
+            <UploadCard key={`completed-${doc.id}`} doc={doc} />
           ))}
         </div>
       )}

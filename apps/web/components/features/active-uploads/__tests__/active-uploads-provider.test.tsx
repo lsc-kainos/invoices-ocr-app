@@ -3,8 +3,9 @@ import { act, render } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import messages from '@/messages/pt-BR.json';
 import type { DocumentSummary } from '@invoices-ocr/shared-types';
-import { ActiveUploadsProvider } from '../active-uploads-provider';
+import { ActiveUploadsContext, ActiveUploadsProvider } from '../active-uploads-provider';
 import { UPLOAD_QUEUED_EVENT } from '../events';
+import { useContext } from 'react';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -53,6 +54,23 @@ function renderProvider() {
     <NextIntlClientProvider locale="pt-BR" messages={messages}>
       <ActiveUploadsProvider>
         <div />
+      </ActiveUploadsProvider>
+    </NextIntlClientProvider>,
+  );
+}
+
+// Component to inspect completedUploads from context
+function CompletedReader() {
+  const ctx = useContext(ActiveUploadsContext);
+  const completed = ctx?.completedUploads ?? [];
+  return <div data-testid="completed">{completed.map((d) => d.id).join(',')}</div>;
+}
+
+function renderWithReader() {
+  return render(
+    <NextIntlClientProvider locale="pt-BR" messages={messages}>
+      <ActiveUploadsProvider>
+        <CompletedReader />
       </ActiveUploadsProvider>
     </NextIntlClientProvider>,
   );
@@ -269,5 +287,74 @@ describe('<ActiveUploadsProvider />', () => {
       await vi.advanceTimersByTimeAsync(0);
     });
     expect(activeFetchCount(fetchSpy)).toBe(2);
+  });
+
+  it('catch-up ao montar popula completedUploads com docs finalizados', async () => {
+    const readyDoc = makeDoc('r1', 'READY');
+    const failedDoc = makeDoc('f1', 'FAILED');
+
+    fetchSpy.mockImplementation((url: string) => {
+      // catch-up: /api/documents?status=READY,FAILED
+      if (url.includes('status=READY')) return Promise.resolve(jsonResponse([readyDoc, failedDoc]));
+      // polling: /api/documents?status=QUEUED,OCR_RUNNING
+      if (url.includes('status=QUEUED')) return Promise.resolve(jsonResponse([]));
+      return Promise.resolve(jsonResponse([]));
+    });
+
+    const { getByTestId } = renderWithReader();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    const ids = getByTestId('completed').textContent?.split(',').filter(Boolean) ?? [];
+    expect(ids).toContain('r1');
+    expect(ids).toContain('f1');
+  });
+
+  it('quando documento sai de OCR_RUNNING, aparece em completedUploads', async () => {
+    const doc = makeDoc('ocr1', 'OCR_RUNNING');
+    const readyDoc = makeDoc('ocr1', 'READY');
+
+    let tick = 0;
+    fetchSpy.mockImplementation((url: string) => {
+      if (url.includes('status=READY')) return Promise.resolve(jsonResponse([])); // catch-up vazio
+      if (url.includes('status=QUEUED')) {
+        tick++;
+        // Tick 1: doc is processing. Tick 2+: disappeared (transitioned to READY)
+        return Promise.resolve(jsonResponse(tick === 1 ? [doc] : []));
+      }
+      // individual fetch after transition detected
+      if (url.includes('/api/documents/ocr1')) return Promise.resolve(jsonResponse(readyDoc));
+      return Promise.resolve(jsonResponse([]));
+    });
+
+    const { getByTestId } = renderWithReader();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0); // tick 1: doc in OCR_RUNNING enters previousRef
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1500); // tick 2: doc gone → transition detected → fetch detail
+    });
+
+    expect(getByTestId('completed').textContent).toContain('ocr1');
+  });
+
+  it('completedUploads não ultrapassa 5 — o mais antigo é descartado (FIFO)', async () => {
+    const docs = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'].map((id) => makeDoc(id, 'READY'));
+
+    fetchSpy.mockImplementation((url: string) => {
+      if (url.includes('status=READY')) return Promise.resolve(jsonResponse(docs));
+      if (url.includes('status=QUEUED')) return Promise.resolve(jsonResponse([]));
+      return Promise.resolve(jsonResponse([]));
+    });
+
+    const { getByTestId } = renderWithReader();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    const ids = getByTestId('completed').textContent?.split(',').filter(Boolean) ?? [];
+    expect(ids).toHaveLength(5);
+    expect(ids).not.toContain('d6');
   });
 });
