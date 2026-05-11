@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import Link from 'next/link';
 import { authOptions } from '@/lib/auth';
-import { BarChart3, Settings2, ExternalLink, ShieldCheck } from 'lucide-react';
+import { BarChart3, Settings2, ExternalLink, ShieldCheck, Activity } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
@@ -15,6 +15,13 @@ export default async function AdminHubPage() {
   const bullUrl = process.env.BULL_DASHBOARD_URL;
 
   const cards = [
+    {
+      href: '/admin/usage',
+      icon: Activity,
+      title: t('usage.title'),
+      description: t('usage.description'),
+      external: false,
+    },
     {
       href: '/admin/benchmark',
       icon: BarChart3,

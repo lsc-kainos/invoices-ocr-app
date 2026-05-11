@@ -86,16 +86,10 @@ describe('<Topbar />', () => {
     ).toBeInTheDocument();
   });
 
-  it('USER não vê o link de Benchmark', () => {
+  it('Admin hub não aparece na nav de nenhum role (acesso via user menu)', () => {
     renderTopbar('USER');
     const nav = screen.getByRole('navigation', { name: /primary/i });
     expect(within(nav).queryByText('Benchmark')).toBeNull();
-  });
-
-  it('ADMIN vê o link de Admin apontando para /admin', () => {
-    renderTopbar('ADMIN');
-    const nav = screen.getByRole('navigation', { name: /primary/i });
-    const link = within(nav).getByRole('link', { name: /Benchmark/i });
-    expect(link).toHaveAttribute('href', '/admin');
+    expect(within(nav).queryByText(/Admin/i)).toBeNull();
   });
 });

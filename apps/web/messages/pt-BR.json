@@ -47,7 +47,6 @@
       "home": "Início",
       "list": "Minhas notas",
       "chat": "Chat",
-      "benchmark": "Benchmark",
       "menu_label": "Abrir menu"
     },
     "user_menu_label": "Conta",
@@ -334,6 +333,51 @@
       "bull": {
         "title": "Bull Dashboard",
         "description": "Monitore filas de processamento em tempo real."
+      },
+      "usage": {
+        "title": "Dashboard de Uso",
+        "description": "Métricas de documentos, chat, fila e usuários."
+      }
+    },
+    "usage": {
+      "eyebrow": "Admin / Uso",
+      "title": "Dashboard de Uso",
+      "subtitle": "Métricas operacionais do sistema em tempo real.",
+      "refresh": "Atualizar",
+      "lastRefreshed": "Atualizado às {time}",
+      "stats": {
+        "totalDocuments": "Documentos",
+        "totalUsers": "Usuários",
+        "activeUsers30d": "Ativos (30d)",
+        "totalMessages": "Mensagens",
+        "avgOcrDuration": "OCR médio",
+        "avgOcrDurationUnit": "ms",
+        "noData": "—"
+      },
+      "status": {
+        "title": "Status dos documentos",
+        "READY": "Prontos",
+        "FAILED": "Falhou",
+        "REJECTED": "Rejeitados",
+        "QUEUED": "Na fila",
+        "OCR_RUNNING": "Processando"
+      },
+      "queue": {
+        "title": "Fila OCR",
+        "liveLabel": "ao vivo",
+        "waiting": "Aguardando",
+        "active": "Ativos",
+        "completed": "Concluídos",
+        "failed": "Falhou"
+      },
+      "timeSeries": {
+        "title": "Uploads por dia — últimos 14 dias",
+        "uploads": "Uploads",
+        "successful": "Bem-sucedidos"
+      },
+      "error": {
+        "title": "Não foi possível carregar as métricas",
+        "retry": "Tentar de novo"
       }
     },
     "llmConfigs": {
