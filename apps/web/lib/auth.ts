@@ -75,6 +75,10 @@ export async function sessionCallback({ session, token }: SessionArgs) {
   return session;
 }
 
+const isE2EEnabled =
+  process.env.NODE_ENV === 'test' ||
+  (process.env.E2E_TEST === '1' && process.env.NODE_ENV === 'development');
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -86,9 +90,11 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.GITHUB_CLIENT_SECRET,
     }),
     // E2E_TEST=1 ativa o provider de credenciais usado pelos testes
-    // Playwright. NODE_ENV sozinho não basta porque `next dev` força
-    // NODE_ENV=development; usamos uma flag dedicada.
-    ...(process.env.NODE_ENV === 'test' || process.env.E2E_TEST === '1'
+    // Playwright. Blindado para nunca existir em produção:
+    // só ativa quando NODE_ENV=test, ou quando E2E_TEST=1 E
+    // NODE_ENV=development (local). Em produção, mesmo que E2E_TEST
+    // esteja setado por engano, o provider não é exposto.
+    ...(isE2EEnabled
       ? [
           CredentialsProvider({
             id: 'e2e-test',
