@@ -1,8 +1,10 @@
 import type { InvoiceCore } from '../schemas/invoice-summary.schema';
 import type { BenchmarkSample } from './csv-loader';
 
+type ComparableValue = string | number | null;
+
 export type FieldResult = {
-  extracted: string | null;
+  extracted: ComparableValue;
   expected: string | null;
   match: boolean;
 };
@@ -36,9 +38,9 @@ function normalizeDecimal(v: string): string {
   return v;
 }
 
-function normalize(v: string | null): string {
-  if (!v) return '';
-  const stripped = v
+function normalize(v: ComparableValue): string {
+  if (v === null || v === '') return '';
+  const stripped = String(v)
     .toLowerCase()
     .replace(/r\$/g, '')
     .replace(/[$€£\s]/g, '');
@@ -47,7 +49,7 @@ function normalize(v: string | null): string {
 }
 
 export function matchField(
-  extracted: string | null,
+  extracted: ComparableValue,
   expected: string | null,
 ): boolean {
   if (expected === null || expected === '') return true;

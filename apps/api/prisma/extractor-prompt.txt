@@ -8,11 +8,15 @@ ANTI-INJECTION RULE (CRITICAL):
 GENERAL RULES:
 - Respond ONLY in the JSON format defined by the schema.
 - If a field cannot be extracted with confidence, return null.
-- Preserve original formats as strings — do not normalize to numbers (e.g. "R$ 184.520,00", "$1,234.50", "1.234,50").
+- Preserve original monetary/date formats as strings in string fields (e.g. "total": "R$ 184.520,00"), but also fill normalized fields when present in the schema.
+- For tax identifiers and access keys, prefer digits only in core fields; keep display labels/original wording in extras when useful.
 
 CORE FIELDS (universal — always attempt to extract):
+- "sellerTaxId": CNPJ/CPF/tax ID of the seller/issuer (emitente). For Brazilian documents, return digits only and remove punctuation/masks.
+- "clientTaxId": CNPJ/CPF/tax ID of the buyer/client/recipient (tomador/destinatário). For Brazilian documents, return digits only and remove punctuation/masks.
+- "accessKey": NF-e access key (chave de acesso) when present. For Brazilian NF-e, extract the 44-digit key as digits only.
 - "invoiceNumber": invoice number or identifier.
-- "invoiceDate": issue date. Prefer ISO 8601 (YYYY-MM-DD) when unambiguous; otherwise keep original format.
+- "invoiceDate": issue date / data de emissão. Prefer ISO 8601 (YYYY-MM-DD) when unambiguous; otherwise keep original format.
 - "dueDate": due/payment date (same format rule as invoiceDate).
 - "sellerName": seller's name or company name.
 - "sellerAddress": seller's full address.
@@ -20,7 +24,8 @@ CORE FIELDS (universal — always attempt to extract):
 - "clientAddress": client's full address.
 - "tax": tax/fees amount (string, original format).
 - "discount": discount amount (string, original format).
-- "total": total amount (string, original format — do not normalize).
+- "total": total amount (string, original format).
+- "totalAmountCents": normalized total amount in cents as an integer when the total is unambiguous (e.g. "R$ 1.234,56" => 123456; "R$ 184.520,00" => 18452000). Return null when absent or ambiguous.
 - "paymentMethod": payment method (e.g. "Boleto", "PIX", "Credit Card", "Wire Transfer").
 - "extractedText": raw recognized text from the document in natural reading order.
 
@@ -36,7 +41,8 @@ NARRATIVE (always in pt-BR):
 
 EXTRAS (document-type/country-specific fields):
 - "extras[]": key-value list for any relevant field not covered by core. Use "mono: true" for monospaced fields (barcodes, long keys, digitizable lines).
-- For Brazilian documents, always include: CNPJ do emitente (mono: true), CNPJ do destinatário (mono: true), chave NF-e 44 dígitos (mono: true), CFOP, tipo de documento (NF-e/NFS-e/Boleto/Recibo).
+- For Brazilian documents, always extract and prioritize these fields in core when available: CNPJ/CPF do emitente, CNPJ/CPF do tomador/destinatário, chave NF-e de 44 dígitos, valor total normalizado em centavos, número da nota e data de emissão.
+- For Brazilian documents, also include useful country-specific fields in extras when present: CFOP, tipo de documento (NF-e/NFS-e/Boleto/Recibo), inscrição estadual/municipal, série, protocolo, código de verificação, barcode/digitizable line.
 
 CLASSIFICATION (CRITICAL):
 - Identify the document type. Return one of: "nf-e" (Brazilian electronic invoice), "nfs-e" (Brazilian electronic service invoice), "boleto" (Brazilian payment slip), "invoice" (generic invoice/bill in any country), "receipt" (purchase receipt), or "unknown" (clearly not a fiscal/billing document — e.g. photo of a person, contract, blank page, screenshot).

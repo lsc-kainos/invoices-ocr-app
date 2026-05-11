@@ -1,4 +1,7 @@
 export interface InvoiceCore {
+  sellerTaxId?: string | null;
+  clientTaxId?: string | null;
+  accessKey?: string | null;
   invoiceNumber: string | null;
   invoiceDate: string | null;
   dueDate: string | null;
@@ -9,6 +12,7 @@ export interface InvoiceCore {
   tax: string | null;
   discount: string | null;
   total: string | null;
+  totalAmountCents?: number | null;
   paymentMethod: string | null;
 }
 

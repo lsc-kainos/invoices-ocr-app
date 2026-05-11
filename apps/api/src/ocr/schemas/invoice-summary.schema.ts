@@ -12,6 +12,9 @@ export const documentTypeSchema = z.enum([
 export type DocumentType = z.infer<typeof documentTypeSchema>;
 
 export const invoiceCoreSchema = z.object({
+  sellerTaxId: z.string().nullable().optional(),
+  clientTaxId: z.string().nullable().optional(),
+  accessKey: z.string().nullable().optional(),
   invoiceNumber: z.string().nullable(),
   invoiceDate: z.string().nullable(),
   dueDate: z.string().nullable(),
@@ -22,6 +25,7 @@ export const invoiceCoreSchema = z.object({
   tax: z.string().nullable(),
   discount: z.string().nullable(),
   total: z.string().nullable(),
+  totalAmountCents: z.number().int().nullable().optional(),
   paymentMethod: z.string().nullable(),
 });
 
