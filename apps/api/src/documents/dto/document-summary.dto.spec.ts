@@ -12,6 +12,8 @@ describe('toSummaryDto', () => {
     semanticHash: null,
     duplicateOfId: null,
     duplicateReason: null,
+    possibleDuplicateOfId: null,
+    duplicateMatchStrength: null,
     status: 'FAILED' as const,
     failureReason: 'rate_limit',
     retryCount: 2,
@@ -41,6 +43,20 @@ describe('toSummaryDto', () => {
     });
     expect(dto.duplicateOfId).toBe('doc-original');
     expect(dto.duplicateReason).toBe('nfe_access_key');
+  });
+
+  it('mapeia sugestão de duplicata sem alterar status', () => {
+    const dto = toSummaryDto({
+      ...baseDoc,
+      status: 'READY',
+      possibleDuplicateOfId: 'doc-original',
+      duplicateReason: 'document_identity',
+      duplicateMatchStrength: 'needs_confirmation',
+    });
+    expect(dto.status).toBe('READY');
+    expect(dto.possibleDuplicateOfId).toBe('doc-original');
+    expect(dto.duplicateReason).toBe('document_identity');
+    expect(dto.duplicateMatchStrength).toBe('needs_confirmation');
   });
 
   it('mantém retryCount=0 em doc novo', () => {

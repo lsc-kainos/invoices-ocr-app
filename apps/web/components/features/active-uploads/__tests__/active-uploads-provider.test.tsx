@@ -26,6 +26,8 @@ function makeDoc(id: string, status: DocumentSummary['status']): DocumentSummary
     retryCount: 0,
     duplicateOfId: null,
     duplicateReason: null,
+    possibleDuplicateOfId: null,
+    duplicateMatchStrength: null,
     documentType: null,
     confidence: null,
     rejectionReason: null,

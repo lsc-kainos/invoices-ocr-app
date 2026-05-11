@@ -71,6 +71,8 @@ const baseDoc = (over: Partial<Document>): Document => {
     semanticHash: null,
     duplicateOfId: null,
     duplicateReason: null,
+    possibleDuplicateOfId: null,
+    duplicateMatchStrength: null,
     status: 'READY',
     failureReason: null,
     retryCount: 0,
@@ -228,6 +230,7 @@ describe('DocumentsService', () => {
           contentHash: expectedHash,
           duplicateOfId: 'original1',
           duplicateReason: 'content_hash',
+          duplicateMatchStrength: 'strong',
           storagePath: 'duplicate:original1',
         }),
       );
@@ -244,6 +247,8 @@ describe('DocumentsService', () => {
           contentHash: expectedHash,
           duplicateOfId: 'original1',
           duplicateReason: 'content_hash',
+          possibleDuplicateOfId: null,
+          duplicateMatchStrength: 'strong',
           storagePath: 'duplicate:original1',
         }),
       });
@@ -277,6 +282,7 @@ describe('DocumentsService', () => {
             contentHash: expectedHash,
             duplicateOfId: 'original-race',
             duplicateReason: 'content_hash',
+            duplicateMatchStrength: 'strong',
             storagePath: 'duplicate:original-race',
           }),
         );
@@ -308,6 +314,8 @@ describe('DocumentsService', () => {
           status: DocumentStatus.DUPLICATE,
           duplicateOfId: 'original-race',
           duplicateReason: 'content_hash',
+          possibleDuplicateOfId: null,
+          duplicateMatchStrength: 'strong',
           contentHash: expectedHash,
         }),
       });
@@ -511,6 +519,8 @@ describe('DocumentsService', () => {
             status: 'READY',
             extractedText: 'text',
             semanticHash: null,
+            possibleDuplicateOfId: null,
+            duplicateMatchStrength: null,
           }),
         }),
       );
@@ -530,6 +540,34 @@ describe('DocumentsService', () => {
             semanticHash: 'NFKEY:123',
             duplicateOfId: null,
             duplicateReason: null,
+            possibleDuplicateOfId: null,
+            duplicateMatchStrength: null,
+          }),
+        }),
+      );
+    });
+
+    it('markReady mantém READY com sugestão de duplicata quando precisa confirmação', async () => {
+      await svc.markReady(
+        'd1',
+        { core: {} as never, items: [], extras: [], narrative: '' },
+        'text',
+        'DOCID:v1:abc',
+        {
+          possibleDuplicateOfId: 'original-doc',
+          duplicateMatchStrength: 'needs_confirmation',
+          duplicateReason: 'document_identity',
+        },
+      );
+      expect(prisma.document.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: 'READY',
+            semanticHash: 'DOCID:v1:abc',
+            duplicateOfId: null,
+            duplicateReason: 'document_identity',
+            possibleDuplicateOfId: 'original-doc',
+            duplicateMatchStrength: 'needs_confirmation',
           }),
         }),
       );
@@ -573,6 +611,8 @@ describe('DocumentsService', () => {
             status: DocumentStatus.DUPLICATE,
             duplicateOfId: 'd1',
             duplicateReason: 'nfe_access_key',
+            possibleDuplicateOfId: null,
+            duplicateMatchStrength: 'strong',
             semanticHash: 'NFKEY:123',
             extractedText: 'text',
           }),

@@ -38,6 +38,8 @@ function makeDoc(id: string, total: string | null, invoiceDate: string | null): 
     retryCount: 0,
     duplicateOfId: null,
     duplicateReason: null,
+    possibleDuplicateOfId: null,
+    duplicateMatchStrength: null,
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
     documentType: null,
