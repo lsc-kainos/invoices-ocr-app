@@ -82,3 +82,69 @@ describe('UploadCard — retry button', () => {
     expect(screen.queryByRole('button', { name: /tentar de novo/i })).not.toBeInTheDocument();
   });
 });
+
+describe('UploadCard — link de detalhe', () => {
+  beforeEach(() => {
+    vi.mocked(useDocumentRetry).mockReturnValue({ retry: retryMock, isPending: () => false });
+    retryMock.mockReset();
+  });
+
+  it('READY renderiza link para /documents/{id}', () => {
+    render(wrap(<UploadCard doc={{ ...baseDoc, status: 'READY', failureReason: null }} />));
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', '/documents/d1');
+  });
+
+  it('FAILED renderiza link para /documents/{id}', () => {
+    render(wrap(<UploadCard doc={baseDoc} />));
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', '/documents/d1');
+  });
+
+  it('REJECTED renderiza link para /documents/{id}', () => {
+    render(
+      wrap(
+        <UploadCard
+          doc={{
+            ...baseDoc,
+            status: 'REJECTED',
+            failureReason: null,
+            rejectionReason: 'not_invoice',
+          }}
+        />,
+      ),
+    );
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', '/documents/d1');
+  });
+
+  it('QUEUED não renderiza link', () => {
+    render(
+      wrap(
+        <UploadCard doc={{ ...baseDoc, status: 'QUEUED', failureReason: null, retryCount: 0 }} />,
+      ),
+    );
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('OCR_RUNNING não renderiza link', () => {
+    render(
+      wrap(
+        <UploadCard
+          doc={{ ...baseDoc, status: 'OCR_RUNNING', failureReason: null, retryCount: 0 }}
+        />,
+      ),
+    );
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('botão de retry em FAILED tem stopPropagation (não dispara navegação)', async () => {
+    const user = userEvent.setup();
+    const navHandler = vi.fn();
+    render(<div onClick={navHandler}>{wrap(<UploadCard doc={baseDoc} />)}</div>);
+    const btn = screen.getByRole('button', { name: /tentar de novo/i });
+    await user.click(btn);
+    expect(retryMock).toHaveBeenCalledWith('d1', 'nf.pdf');
+    expect(navHandler).not.toHaveBeenCalled();
+  });
+});

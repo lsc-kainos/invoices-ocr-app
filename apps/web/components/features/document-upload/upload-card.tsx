@@ -3,7 +3,16 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { Loader2, Check, X, Dot, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
+import {
+  Loader2,
+  Check,
+  X,
+  Dot,
+  ChevronDown,
+  ChevronUp,
+  ChevronRight,
+  AlertTriangle,
+} from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -79,15 +88,16 @@ export function UploadCard({ doc }: UploadCardProps) {
 
   const toggleExpanded = () => setUserToggle({ status: doc.status, expanded: !isExpanded });
 
-  // failure/rejected states always expanded; READY has no toggle (it's a Link)
+  // failure/rejected/ready states always expanded; clickable states have no toggle (they're a Link)
+  const isClickable = isReady || isFailed || isRejected;
   const canToggle = !isFailed && !isRejected && !isReady;
   const forceExpanded = isFailed || isRejected;
 
   const showLadder = forceExpanded || isExpanded;
 
   const wrapperClass = cn(
-    'block rounded-md transition-colors',
-    isReady && 'cursor-pointer hover:bg-muted/40',
+    'group relative block rounded-md transition-colors',
+    isClickable && 'cursor-pointer hover:bg-muted/40',
   );
 
   const StepIcon = ({ state }: { state: StepState }) => {
@@ -101,7 +111,11 @@ export function UploadCard({ doc }: UploadCardProps) {
   const Inner = (
     <Card
       className={cn(
-        'border-border/60 bg-card p-3 sm:p-4',
+        'border-border/60 bg-card relative p-3 sm:p-4',
+        // Disable pointer events on the Card so clicks pass through to the overlay
+        // Link (stretched-link pattern). Interactive descendants (retry, toggle)
+        // re-enable pointer events via `pointer-events-auto`.
+        isClickable && 'pointer-events-none',
         isRunning && !isStuck && 'animate-pulse-glow border-primary/20',
         isStuck && 'border-warning/40',
       )}
@@ -128,10 +142,13 @@ export function UploadCard({ doc }: UploadCardProps) {
               toggleExpanded();
             }}
             aria-label={isExpanded ? 'Recolher' : 'Expandir'}
-            className="text-muted-foreground hover:text-foreground ml-1 transition-colors"
+            className="text-muted-foreground hover:text-foreground pointer-events-auto ml-1 transition-colors"
           >
             {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
+        )}
+        {isClickable && (
+          <ChevronRight size={14} aria-hidden className="text-muted-foreground/60 ml-1 shrink-0" />
         )}
       </div>
 
@@ -172,7 +189,7 @@ export function UploadCard({ doc }: UploadCardProps) {
                   void retry(doc.id, doc.filename);
                 }}
                 disabled={retryPending}
-                className="h-9 w-full text-[11px] sm:h-7 sm:w-auto"
+                className="pointer-events-auto h-9 w-full text-[11px] sm:h-7 sm:w-auto"
               >
                 {retryPending ? tRetry('in_progress') : tRetry('button')}
               </Button>
@@ -228,13 +245,20 @@ export function UploadCard({ doc }: UploadCardProps) {
     </Card>
   );
 
-  if (isReady) {
-    return (
-      <Link href={`/documents/${doc.id}`} className={wrapperClass} aria-label={t('card.view')}>
-        {Inner}
-      </Link>
-    );
-  }
-
-  return <article className={wrapperClass}>{Inner}</article>;
+  // Stretched-link pattern: instead of wrapping `<Card>` (with buttons) in `<a>` —
+  // which produces invalid nested interactive content — we render the Link as an
+  // absolutely-positioned overlay sibling. Interactive children (retry, toggle)
+  // sit on top via `relative z-10` and remain independently clickable.
+  return (
+    <article className={wrapperClass}>
+      {isClickable && (
+        <Link
+          href={`/documents/${doc.id}`}
+          aria-label={t('card.view')}
+          className="focus-visible:ring-ring absolute inset-0 z-0 rounded-md focus-visible:ring-2 focus-visible:outline-none"
+        />
+      )}
+      {Inner}
+    </article>
+  );
 }
