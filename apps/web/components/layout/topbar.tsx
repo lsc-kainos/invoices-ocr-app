@@ -1,8 +1,7 @@
 import Link from 'next/link';
-import { Menu, ShieldCheck } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { Session } from 'next-auth';
-import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,14 +10,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Logo } from './logo';
 import { UserMenu } from './user-menu';
-
-type NavItem = {
-  key: string;
-  label: string;
-  href: string;
-  enabled: boolean;
-  admin?: boolean;
-};
+import { NavLinks } from './nav-links';
+import { ThemeToggle } from './theme-toggle';
+import type { NavItem } from './nav-links';
 
 export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
   const t = useTranslations('topbar');
@@ -31,7 +25,7 @@ export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
           {
             key: 'benchmark',
             label: t('nav.benchmark'),
-            href: '/admin/benchmark',
+            href: '/admin',
             enabled: true,
             admin: true,
           },
@@ -44,36 +38,11 @@ export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
       <Logo size={24} />
       <div className="bg-border/50 hidden h-6 w-px sm:block" />
 
-      {/* Desktop: nav inline with underline style */}
-      <nav className="hidden gap-6 lg:flex" aria-label="Primary">
-        {navItems.map((item) =>
-          item.enabled ? (
-            <Link
-              key={item.key}
-              href={item.href}
-              className={cn(
-                'text-muted-foreground hover:text-foreground relative text-sm font-medium transition-colors',
-                item.admin && 'text-primary/80 hover:text-primary',
-              )}
-            >
-              <span className="flex items-center gap-1.5">
-                {item.admin ? <ShieldCheck size={14} /> : null}
-                {item.label}
-              </span>
-            </Link>
-          ) : (
-            <span
-              key={item.key}
-              aria-disabled="true"
-              className="text-muted-foreground pointer-events-none text-sm opacity-40 select-none"
-            >
-              {item.label}
-            </span>
-          ),
-        )}
-      </nav>
+      <NavLinks items={navItems} />
 
       <div className="flex-1" />
+
+      <ThemeToggle />
 
       {/* Mobile/tablet: hamburger with dropdown */}
       <MobileNav items={navItems} label={t('nav.menu_label')} />

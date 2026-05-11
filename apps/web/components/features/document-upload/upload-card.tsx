@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Loader2, Check, X, Dot } from 'lucide-react';
+import { useState } from 'react';
+import { Loader2, Check, X, Dot, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -33,6 +34,12 @@ const LADDER: Record<
   REJECTED: { upload: 'done', ocr: 'done', structure: 'warn', ready: 'pending' },
 };
 
+const STUCK_THRESHOLD_MS = 3 * 60 * 1000; // 3 minutes
+
+function isOlderThan(isoDate: string, thresholdMs: number): boolean {
+  return Date.now() - new Date(isoDate).getTime() > thresholdMs;
+}
+
 const formatSize = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1_048_576) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -59,6 +66,25 @@ export function UploadCard({ doc }: UploadCardProps) {
   const isAutoRetrying = isRunning && doc.retryCount > 0;
   const retryPending = isPending(doc.id);
 
+  // Stuck: OCR_RUNNING for more than threshold (computed outside render via module-level helper)
+  const isStuck = isRunning && isOlderThan(doc.updatedAt, STUCK_THRESHOLD_MS);
+
+  // Status-keyed toggle: user override only applies to the status it was set for.
+  // When status changes (e.g. QUEUED→OCR_RUNNING) the previous override is ignored
+  // and the status-derived default takes over — no useEffect needed.
+  const [userToggle, setUserToggle] = useState<{ status: string; expanded: boolean } | null>(null);
+
+  const defaultExpanded = isRunning || isFailed || isRejected;
+  const isExpanded = userToggle?.status === doc.status ? userToggle.expanded : defaultExpanded;
+
+  const toggleExpanded = () => setUserToggle({ status: doc.status, expanded: !isExpanded });
+
+  // failure/rejected states always expanded; READY has no toggle (it's a Link)
+  const canToggle = !isFailed && !isRejected && !isReady;
+  const forceExpanded = isFailed || isRejected;
+
+  const showLadder = forceExpanded || isExpanded;
+
   const wrapperClass = cn(
     'block rounded-md transition-colors',
     isReady && 'cursor-pointer hover:bg-muted/40',
@@ -76,9 +102,11 @@ export function UploadCard({ doc }: UploadCardProps) {
     <Card
       className={cn(
         'border-border/60 bg-card p-3 sm:p-4',
-        isRunning && 'animate-pulse-glow border-primary/20',
+        isRunning && !isStuck && 'animate-pulse-glow border-primary/20',
+        isStuck && 'border-warning/40',
       )}
     >
+      {/* Header row — always visible */}
       <div className="flex items-center gap-2 sm:gap-3">
         <Badge variant="secondary" className="font-mono text-[10px] tracking-wide uppercase">
           {tipo}
@@ -91,77 +119,112 @@ export function UploadCard({ doc }: UploadCardProps) {
           </div>
         </div>
         <StatusBadge status={doc.status} />
-      </div>
-
-      {isRunning ? (
-        <div
-          data-testid="ocr-spinner"
-          className="text-muted-foreground mt-2 flex items-center gap-2 text-[12px] sm:mt-3"
-        >
-          <Loader2 size={13} className="animate-spin" aria-hidden />
-          <span>{isAutoRetrying ? t('retrying') : t('progress.ocr')}</span>
-        </div>
-      ) : (
-        <Progress value={PROGRESS[doc.status]} className="mt-2 h-1.5 sm:mt-3" />
-      )}
-
-      {isFailed && doc.failureReason ? (
-        <div className="mt-2 flex flex-col gap-2 sm:mt-3 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-          <p className="text-destructive text-[11px]">{tErrors(doc.failureReason)}</p>
-          <Button
+        {canToggle && (
+          <button
             type="button"
-            size="sm"
-            variant="outline"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              void retry(doc.id, doc.filename);
+              toggleExpanded();
             }}
-            disabled={retryPending}
-            className="h-9 w-full text-[11px] sm:h-7 sm:w-auto"
+            aria-label={isExpanded ? 'Recolher' : 'Expandir'}
+            className="text-muted-foreground hover:text-foreground ml-1 transition-colors"
           >
-            {retryPending ? tRetry('in_progress') : tRetry('button')}
-          </Button>
-        </div>
-      ) : null}
-
-      {isRejected && doc.rejectionReason ? (
-        <div className="mt-2 sm:mt-3">
-          <p className="text-[11px] text-amber-500">{tErrors(doc.rejectionReason)}</p>
-        </div>
-      ) : null}
-
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:grid-cols-1 sm:space-y-2.5">
-        {(['upload', 'ocr', 'structure', 'ready'] as const).map((key) => {
-          const state = ladder[key];
-          return (
-            <div key={key} className="flex items-center gap-2 text-[11px] sm:gap-2.5">
-              <div
-                className={cn(
-                  'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold',
-                  state === 'done' && 'bg-foreground text-background',
-                  state === 'active' && 'border-border bg-muted/50 text-foreground border',
-                  state === 'pending' && 'border-border text-muted-foreground/50 border',
-                  state === 'failed' && 'bg-destructive/15 text-destructive',
-                  state === 'warn' && 'bg-amber-500/15 text-amber-500',
-                )}
-                aria-hidden
-              >
-                <StepIcon state={state} />
-              </div>
-              <span
-                className={cn(
-                  state === 'pending' ? 'text-muted-foreground/50' : 'text-foreground/80',
-                  state === 'active' && 'text-foreground font-medium',
-                  state === 'failed' && 'text-destructive',
-                )}
-              >
-                {t(`ladder.${key}`)}
-              </span>
-            </div>
-          );
-        })}
+            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
+        )}
       </div>
+
+      {/* Expanded content */}
+      {showLadder && (
+        <>
+          {isRunning ? (
+            <div
+              data-testid="ocr-spinner"
+              className="text-muted-foreground mt-2 flex items-center gap-2 text-[12px] sm:mt-3"
+            >
+              <Loader2 size={13} className="animate-spin" aria-hidden />
+              <span>{isAutoRetrying ? t('retrying') : t('progress.ocr')}</span>
+            </div>
+          ) : (
+            <Progress value={PROGRESS[doc.status]} className="mt-2 h-1.5 sm:mt-3" />
+          )}
+
+          {/* Stuck warning — informational only; retry requires FAILED status at backend */}
+          {isStuck && (
+            <div className="mt-2 flex items-center gap-1.5 text-[11px] sm:mt-3">
+              <AlertTriangle size={12} className="text-warning" />
+              <span className="text-warning-foreground">{t('stuck_hint')}</span>
+            </div>
+          )}
+
+          {/* Failed reason + retry */}
+          {isFailed && doc.failureReason ? (
+            <div className="mt-2 flex flex-col gap-2 sm:mt-3 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+              <p className="text-destructive text-[11px]">{tErrors(doc.failureReason)}</p>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  void retry(doc.id, doc.filename);
+                }}
+                disabled={retryPending}
+                className="h-9 w-full text-[11px] sm:h-7 sm:w-auto"
+              >
+                {retryPending ? tRetry('in_progress') : tRetry('button')}
+              </Button>
+            </div>
+          ) : null}
+
+          {isRejected && doc.rejectionReason ? (
+            <div className="mt-2 sm:mt-3">
+              <p className="text-[11px] text-amber-500">{tErrors(doc.rejectionReason)}</p>
+            </div>
+          ) : null}
+
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:grid-cols-1 sm:space-y-2.5">
+            {(['upload', 'ocr', 'structure', 'ready'] as const).map((key) => {
+              const state = ladder[key];
+              return (
+                <div key={key} className="flex items-center gap-2 text-[11px] sm:gap-2.5">
+                  <div
+                    className={cn(
+                      'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold',
+                      state === 'done' && 'bg-foreground text-background',
+                      state === 'active' && 'border-border bg-muted/50 text-foreground border',
+                      state === 'pending' && 'border-border text-muted-foreground/50 border',
+                      state === 'failed' && 'bg-destructive/15 text-destructive',
+                      state === 'warn' && 'bg-warning-muted text-warning-foreground',
+                    )}
+                    aria-hidden
+                  >
+                    <StepIcon state={state} />
+                  </div>
+                  <span
+                    className={cn(
+                      state === 'pending' ? 'text-muted-foreground/50' : 'text-foreground/80',
+                      state === 'active' && 'text-foreground font-medium',
+                      state === 'failed' && 'text-destructive',
+                    )}
+                  >
+                    {t(`ladder.${key}`)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Collapsed summary for non-expanded QUEUED */}
+      {!showLadder && !isReady && (
+        <div className="mt-2">
+          <Progress value={PROGRESS[doc.status]} className="h-1 sm:mt-0" />
+        </div>
+      )}
     </Card>
   );
 

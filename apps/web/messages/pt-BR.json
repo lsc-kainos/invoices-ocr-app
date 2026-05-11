@@ -42,6 +42,7 @@
     }
   },
   "topbar": {
+    "theme_toggle": "Alternar tema",
     "nav": {
       "home": "Início",
       "list": "Minhas notas",
@@ -55,7 +56,8 @@
       "theme_light": "Claro",
       "theme_dark": "Escuro",
       "theme_system": "Sistema",
-      "logout": "Sair"
+      "logout": "Sair",
+      "admin_hub": "Área Admin"
     }
   },
   "home": {
@@ -109,9 +111,11 @@
     "retry": {
       "button": "Tentar de novo",
       "in_progress": "Reenviando…",
+      "stuck": "Reprocessar",
       "success": "{name} foi reenviado para nova tentativa",
       "failed": "Não foi possível reenviar {name}: {reason}"
     },
+    "stuck_hint": "Processando há mais tempo que o esperado",
     "retrying": "Tentando de novo automaticamente…",
     "progress": {
       "uploading": "Enviando {percent}%",
@@ -312,9 +316,26 @@
     "suggestion_workspace_3": "Liste as notas com CFOP 5102",
     "suggestion_document_1": "Qual o valor total?",
     "suggestion_document_2": "Quem é o emitente?",
-    "suggestion_document_3": "Qual a chave NF-e?"
+    "suggestion_document_3": "Qual a chave NF-e?",
+    "show_conversations": "Ver conversas"
   },
   "admin": {
+    "hub": {
+      "title": "Área Admin",
+      "subtitle": "Ferramentas e configurações do sistema",
+      "benchmark": {
+        "title": "Benchmark",
+        "description": "Execute e compare modelos de OCR e LLM com datasets reais."
+      },
+      "llm_configs": {
+        "title": "Configurações LLM",
+        "description": "Gerencie prompts ativos para extração e chat."
+      },
+      "bull": {
+        "title": "Bull Dashboard",
+        "description": "Monitore filas de processamento em tempo real."
+      }
+    },
     "llmConfigs": {
       "title": "LLM Configs",
       "eyebrow": "Admin / LLM",
