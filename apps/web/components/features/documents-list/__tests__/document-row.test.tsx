@@ -23,6 +23,11 @@ const doc = {
   retryCount: 0,
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
+  documentType: null,
+  confidence: null,
+  rejectionReason: null,
+  verifiedAt: null,
+  verifiedBy: null,
 };
 
 describe('<DocumentRow />', () => {

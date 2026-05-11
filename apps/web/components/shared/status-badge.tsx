@@ -18,6 +18,7 @@ const DOT: Record<DocumentStatus, string> = {
   OCR_RUNNING: 'bg-amber-400',
   READY: 'bg-emerald-400',
   FAILED: 'bg-red-400',
+  REJECTED: 'bg-orange-400',
 };
 
 interface StatusBadgeProps {

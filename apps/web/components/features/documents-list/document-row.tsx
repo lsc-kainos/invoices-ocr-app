@@ -12,6 +12,7 @@ const STATUS_DOT: Record<DocumentSummary['status'], string> = {
   OCR_RUNNING: 'bg-amber-400',
   READY: 'bg-emerald-400',
   FAILED: 'bg-red-400',
+  REJECTED: 'bg-amber-500',
 };
 
 const STATUS_TONE: Record<DocumentSummary['status'], string> = {
@@ -19,6 +20,7 @@ const STATUS_TONE: Record<DocumentSummary['status'], string> = {
   OCR_RUNNING: 'bg-amber-500/15 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
   READY: 'bg-emerald-500/15 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
   FAILED: 'bg-destructive/15 text-destructive dark:bg-destructive/20 dark:text-destructive',
+  REJECTED: 'bg-amber-500/15 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
 };
 
 export function DocumentRow({ doc }: { doc: DocumentSummary }) {
