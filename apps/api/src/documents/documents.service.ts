@@ -11,8 +11,8 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { createHmac, timingSafeEqual } from 'node:crypto';
-import { DocumentStatus } from '@prisma/client';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import { DocumentStatus, Prisma } from '@prisma/client';
 import { detectFileType } from './helpers/detect-file-type';
 import type { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
@@ -39,6 +39,11 @@ import { type DocumentEditDto, toEditDto } from './dto/document-edit.dto';
 import type { ListDocumentsQueryDto } from './dto/list-documents.query.dto';
 
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'application/pdf'] as const;
+const FINAL_DEDUP_STATUSES = [
+  DocumentStatus.READY,
+  DocumentStatus.REJECTED,
+  DocumentStatus.DUPLICATE,
+] as const;
 
 @Injectable()
 export class DocumentsService implements DocumentOps {
@@ -71,21 +76,51 @@ export class DocumentsService implements DocumentOps {
       throw new PayloadTooLargeException({ code: 'upload.too_large' });
     }
 
+    const contentHash = createHash('sha256').update(file.buffer).digest('hex');
     const safeName = sanitizeFilename(file.originalname);
     const ext = mimeToExt(detected.mime);
 
-    // 2 etapas: cria row → put no volume → update storagePath final.
-    // Permite usar o id gerado pelo Prisma no path do volume.
-    const created = await this.prisma.document.create({
-      data: {
+    const duplicate = await this.findFinalDuplicate(userId, contentHash);
+    if (duplicate) {
+      const duplicateDoc = await this.createDuplicateDocument({
         userId,
         filename: safeName,
         mime: detected.mime,
         size: file.size,
-        storagePath: 'pending',
-        status: DocumentStatus.QUEUED,
-      },
-    });
+        contentHash,
+        original: duplicate,
+      });
+      this.logger.log(
+        `Duplicate document created docId=${duplicateDoc.id} original=${this.canonicalDuplicateId(duplicate)} user=${userId} filename=${maskFilename(safeName)}`,
+      );
+      return toSummaryDto(duplicateDoc);
+    }
+
+    let created;
+    try {
+      // 2 etapas: cria row → put no volume → update storagePath final.
+      // Permite usar o id gerado pelo Prisma no path do volume.
+      created = await this.prisma.document.create({
+        data: {
+          userId,
+          filename: safeName,
+          mime: detected.mime,
+          size: file.size,
+          storagePath: 'pending',
+          contentHash,
+          status: DocumentStatus.QUEUED,
+        },
+      });
+    } catch (err) {
+      if (!this.isContentHashUniqueError(err)) throw err;
+      return this.createDuplicateAfterRace({
+        userId,
+        filename: safeName,
+        mime: detected.mime,
+        size: file.size,
+        contentHash,
+      });
+    }
 
     const storagePath = `${userId}/${created.id}/original.${ext}`;
     try {
@@ -117,6 +152,97 @@ export class DocumentsService implements DocumentOps {
       `Document created docId=${updated.id} user=${userId} filename=${maskFilename(safeName)}`,
     );
     return toSummaryDto(updated);
+  }
+
+  private async findFinalDuplicate(userId: string, contentHash: string) {
+    return this.prisma.document.findFirst({
+      where: {
+        userId,
+        contentHash,
+        status: { in: [...FINAL_DEDUP_STATUSES] },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  private async findDuplicateRaceOriginal(userId: string, contentHash: string) {
+    return this.prisma.document.findFirst({
+      where: {
+        userId,
+        contentHash,
+        status: { not: DocumentStatus.DUPLICATE },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  private canonicalDuplicateId(
+    doc: Awaited<ReturnType<DocumentsService['findFinalDuplicate']>>,
+  ): string {
+    if (!doc) throw new NotFoundException();
+    return doc.duplicateOfId ?? doc.id;
+  }
+
+  private async createDuplicateDocument(args: {
+    userId: string;
+    filename: string;
+    mime: string;
+    size: number;
+    contentHash: string;
+    original: NonNullable<
+      Awaited<ReturnType<DocumentsService['findFinalDuplicate']>>
+    >;
+  }) {
+    const duplicateOfId = this.canonicalDuplicateId(args.original);
+    return this.prisma.document.create({
+      data: {
+        userId: args.userId,
+        filename: args.filename,
+        mime: args.mime,
+        size: args.size,
+        storagePath: `duplicate:${duplicateOfId}`,
+        contentHash: args.contentHash,
+        duplicateOfId,
+        status: DocumentStatus.DUPLICATE,
+      },
+    });
+  }
+
+  private async createDuplicateAfterRace(args: {
+    userId: string;
+    filename: string;
+    mime: string;
+    size: number;
+    contentHash: string;
+  }): Promise<DocumentSummaryDto> {
+    const original = await this.findDuplicateRaceOriginal(
+      args.userId,
+      args.contentHash,
+    );
+    if (!original) {
+      this.logger.warn(
+        `Content hash unique constraint hit but no original was found user=${args.userId}`,
+      );
+      throw new ConflictException({
+        code: 'documents.duplicate_race_unresolved',
+      });
+    }
+    const duplicateDoc = await this.createDuplicateDocument({
+      ...args,
+      original,
+    });
+    this.logger.log(
+      `Duplicate document created after race docId=${duplicateDoc.id} original=${this.canonicalDuplicateId(original)} user=${args.userId} filename=${maskFilename(args.filename)}`,
+    );
+    return toSummaryDto(duplicateDoc);
+  }
+
+  private isContentHashUniqueError(err: unknown): boolean {
+    if (!(err instanceof Prisma.PrismaClientKnownRequestError)) return false;
+    if (err.code !== 'P2002') return false;
+    const target = err.meta?.target;
+    if (Array.isArray(target)) return target.includes('contentHash');
+    return typeof target === 'string' && target.includes('contentHash');
   }
 
   async list(
@@ -215,23 +341,25 @@ export class DocumentsService implements DocumentOps {
       throw new UnauthorizedException();
     }
 
+    const storageDoc = await this.resolveStorageDocument(doc);
+
     let buffer: Buffer;
     try {
-      buffer = await this.storage.read(doc.storagePath);
+      buffer = await this.storage.read(storageDoc.storagePath);
     } catch (err) {
       // Arquivo físico sumiu (volume recriado, perdido em redeploy sem volume,
       // etc.). Marca como FAILED para a UI parar de tentar ler e oferecer retry.
       const code = (err as NodeJS.ErrnoException)?.code;
       if (code === 'ENOENT') {
         await this.prisma.document.update({
-          where: { id },
+          where: { id: storageDoc.id },
           data: {
             status: DocumentStatus.FAILED,
             failureReason: 'storage_missing',
           },
         });
         this.logger.warn(
-          `Document file missing on disk docId=${id} path=${doc.storagePath} → marked FAILED`,
+          `Document file missing on disk docId=${storageDoc.id} path=${storageDoc.storagePath} → marked FAILED`,
         );
         throw new NotFoundException({ code: 'storage_missing' });
       }
@@ -244,6 +372,22 @@ export class DocumentsService implements DocumentOps {
     );
     res.setHeader('Cache-Control', 'private, max-age=900');
     res.end(buffer);
+  }
+
+  private async resolveStorageDocument(
+    doc: NonNullable<
+      Awaited<ReturnType<PrismaService['document']['findUnique']>>
+    >,
+  ) {
+    if (doc.status !== DocumentStatus.DUPLICATE || !doc.duplicateOfId) {
+      return doc;
+    }
+    const original = await this.prisma.document.findUnique({
+      where: { id: doc.duplicateOfId },
+    });
+    if (!original)
+      throw new NotFoundException({ code: 'duplicate_original_missing' });
+    return original;
   }
 
   // ---- DocumentOps (consumido pelo OcrService) ----

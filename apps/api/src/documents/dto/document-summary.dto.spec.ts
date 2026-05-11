@@ -8,6 +8,8 @@ describe('toSummaryDto', () => {
     mime: 'application/pdf',
     size: 1024,
     storagePath: 'u1/doc1/original.pdf',
+    contentHash: null,
+    duplicateOfId: null,
     status: 'FAILED' as const,
     failureReason: 'rate_limit',
     retryCount: 2,
