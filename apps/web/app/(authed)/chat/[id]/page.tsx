@@ -1,7 +1,7 @@
 'use client';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { PanelLeft } from 'lucide-react';
+import { MessageSquareText, PanelLeft } from 'lucide-react';
 import { ChatPanel } from '@/components/features/chat/chat-panel';
 import { WorkspaceSidebar, SidebarContent } from '@/components/features/chat/workspace-sidebar';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
@@ -17,7 +17,7 @@ export default function WorkspaceChatPage() {
       {/* Desktop sidebar */}
       <WorkspaceSidebar sessions={sessions} activeId={id} onCreate={createSession} />
 
-      <main className="relative flex-1">
+      <main className="relative flex flex-1 flex-col">
         {/* Mobile sidebar sheet */}
         <Sheet>
           <SheetTrigger asChild>
@@ -35,6 +35,18 @@ export default function WorkspaceChatPage() {
             </div>
           </SheetContent>
         </Sheet>
+
+        <header className="border-border/50 bg-background/80 border-b px-14 py-3 backdrop-blur-sm sm:px-16 lg:px-6">
+          <div className="mx-auto flex max-w-4xl items-center gap-3">
+            <div className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-xl">
+              <MessageSquareText size={18} />
+            </div>
+            <div>
+              <h1 className="text-sm font-semibold tracking-tight">{t('workspace_title')}</h1>
+              <p className="text-muted-foreground text-[12px]">{t('workspace_subtitle')}</p>
+            </div>
+          </div>
+        </header>
 
         <ChatPanel
           messages={messages}

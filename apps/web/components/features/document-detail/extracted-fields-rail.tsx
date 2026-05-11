@@ -63,7 +63,7 @@ export function ExtractedFieldsRail({
   const empty = tFields('empty');
 
   return (
-    <aside className="border-border/40 bg-card flex flex-col gap-4 rounded-lg border p-3 shadow-sm sm:p-4">
+    <aside className="border-border/50 bg-card flex flex-col gap-4 rounded-xl border p-3 shadow-sm sm:p-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
       <header className="flex items-start justify-between gap-2">
         <div>
           <h2 className="text-foreground text-[12px] font-semibold tracking-wide uppercase">

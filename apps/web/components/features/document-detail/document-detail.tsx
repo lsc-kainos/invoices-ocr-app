@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ChevronLeft } from 'lucide-react';
+import { CalendarDays, ChevronLeft, FileText, ReceiptText, Sparkles } from 'lucide-react';
 import { DownloadButton } from '@/components/features/document-download/download-button';
 import {
   Breadcrumb,
@@ -15,6 +15,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { StatusBadge } from '@/components/shared/status-badge';
+import { Card } from '@/components/ui/card';
 import type { DocumentDetail } from '@invoices-ocr/shared-types';
 import { useDocumentDetail } from './use-document-detail';
 import { useDocumentEdit } from './use-document-edit';
@@ -54,6 +55,7 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
   const razao = doc.summary?.core.sellerName ?? null;
   const valor = doc.summary?.core.total ?? null;
   const data = doc.summary?.core.invoiceDate ?? null;
+  const invoiceNumber = doc.summary?.core.invoiceNumber ?? null;
 
   const handleLoadError = useCallback(() => {
     if (doc.status === 'READY') {
@@ -62,7 +64,7 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
   }, [doc.status, router]);
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:gap-5 sm:px-6 sm:py-6">
+    <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:gap-5 sm:px-6 sm:py-6">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -81,53 +83,80 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <header className="flex items-start justify-between gap-3 sm:gap-4">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
+      <header className="border-border/60 bg-card rounded-xl border p-4 shadow-sm sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex min-w-0 gap-3">
             <Link
               href="/documents"
               aria-label={t('header.back')}
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="border-border/60 bg-muted/30 text-muted-foreground hover:text-foreground hover:bg-muted/50 mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors"
             >
               <ChevronLeft size={16} />
             </Link>
-            <h1 className="truncate text-lg font-medium tracking-tight sm:text-[20px]">
-              {doc.filename}
-            </h1>
-            <div className="flex items-center gap-2">
-              <StatusBadge status={doc.status} />
-              {doc.verifiedAt && <VerifiedBadge verifiedAt={doc.verifiedAt} />}
+            <div className="min-w-0">
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <StatusBadge status={doc.status} />
+                {doc.verifiedAt && <VerifiedBadge verifiedAt={doc.verifiedAt} />}
+              </div>
+              <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
+                {doc.filename}
+              </h1>
+              <p className="text-muted-foreground mt-1 truncate text-sm">
+                {[razao, valor, data].filter(Boolean).join(' · ') || t('detail.emptySummary')}
+              </p>
             </div>
           </div>
-          <p className="text-muted-foreground mt-1 truncate text-[12px]">
-            {[razao, valor, data].filter(Boolean).join(' · ') || ''}
-          </p>
+
+          <DownloadButton
+            documentId={doc.id}
+            filename={doc.filename}
+            status={doc.status}
+            variant="default"
+          />
         </div>
 
-        <DownloadButton
-          documentId={doc.id}
-          filename={doc.filename}
-          status={doc.status}
-          variant="default"
-        />
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {[
+            { Icon: ReceiptText, label: t('detail.total'), value: valor ?? '—' },
+            { Icon: CalendarDays, label: t('detail.issueDate'), value: data ?? '—' },
+            { Icon: FileText, label: t('detail.invoiceNumber'), value: invoiceNumber ?? '—' },
+          ].map(({ Icon, label, value }) => (
+            <div key={label} className="border-border/60 bg-muted/20 rounded-lg border p-3">
+              <div className="text-muted-foreground flex items-center gap-2 text-[11px] font-medium tracking-wide uppercase">
+                <Icon size={13} className="text-primary/70" />
+                {label}
+              </div>
+              <div className="text-foreground mt-1 truncate text-sm font-semibold tabular-nums">
+                {value}
+              </div>
+            </div>
+          ))}
+        </div>
       </header>
 
-      {/* Mobile: stacked vertically. Desktop: side-by-side grid */}
-      <section className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-5">
+      <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-5">
         <div className="flex min-w-0 flex-col gap-4">
-          <div className="bg-muted/30 ring-border/50 aspect-[3/4] w-full overflow-hidden rounded-lg shadow-xl ring-1 shadow-black/20 lg:aspect-auto lg:h-[44vh]">
-            <DocumentViewer
-              documentId={doc.id}
-              mime={doc.mime}
-              src={doc.fileUrl}
-              filename={doc.filename}
-              onLoadError={handleLoadError}
-            />
-          </div>
+          <Card className="border-border/50 bg-card/70 gap-0 overflow-hidden p-0 shadow-xl shadow-black/10">
+            <div className="border-border/50 bg-muted/20 flex items-center gap-2 border-b px-4 py-3">
+              <Sparkles size={14} className="text-primary/70" />
+              <span className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                {t('detail.preview')}
+              </span>
+            </div>
+            <div className="bg-muted/30 aspect-[3/4] w-full overflow-hidden lg:aspect-auto lg:h-[50vh]">
+              <DocumentViewer
+                documentId={doc.id}
+                mime={doc.mime}
+                src={doc.fileUrl}
+                filename={doc.filename}
+                onLoadError={handleLoadError}
+              />
+            </div>
+          </Card>
 
-          <div className="border-border/40 bg-card min-h-[280px] rounded-lg border p-3 shadow-sm sm:p-4">
+          <Card className="border-border/50 bg-card min-h-[340px] p-3 shadow-sm sm:p-4">
             <TabsPane doc={doc} />
-          </div>
+          </Card>
         </div>
 
         {/* Rail: full-width on mobile, fixed 320px on desktop */}

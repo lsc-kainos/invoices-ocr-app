@@ -49,11 +49,11 @@ export function ChatPanel({
   };
 
   return (
-    <div className="to-muted/10 flex h-full flex-col bg-gradient-to-b from-transparent via-transparent">
+    <div className="to-muted/10 flex min-h-0 flex-1 flex-col bg-gradient-to-b from-transparent via-transparent">
       {empty ? (
         <EmptyChatState suggestions={suggestions ?? []} onPick={onSend} />
       ) : (
-        <div className="flex-1 space-y-6 overflow-y-auto px-3 py-4 sm:px-4 sm:py-6">
+        <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col space-y-6 overflow-y-auto px-3 py-4 sm:px-6 sm:py-6">
           {messages.map((m) => (
             <ChatMessageContent key={m.id} message={m} />
           ))}
@@ -81,7 +81,7 @@ export function ChatPanel({
         onSubmit={handleSubmit}
         className="border-border/30 bg-background/80 border-t p-3 backdrop-blur-sm sm:p-4"
       >
-        <div className="border-border/50 bg-muted/40 focus-within:border-primary/40 focus-within:bg-muted/60 flex items-end gap-2 rounded-xl border px-3 py-2.5 transition-all focus-within:shadow-[0_0_20px_-5px_var(--primary)] sm:px-4 sm:py-3">
+        <div className="border-border/50 bg-muted/40 focus-within:border-primary/40 focus-within:bg-muted/60 mx-auto flex max-w-4xl items-end gap-2 rounded-xl border px-3 py-2.5 transition-all focus-within:shadow-[0_0_20px_-5px_var(--primary)] sm:px-4 sm:py-3">
           <input
             type="text"
             value={input}
@@ -103,7 +103,7 @@ export function ChatPanel({
           <button
             type="button"
             onClick={onClear}
-            className="text-muted-foreground/60 hover:text-muted-foreground mt-2 text-xs transition-colors"
+            className="text-muted-foreground/60 hover:text-muted-foreground mx-auto mt-2 block max-w-4xl text-xs transition-colors"
           >
             {t('clear')}
           </button>

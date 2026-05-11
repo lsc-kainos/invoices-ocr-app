@@ -3,7 +3,8 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useTranslations } from 'next-intl';
-import { Upload, ShieldCheck, Sparkles, FileText } from 'lucide-react';
+import { Upload, ShieldCheck, Sparkles, FileText, MessageSquareText, Files } from 'lucide-react';
+import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import {
   Breadcrumb,
@@ -21,6 +22,7 @@ import { useActiveUploads } from '@/components/features/active-uploads/use-activ
 
 export function DocumentUpload() {
   const t = useTranslations('upload');
+  const tHome = useTranslations('home');
   const { uploadFiles, activeUploads: pending } = useDocumentUpload();
   const { activeUploads, completedUploads } = useActiveUploads();
 
@@ -51,8 +53,43 @@ export function DocumentUpload() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <h1 className="mt-2 text-lg font-medium tracking-tight sm:text-[22px]">{t('title')}</h1>
-      <p className="text-muted-foreground mt-1.5 text-[13px]">{t('subtitle')}</p>
+      <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-lg font-medium tracking-tight sm:text-[22px]">{t('title')}</h1>
+          <p className="text-muted-foreground mt-1.5 text-[13px]">{t('subtitle')}</p>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {[
+          {
+            href: '/documents',
+            Icon: Files,
+            title: tHome('shortcuts.documents.title'),
+            description: tHome('shortcuts.documents.description'),
+          },
+          {
+            href: '/chat',
+            Icon: MessageSquareText,
+            title: tHome('shortcuts.chat.title'),
+            description: tHome('shortcuts.chat.description'),
+          },
+        ].map(({ href, Icon, title, description }) => (
+          <Link key={href} href={href}>
+            <Card className="border-border/60 hover:border-primary/30 hover:bg-primary/5 group gap-3 p-4 transition-all duration-200">
+              <div className="bg-primary/10 text-primary/80 group-hover:text-primary flex h-9 w-9 items-center justify-center rounded-lg transition-colors">
+                <Icon size={18} />
+              </div>
+              <div>
+                <div className="text-sm font-medium">{title}</div>
+                <p className="text-muted-foreground mt-0.5 text-[12px] leading-relaxed">
+                  {description}
+                </p>
+              </div>
+            </Card>
+          </Link>
+        ))}
+      </div>
 
       <Card className="border-border/40 bg-card/50 mt-4 overflow-hidden shadow-lg shadow-black/10 sm:mt-6">
         <div
