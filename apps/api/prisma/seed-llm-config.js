@@ -18,11 +18,14 @@ async function main() {
     },
   });
 
-  const existingExtractor = await prisma.llmConfig.findFirst({
-    where: { key: LlmConfigKey.EXTRACTOR, version: 1 },
+  // EXTRACTOR v1: só seedar se NENHUMA EXTRACTOR config existir ainda (deploy zero).
+  // Em prod existente, v1 já foi seedada com prompt antigo (sem CLASSIFICATION/CONFIDENCE)
+  // e o bloco v2 abaixo a desativa e ativa v2 com o prompt atualizado.
+  const anyExtractor = await prisma.llmConfig.findFirst({
+    where: { key: LlmConfigKey.EXTRACTOR },
   });
-  if (existingExtractor) {
-    console.log('EXTRACTOR v1 já existe, pulando seed.');
+  if (anyExtractor) {
+    console.log('EXTRACTOR já seedado, pulando v1.');
   } else {
     await prisma.llmConfig.create({
       data: {
@@ -37,6 +40,37 @@ async function main() {
       },
     });
     console.log('Seed EXTRACTOR v1 criado.');
+  }
+
+  // EXTRACTOR v2: prompt com CLASSIFICATION + CONFIDENCE (ativa F3.2 — rejeição automática).
+  // Idempotente: skip se v2 já existe. Caso contrário, desativa v1 ativa e cria v2 ativa
+  // numa transação para garantir 0 ou 1 configs ativas por key.
+  const existingV2 = await prisma.llmConfig.findFirst({
+    where: { key: LlmConfigKey.EXTRACTOR, version: 2 },
+  });
+  if (existingV2) {
+    console.log('EXTRACTOR v2 já existe, pulando seed.');
+  } else {
+    await prisma.$transaction([
+      prisma.llmConfig.updateMany({
+        where: { key: LlmConfigKey.EXTRACTOR, active: true },
+        data: { active: false },
+      }),
+      prisma.llmConfig.create({
+        data: {
+          key: LlmConfigKey.EXTRACTOR,
+          version: 2,
+          model: process.env.OCR_MODEL ?? 'gpt-4o',
+          prompt: extractorPrompt,
+          params: { temperature: 0 },
+          active: true,
+          notes:
+            'Seed: prompt v2 com CLASSIFICATION + CONFIDENCE para feature F3.2 (rejeição automática)',
+          createdBy: systemUser.id,
+        },
+      }),
+    ]);
+    console.log('Seed EXTRACTOR v2 criado e ativo.');
   }
 
   const chatPromptPath = resolve(__dirname, './chat-prompt.txt');
