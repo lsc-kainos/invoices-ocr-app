@@ -203,7 +203,7 @@ export function UploadCard({ doc }: UploadCardProps) {
                   void retry(doc.id, doc.filename);
                 }}
                 disabled={retryPending}
-                className="pointer-events-auto h-9 w-full text-[11px] sm:h-7 sm:w-auto"
+                className="pointer-events-auto h-9 w-full text-[11px] disabled:pointer-events-auto disabled:cursor-not-allowed sm:h-7 sm:w-auto"
               >
                 {retryPending ? tRetry('in_progress') : tRetry('button')}
               </Button>

@@ -77,6 +77,21 @@ describe('UploadCard — retry button', () => {
     expect(btn).toBeDisabled();
   });
 
+  it('botão de retry desabilitado captura pointer-events (não vaza pro link sobreposto)', () => {
+    vi.mocked(useDocumentRetry).mockReturnValueOnce({
+      retry: retryMock,
+      isPending: (id) => id === 'd1',
+    });
+    render(wrap(<UploadCard doc={baseDoc} />));
+    const btn = screen.getByRole('button', { name: /reenviando/i });
+    expect(btn).toBeDisabled();
+    // Garante que o clique no botão disabled continua sendo capturado por ele
+    // (e não passa pro Link sobreposto via stretched-link). O shadcn Button base
+    // aplica disabled:pointer-events-none — sobrescrevemos com disabled:pointer-events-auto.
+    expect(btn.className).toMatch(/disabled:pointer-events-auto/);
+    expect(btn.className).toMatch(/disabled:cursor-not-allowed/);
+  });
+
   it('FAILED sem failureReason não renderiza botão de retry', () => {
     render(wrap(<UploadCard doc={{ ...baseDoc, failureReason: null }} />));
     expect(screen.queryByRole('button', { name: /tentar de novo/i })).not.toBeInTheDocument();
