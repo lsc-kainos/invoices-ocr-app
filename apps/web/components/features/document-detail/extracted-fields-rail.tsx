@@ -72,9 +72,7 @@ export function ExtractedFieldsRail({
           {!isEditing && (
             <p className="text-muted-foreground mt-1 text-[11px]">{tFields('hint')}</p>
           )}
-          {isEditing && (
-            <p className="text-muted-foreground mt-1 text-[11px]">{tEdit('hint')}</p>
-          )}
+          {isEditing && <p className="text-muted-foreground mt-1 text-[11px]">{tEdit('hint')}</p>}
         </div>
         {canEdit && !isEditing && (
           <Button variant="ghost" size="sm" className="h-6 text-[11px]" onClick={onEdit}>
