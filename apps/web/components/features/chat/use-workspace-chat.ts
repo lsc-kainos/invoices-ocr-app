@@ -37,6 +37,7 @@ export function useWorkspaceChat(activeSessionId?: string) {
 
   useEffect(() => {
     if (!activeSessionId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset de mensagens quando a sessão é desselecionada; reescrever via state derivation exigiria refactor maior do hook
       setMessages([]);
       return;
     }

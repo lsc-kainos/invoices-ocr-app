@@ -117,6 +117,7 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
         <div className="flex min-w-0 flex-col gap-4">
           <div className="bg-muted/30 ring-border/50 aspect-[3/4] w-full overflow-hidden rounded-lg shadow-xl ring-1 shadow-black/20 lg:aspect-auto lg:h-[44vh]">
             <DocumentViewer
+              documentId={doc.id}
               mime={doc.mime}
               src={doc.fileUrl}
               filename={doc.filename}
