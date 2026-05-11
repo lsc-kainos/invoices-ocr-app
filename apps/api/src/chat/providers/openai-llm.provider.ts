@@ -23,6 +23,7 @@ export class OpenaiLlmProvider implements LlmProvider {
       messages: params.messages,
       tools: params.tools.length > 0 ? params.tools : undefined,
       tool_choice: params.tools.length > 0 ? 'auto' : undefined,
+      temperature: params.temperature,
       stream: false,
     });
   }

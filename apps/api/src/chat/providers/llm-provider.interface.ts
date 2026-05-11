@@ -12,6 +12,7 @@ export interface LlmCompleteParams {
   messages: ChatCompletionMessageParam[];
   tools: ChatCompletionTool[];
   stream?: boolean;
+  temperature?: number;
 }
 
 export interface LlmProvider {

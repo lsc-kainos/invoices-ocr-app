@@ -11,8 +11,9 @@ import type {
   ChatCompletion,
   ChatCompletionMessageParam,
 } from 'openai/resources/chat/completions';
-import { ChatRole } from '@prisma/client';
+import { ChatRole, LlmConfig, LlmConfigKey } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { LlmConfigService } from '../ai-runtime/llm-config.service';
 import {
   LLM_PROVIDER,
   type LlmProvider,
@@ -35,6 +36,7 @@ type PendingMessage = {
 type RunContext = {
   userId: string;
   systemPrompt: string;
+  llmConfig: LlmConfig;
   messages: {
     role: 'USER' | 'ASSISTANT' | 'TOOL';
     content: string;
@@ -54,7 +56,18 @@ export class ChatService {
     @Inject(LLM_PROVIDER) private readonly llm: LlmProvider,
     private readonly tools: ToolsRegistry,
     private readonly config: ConfigService,
+    private readonly llmConfigService: LlmConfigService,
   ) {}
+
+  private async loadActiveChatConfig(): Promise<LlmConfig> {
+    const cfg = await this.llmConfigService.findActive(LlmConfigKey.CHAT);
+    if (!cfg) {
+      throw new InternalServerErrorException(
+        `No active LlmConfig for key=${LlmConfigKey.CHAT}`,
+      );
+    }
+    return cfg;
+  }
 
   get streamingEnabled(): boolean {
     return this.config.get<boolean>('CHAT_STREAMING') === true;
@@ -107,6 +120,7 @@ export class ChatService {
       data: { sessionId, role: 'USER', content },
     });
 
+    const llmConfig = await this.loadActiveChatConfig();
     const history = await this.loadHistory(sessionId, userId);
     const docs = await this.prisma.document.findMany({
       where: { userId, status: 'READY' },
@@ -117,7 +131,8 @@ export class ChatService {
 
     const result = await this.runConversation({
       userId,
-      systemPrompt: buildWorkspaceSystem(docs as any),
+      llmConfig,
+      systemPrompt: buildWorkspaceSystem(llmConfig.prompt, docs as any),
       messages: history,
       persist: (msg) =>
         this.prisma.chatMessage.create({ data: { sessionId, ...msg } }),
@@ -158,10 +173,12 @@ export class ChatService {
       data: { sessionId: session.id, role: 'USER', content },
     });
 
+    const llmConfig = await this.loadActiveChatConfig();
     const history = await this.loadHistory(session.id, userId);
     const result = await this.runConversation({
       userId,
-      systemPrompt: buildDocumentSystem(doc as any),
+      llmConfig,
+      systemPrompt: buildDocumentSystem(llmConfig.prompt, doc as any),
       messages: history,
       persist: (msg) =>
         this.prisma.chatMessage.create({
@@ -235,7 +252,10 @@ export class ChatService {
 
   private async runConversation(ctx: RunContext): Promise<{ content: string }> {
     const maxIter = this.config.get<number>('CHAT_MAX_TOOL_ITERATIONS') ?? 3;
-    const model = this.config.get<string>('CHAT_MODEL') ?? 'gpt-4o-mini';
+    const model = ctx.llmConfig.model;
+    const params = (ctx.llmConfig.params ?? {}) as Record<string, unknown>;
+    const temperature =
+      typeof params.temperature === 'number' ? params.temperature : undefined;
 
     const conversation: ChatCompletionMessageParam[] = [
       { role: 'system', content: ctx.systemPrompt },
@@ -249,6 +269,7 @@ export class ChatService {
         messages: conversation,
         tools: this.tools.getOpenAiSchemas(),
         stream: false,
+        temperature,
       })) as ChatCompletion;
 
       const message = resp.choices[0].message;
