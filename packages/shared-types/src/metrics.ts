@@ -6,7 +6,10 @@ export interface DailyPoint {
 
 export interface DocumentMetrics {
   total: number;
-  byStatus: Record<'READY' | 'FAILED' | 'REJECTED' | 'QUEUED' | 'OCR_RUNNING', number>;
+  byStatus: Record<
+    'READY' | 'FAILED' | 'REJECTED' | 'DUPLICATE' | 'QUEUED' | 'OCR_RUNNING',
+    number
+  >;
   avgOcrDurationMs: number | null;
   retryRate: number; // 0–1 fraction of docs that ever needed a retry
 }

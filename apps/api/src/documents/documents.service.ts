@@ -262,6 +262,7 @@ export class DocumentsService implements DocumentOps {
     id: string,
     summary: InvoiceSummary,
     extractedText: string,
+    semanticHash: string | null,
   ): Promise<void> {
     await this.prisma.document.update({
       where: { id },
@@ -269,9 +270,59 @@ export class DocumentsService implements DocumentOps {
         status: DocumentStatus.READY,
         summary: summary as never,
         extractedText,
+        semanticHash,
         ocrCompletedAt: new Date(),
         failureReason: null,
+        duplicateOfId: null,
+        duplicateReason: null,
       },
+    });
+  }
+
+  async markDuplicate(
+    id: string,
+    duplicateOfId: string,
+    reason: string,
+    partial: InvoiceSummaryResult,
+    semanticHash: string,
+  ): Promise<void> {
+    await this.prisma.document.update({
+      where: { id },
+      data: {
+        status: DocumentStatus.DUPLICATE,
+        duplicateOfId,
+        duplicateReason: reason,
+        semanticHash,
+        documentType: partial.documentType,
+        confidence: partial.confidence,
+        summary: partial.summary as never,
+        extractedText: partial.extractedText,
+        failureReason: null,
+        rejectionReason: null,
+        ocrCompletedAt: new Date(),
+      },
+    });
+  }
+
+  async findReadyDuplicate(
+    id: string,
+    semanticHash: string,
+  ): Promise<{ id: string } | null> {
+    const doc = await this.prisma.document.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+    if (!doc) return null;
+
+    return this.prisma.document.findFirst({
+      where: {
+        userId: doc.userId,
+        semanticHash,
+        status: DocumentStatus.READY,
+        id: { not: id },
+      },
+      select: { id: true },
+      orderBy: { createdAt: 'asc' },
     });
   }
 

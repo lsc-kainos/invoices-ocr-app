@@ -6,6 +6,7 @@ import { StorageModule } from '../storage/storage.module';
 import { OCR_QUEUE_NAME } from '../ocr/queues/ocr.queue';
 import { DocumentsController } from './documents.controller';
 import { DocumentsService } from './documents.service';
+import { DocumentDuplicateService } from './document-duplicate.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { DocumentsService } from './documents.service';
     StorageModule,
   ],
   controllers: [DocumentsController],
-  providers: [DocumentsService],
-  exports: [DocumentsService],
+  providers: [DocumentsService, DocumentDuplicateService],
+  exports: [DocumentsService, DocumentDuplicateService],
 })
 export class DocumentsModule {}

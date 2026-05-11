@@ -67,6 +67,7 @@ export class MetricsService {
       READY: 0,
       FAILED: 0,
       REJECTED: 0,
+      DUPLICATE: 0,
       QUEUED: 0,
       OCR_RUNNING: 0,
     };
