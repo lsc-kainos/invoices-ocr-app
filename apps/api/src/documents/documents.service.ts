@@ -20,7 +20,10 @@ import {
   STORAGE_SERVICE,
   type StorageService,
 } from '../storage/storage.service';
-import type { InvoiceSummary } from '../ocr/schemas/invoice-summary.schema';
+import type {
+  InvoiceSummary,
+  InvoiceSummaryResult,
+} from '../ocr/schemas/invoice-summary.schema';
 import type { DocumentOps } from '../ocr/ocr.service';
 import { OCR_QUEUE_NAME, type OcrJobData } from '../ocr/queues/ocr.queue';
 import { sanitizeFilename } from './helpers/sanitize-filename';
@@ -281,6 +284,58 @@ export class DocumentsService implements DocumentOps {
         ocrCompletedAt: new Date(),
       },
     });
+  }
+
+  async markRejected(
+    id: string,
+    reason: 'low_confidence' | 'unsupported_type',
+    partial: InvoiceSummaryResult,
+  ): Promise<void> {
+    await this.prisma.document.update({
+      where: { id },
+      data: {
+        status: DocumentStatus.REJECTED,
+        documentType: partial.documentType,
+        confidence: partial.confidence,
+        rejectionReason: reason,
+        summary: partial.summary as never,
+        extractedText: partial.extractedText,
+        ocrCompletedAt: new Date(),
+      },
+    });
+  }
+
+  async updateSummary(
+    userId: string,
+    id: string,
+    summary: InvoiceSummary,
+  ): Promise<DocumentDetailDto> {
+    const doc = await this.prisma.document.findFirst({ where: { id, userId } });
+    if (!doc) throw new NotFoundException();
+    if (doc.status !== DocumentStatus.READY) {
+      throw new BadRequestException({ code: 'documents.update.not_ready' });
+    }
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      await tx.documentEdit.create({
+        data: {
+          documentId: id,
+          editedBy: userId,
+          before: doc.summary ?? {},
+          after: summary,
+        },
+      });
+      return tx.document.update({
+        where: { id },
+        data: {
+          summary: summary,
+          verifiedAt: new Date(),
+          verifiedBy: userId,
+        },
+      });
+    });
+
+    return toDetailDto(updated, this.signFileUrl(id, userId));
   }
 
   async findByIdInternal(

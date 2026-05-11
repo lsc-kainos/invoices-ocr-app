@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -17,9 +17,11 @@ import {
 import { StatusBadge } from '@/components/shared/status-badge';
 import type { DocumentDetail } from '@invoices-ocr/shared-types';
 import { useDocumentDetail } from './use-document-detail';
+import { useDocumentEdit } from './use-document-edit';
 import { DocumentViewer } from './document-viewer';
 import { ExtractedFieldsRail } from './extracted-fields-rail';
 import { TabsPane } from './tabs-pane';
+import { VerifiedBadge } from './verified-badge';
 
 interface DocumentDetailProps {
   initialDoc: DocumentDetail;
@@ -29,7 +31,26 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
   const t = useTranslations('document');
   const tUpload = useTranslations('upload');
   const router = useRouter();
-  const doc = useDocumentDetail(initialDoc);
+  const polledDoc = useDocumentDetail(initialDoc);
+  const [savedDoc, setSavedDoc] = useState<DocumentDetail | null>(null);
+  const doc = savedDoc ?? polledDoc;
+
+  const {
+    isEditing,
+    draft,
+    isSaving,
+    saveError,
+    startEdit,
+    cancelEdit,
+    saveSummary,
+    updateField,
+    updateNarrative,
+    updateItem,
+    addItem,
+    removeItem,
+  } = useDocumentEdit(doc, setSavedDoc);
+
+  const canEdit = doc.status === 'READY';
   const razao = doc.summary?.core.sellerName ?? null;
   const valor = doc.summary?.core.total ?? null;
   const data = doc.summary?.core.invoiceDate ?? null;
@@ -73,7 +94,10 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
             <h1 className="truncate text-lg font-medium tracking-tight sm:text-[20px]">
               {doc.filename}
             </h1>
-            <StatusBadge status={doc.status} />
+            <div className="flex items-center gap-2">
+              <StatusBadge status={doc.status} />
+              {doc.verifiedAt && <VerifiedBadge verifiedAt={doc.verifiedAt} />}
+            </div>
           </div>
           <p className="text-muted-foreground mt-1 truncate text-[12px]">
             {[razao, valor, data].filter(Boolean).join(' · ') || ''}
@@ -106,7 +130,22 @@ export function DocumentDetailView({ initialDoc }: DocumentDetailProps) {
         </div>
 
         {/* Rail: full-width on mobile, fixed 320px on desktop */}
-        <ExtractedFieldsRail summary={doc.summary} />
+        <ExtractedFieldsRail
+          summary={doc.summary}
+          canEdit={canEdit}
+          isEditing={isEditing}
+          draft={draft}
+          isSaving={isSaving}
+          saveError={saveError}
+          onEdit={startEdit}
+          onSave={() => void saveSummary()}
+          onCancel={cancelEdit}
+          onFieldChange={updateField}
+          onNarrativeChange={updateNarrative}
+          onItemChange={updateItem}
+          onItemAdd={addItem}
+          onItemRemove={removeItem}
+        />
       </section>
     </div>
   );

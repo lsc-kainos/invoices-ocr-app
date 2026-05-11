@@ -20,6 +20,7 @@ enum DocumentStatus {
   OCR_RUNNING
   READY
   FAILED
+  REJECTED
 }
 
 enum ChatRole {
@@ -37,9 +38,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  documents    Document[]
-  chatSessions ChatSession[]
-  llmConfigs   LlmConfig[]
+  documents         Document[]
+  chatSessions      ChatSession[]
+  llmConfigs        LlmConfig[]
+  verifiedDocuments Document[]     @relation("DocumentVerifier")
+  documentEdits     DocumentEdit[]
 }
 
 model Document {
@@ -64,7 +67,15 @@ model Document {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  chatSessions   ChatSession[]
+  documentType    String?
+  confidence      Float?
+  rejectionReason String?
+  verifiedAt      DateTime?
+  verifiedBy      String?
+  verifier        User?          @relation("DocumentVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
+  edits           DocumentEdit[]
+
+  chatSessions ChatSession[]
 
   @@index([userId, status])
   @@index([userId, updatedAt])
@@ -125,4 +136,17 @@ model LlmConfig {
 
   @@unique([key, version])
   @@index([key, active])
+}
+
+model DocumentEdit {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  editedBy   String
+  editor     User     @relation(fields: [editedBy], references: [id], onDelete: Cascade)
+  before     Json
+  after      Json
+  createdAt  DateTime @default(now())
+
+  @@index([documentId, createdAt])
 }

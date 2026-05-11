@@ -15,6 +15,11 @@ describe('toSummaryDto', () => {
     extractedText: null,
     ocrStartedAt: null,
     ocrCompletedAt: null,
+    documentType: null,
+    confidence: null,
+    rejectionReason: null,
+    verifiedAt: null,
+    verifiedBy: null,
     createdAt: new Date('2026-05-09T00:00:00Z'),
     updatedAt: new Date('2026-05-09T00:00:01Z'),
   };

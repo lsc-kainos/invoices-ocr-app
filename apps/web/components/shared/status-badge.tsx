@@ -10,6 +10,7 @@ const TONE: Record<DocumentStatus, string> = {
   OCR_RUNNING: 'bg-amber-500/15 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
   READY: 'bg-emerald-500/15 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
   FAILED: 'bg-destructive/15 text-destructive dark:bg-destructive/20 dark:text-destructive',
+  REJECTED: 'bg-orange-500/15 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300',
 };
 
 const DOT: Record<DocumentStatus, string> = {
@@ -17,6 +18,7 @@ const DOT: Record<DocumentStatus, string> = {
   OCR_RUNNING: 'bg-amber-400',
   READY: 'bg-emerald-400',
   FAILED: 'bg-red-400',
+  REJECTED: 'bg-orange-400',
 };
 
 interface StatusBadgeProps {

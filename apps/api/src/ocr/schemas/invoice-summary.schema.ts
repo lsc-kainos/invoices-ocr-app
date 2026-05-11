@@ -1,5 +1,16 @@
 import { z } from 'zod';
 
+export const documentTypeSchema = z.enum([
+  'nf-e',
+  'nfs-e',
+  'boleto',
+  'invoice',
+  'receipt',
+  'unknown',
+]);
+
+export type DocumentType = z.infer<typeof documentTypeSchema>;
+
 export const invoiceCoreSchema = z.object({
   invoiceNumber: z.string().nullable(),
   invoiceDate: z.string().nullable(),
@@ -28,6 +39,8 @@ export const invoiceExtraSchema = z.object({
 });
 
 export const invoiceSummarySchema = z.object({
+  documentType: documentTypeSchema,
+  confidence: z.number().min(0).max(1),
   summary: z.object({
     core: invoiceCoreSchema,
     items: z.array(invoiceItemSchema),

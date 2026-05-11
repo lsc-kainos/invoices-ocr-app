@@ -24,6 +24,11 @@ const baseDoc = {
   summary: null,
   failureReason: 'parse_failure' as const,
   retryCount: 1,
+  documentType: null,
+  confidence: null,
+  rejectionReason: null,
+  verifiedAt: null,
+  verifiedBy: null,
   createdAt: '',
   updatedAt: '',
 };

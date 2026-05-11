@@ -10,6 +10,11 @@ export interface DocumentSummaryDto {
   summary: InvoiceSummary | null;
   failureReason: string | null;
   retryCount: number;
+  documentType: string | null;
+  confidence: number | null;
+  rejectionReason: string | null;
+  verifiedAt: string | null;
+  verifiedBy: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -24,6 +29,11 @@ export function toSummaryDto(doc: Document): DocumentSummaryDto {
     summary: (doc.summary as InvoiceSummary | null) ?? null,
     failureReason: doc.failureReason,
     retryCount: doc.retryCount,
+    documentType: doc.documentType ?? null,
+    confidence: doc.confidence ?? null,
+    rejectionReason: doc.rejectionReason ?? null,
+    verifiedAt: doc.verifiedAt?.toISOString() ?? null,
+    verifiedBy: doc.verifiedBy ?? null,
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };

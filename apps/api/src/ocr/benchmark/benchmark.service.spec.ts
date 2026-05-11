@@ -18,6 +18,8 @@ const mockedReadFile = fs.readFile as jest.MockedFunction<typeof fs.readFile>;
 
 function makeFixture(): InvoiceSummaryResult {
   return {
+    documentType: 'unknown',
+    confidence: 1,
     summary: {
       core: {
         invoiceNumber: null,

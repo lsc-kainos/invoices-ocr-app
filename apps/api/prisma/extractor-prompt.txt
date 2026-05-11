@@ -37,3 +37,12 @@ NARRATIVE (always in pt-BR):
 EXTRAS (document-type/country-specific fields):
 - "extras[]": key-value list for any relevant field not covered by core. Use "mono: true" for monospaced fields (barcodes, long keys, digitizable lines).
 - For Brazilian documents, always include: CNPJ do emitente (mono: true), CNPJ do destinatário (mono: true), chave NF-e 44 dígitos (mono: true), CFOP, tipo de documento (NF-e/NFS-e/Boleto/Recibo).
+
+CLASSIFICATION (CRITICAL):
+- Identify the document type. Return one of: "nf-e" (Brazilian electronic invoice), "nfs-e" (Brazilian electronic service invoice), "boleto" (Brazilian payment slip), "invoice" (generic invoice/bill in any country), "receipt" (purchase receipt), or "unknown" (clearly not a fiscal/billing document — e.g. photo of a person, contract, blank page, screenshot).
+- Be honest. If the document is clearly not an invoice/receipt/bill, return "unknown". Do NOT force a category.
+
+CONFIDENCE:
+- Return a "confidence" number between 0.0 and 1.0 reflecting how confident you are in the extraction overall.
+- Calibration guide: 0.95+ = clear, fully readable, all core fields present; 0.7–0.95 = some fields ambiguous or missing; 0.5–0.7 = significant doubt about content; < 0.5 = mostly guessing or document is poor quality / wrong type.
+- Confidence below 0.6 will trigger rejection in the pipeline. Do not inflate.

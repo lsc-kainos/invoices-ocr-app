@@ -24,6 +24,11 @@ function makeDoc(id: string, status: DocumentSummary['status']): DocumentSummary
     summary: null,
     failureReason: null,
     retryCount: 0,
+    documentType: null,
+    confidence: null,
+    rejectionReason: null,
+    verifiedAt: null,
+    verifiedBy: null,
     createdAt: '2026-05-09T00:00:00Z',
     updatedAt: '2026-05-09T00:00:00Z',
   };

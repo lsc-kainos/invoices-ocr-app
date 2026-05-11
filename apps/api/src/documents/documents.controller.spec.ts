@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import type { User } from '@prisma/client';
 import { DocumentsController } from './documents.controller';
 import { DocumentsService } from './documents.service';
+import type { UpdateDocumentSummaryDto } from './dto/update-document-summary.dto';
 
 describe('DocumentsController', () => {
   let ctrl: DocumentsController;
@@ -11,6 +12,7 @@ describe('DocumentsController', () => {
     findOne: jest.Mock;
     streamFile: jest.Mock;
     retry: jest.Mock;
+    updateSummary: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -20,6 +22,7 @@ describe('DocumentsController', () => {
       findOne: jest.fn(),
       streamFile: jest.fn(),
       retry: jest.fn(),
+      updateSummary: jest.fn(),
     };
     const mod = await Test.createTestingModule({
       controllers: [DocumentsController],
@@ -68,6 +71,19 @@ describe('DocumentsController', () => {
       const result = await ctrl.retry({ id: 'u1' } as never, 'doc1');
       expect(svc.retry).toHaveBeenCalledWith('u1', 'doc1');
       expect(result).toBe(summary);
+    });
+  });
+
+  describe('PATCH :id/summary', () => {
+    it('chama service.updateSummary com user.id, id e body.summary', async () => {
+      const detail = { id: 'd1', status: 'READY' } as never;
+      svc.updateSummary.mockResolvedValue(detail);
+      const body = {
+        summary: { core: {}, items: [], extras: [], narrative: 'edited' },
+      } as unknown as UpdateDocumentSummaryDto;
+      const result = await ctrl.updateSummary({ id: 'u1' } as User, 'd1', body);
+      expect(svc.updateSummary).toHaveBeenCalledWith('u1', 'd1', body.summary);
+      expect(result).toBe(detail);
     });
   });
 });
