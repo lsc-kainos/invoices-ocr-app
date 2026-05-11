@@ -3,6 +3,7 @@ import type { AvailableModel } from '@invoices-ocr/shared-types';
 import { cn } from '@/lib/utils';
 
 interface ModelSelectProps {
+  id?: string;
   models: AvailableModel[];
   value: string;
   onChange: (value: string) => void;
@@ -10,11 +11,19 @@ interface ModelSelectProps {
   className?: string;
 }
 
-export function ModelSelect({ models, value, onChange, visionOnly, className }: ModelSelectProps) {
+export function ModelSelect({
+  id,
+  models,
+  value,
+  onChange,
+  visionOnly,
+  className,
+}: ModelSelectProps) {
   const filtered = visionOnly ? models.filter((m) => m.vision) : models;
 
   return (
     <select
+      id={id}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className={cn(

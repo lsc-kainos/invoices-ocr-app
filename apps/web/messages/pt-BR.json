@@ -231,27 +231,41 @@
   "admin": {
     "llmConfigs": {
       "title": "Configurações de IA",
+      "subtitle": "Versão ativa, histórico e iteração de prompts por tipo.",
       "newVersion": "Nova versão",
-      "reloadCache": "Recarregar cache",
-      "table": {
-        "version": "Versão",
-        "model": "Modelo",
-        "createdAt": "Criado em",
-        "active": "Ativa",
-        "actions": "Ações"
+      "active": {
+        "label": "Ativa",
+        "empty": "Sem versão ativa para {key}.",
+        "createFirst": "Criar primeira versão",
+        "newFromThis": "Nova versão a partir desta",
+        "by": "por {who}"
+      },
+      "history": {
+        "title": "Histórico",
+        "empty": "Sem versões anteriores"
       },
       "actions": {
         "activate": "Ativar",
-        "test": "Testar"
+        "test": "Testar",
+        "view": "Ver"
       },
       "editor": {
         "title": "Nova versão de config",
+        "viewMode": "Visualizar v{n}",
+        "fromBase": "Nova versão a partir de v{n}",
         "key": "Tipo (Extractor/Chat)",
         "model": "Modelo",
         "prompt": "Prompt",
         "temperature": "Temperature",
         "notes": "Notas (opcional)",
         "submit": "Criar (não ativar ainda)"
+      },
+      "validation": {
+        "temperatureRequired": "Temperature é obrigatória"
+      },
+      "toast": {
+        "created": "v{n} criada",
+        "activated": "v{n} agora é a ativa"
       },
       "test": {
         "title": "Testar config",
