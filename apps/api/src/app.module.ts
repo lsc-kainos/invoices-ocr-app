@@ -35,12 +35,14 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
       }),
     }),
     ThrottlerModule.forRoot([
-      { name: 'default', ttl: 60_000, limit: 240 },
-      { name: 'upload', ttl: 60_000, limit: 60 },
-      { name: 'ocr', ttl: 60_000, limit: 30 },
-      { name: 'benchmark', ttl: 3_600_000, limit: 5 },
-      { name: 'chat', ttl: 60_000, limit: 15 },
-      { name: 'download', ttl: 60_000, limit: 10 },
+      // Limites generosos: proposito e cortar abuso de API, nao constranger
+      // uso real. Valores calibrados para uso ostensivo confortavel.
+      { name: 'default', ttl: 60_000, limit: 600 },
+      { name: 'upload', ttl: 60_000, limit: 120 },
+      { name: 'ocr', ttl: 60_000, limit: 60 },
+      { name: 'benchmark', ttl: 3_600_000, limit: 20 },
+      { name: 'chat', ttl: 60_000, limit: 60 },
+      { name: 'download', ttl: 60_000, limit: 60 },
     ]),
     PrismaModule,
     HealthModule,
