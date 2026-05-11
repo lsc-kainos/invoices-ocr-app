@@ -1,7 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Role, type User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  STORAGE_SERVICE,
+  type StorageService,
+} from '../storage/storage.service';
 
 export interface UpsertUserInput {
   email: string;
@@ -14,6 +18,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
   ) {}
 
   findById(id: string): Promise<User | null> {
@@ -32,6 +37,22 @@ export class UsersService {
   }
 
   async deleteByEmail(email: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        documents: { select: { storagePath: true } },
+      },
+    });
+    if (!user) return;
+
+    // Purge físico dos arquivos antes de remover do banco (LGPD)
+    for (const doc of user.documents) {
+      if (doc.storagePath && doc.storagePath !== 'pending') {
+        await this.storage.delete(doc.storagePath).catch(() => undefined);
+      }
+    }
+
     await this.prisma.user.delete({ where: { email } });
   }
 

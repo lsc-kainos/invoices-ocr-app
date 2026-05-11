@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Role } from '@prisma/client';
 import { UsersService } from './users.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { STORAGE_SERVICE } from '../storage/storage.service';
 
 function createPrismaMock() {
   return {
@@ -18,6 +19,7 @@ function buildService(
   opts: {
     prisma?: ReturnType<typeof createPrismaMock>;
     adminEmails?: string;
+    storage?: { delete: jest.Mock };
   } = {},
 ) {
   const prisma = opts.prisma ?? createPrismaMock();
@@ -26,15 +28,19 @@ function buildService(
       key === 'ADMIN_EMAILS' ? (opts.adminEmails ?? '') : undefined,
     ),
   };
+  const storage = opts.storage ?? {
+    delete: jest.fn().mockResolvedValue(undefined),
+  };
   return Test.createTestingModule({
     providers: [
       UsersService,
       { provide: PrismaService, useValue: prisma },
       { provide: ConfigService, useValue: config },
+      { provide: STORAGE_SERVICE, useValue: storage },
     ],
   })
     .compile()
-    .then((m) => ({ service: m.get(UsersService), prisma, config }));
+    .then((m) => ({ service: m.get(UsersService), prisma, config, storage }));
 }
 
 describe('UsersService.upsertByEmail', () => {
@@ -148,6 +154,10 @@ describe('UsersService.upsertByEmail', () => {
 describe('UsersService.deleteByEmail', () => {
   it('chama prisma.user.delete por email', async () => {
     const { service, prisma } = await buildService();
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'u1',
+      documents: [{ storagePath: 'u1/d1/original.jpg' }],
+    });
     prisma.user.delete.mockResolvedValue({ id: 'gone' });
 
     await service.deleteByEmail('gone@x.com');
@@ -155,6 +165,38 @@ describe('UsersService.deleteByEmail', () => {
     expect(prisma.user.delete).toHaveBeenCalledWith({
       where: { email: 'gone@x.com' },
     });
+  });
+
+  it('faz purge dos arquivos físicos antes de deletar usuário (LGPD)', async () => {
+    const { service, prisma, storage } = await buildService();
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'u1',
+      documents: [
+        { storagePath: 'u1/d1/original.jpg' },
+        { storagePath: 'u1/d2/original.pdf' },
+        { storagePath: 'pending' }, // skip
+      ],
+    });
+    prisma.user.delete.mockResolvedValue({ id: 'gone' });
+
+    await service.deleteByEmail('gone@x.com');
+
+    expect(storage.delete).toHaveBeenCalledWith('u1/d1/original.jpg');
+    expect(storage.delete).toHaveBeenCalledWith('u1/d2/original.pdf');
+    expect(storage.delete).not.toHaveBeenCalledWith('pending');
+    expect(prisma.user.delete).toHaveBeenCalledWith({
+      where: { email: 'gone@x.com' },
+    });
+  });
+
+  it('ignora usuário inexistente sem lançar erro', async () => {
+    const { service, prisma, storage } = await buildService();
+    prisma.user.findUnique.mockResolvedValue(null);
+
+    await service.deleteByEmail('nobody@x.com');
+
+    expect(storage.delete).not.toHaveBeenCalled();
+    expect(prisma.user.delete).not.toHaveBeenCalled();
   });
 });
 
