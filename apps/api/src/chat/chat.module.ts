@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
+import { AiRuntimeModule } from '../ai-runtime/ai-runtime.module';
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
 import {
@@ -13,7 +14,7 @@ import { ToolsRegistry } from './tools/tools-registry';
 import { GetFullDocumentTool } from './tools/get-full-document.tool';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, AiRuntimeModule],
   controllers: [ChatController],
   providers: [
     ChatService,

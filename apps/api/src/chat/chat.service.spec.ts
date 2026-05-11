@@ -1,6 +1,26 @@
 import { InternalServerErrorException } from '@nestjs/common';
+import { LlmConfigKey } from '@prisma/client';
 import { ChatService } from './chat.service';
 import { MockLlmProvider } from './providers/mock-llm.provider';
+
+const mockLlmConfig = {
+  id: 'llmcfg-chat-1',
+  key: LlmConfigKey.CHAT,
+  version: 1,
+  model: 'gpt-4o-mini',
+  prompt: 'You are a test assistant. Rules: ...',
+  params: { temperature: 0.7 },
+  active: true,
+  notes: null,
+  createdBy: 'system',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+} as any;
+
+const makeLlmConfigService = (cfg: unknown = mockLlmConfig) =>
+  ({
+    findActive: jest.fn().mockResolvedValue(cfg),
+  }) as any;
 
 describe('ChatService.runConversation (sem tool)', () => {
   it('persiste assistant e retorna content quando LLM responde direto', async () => {
@@ -14,13 +34,19 @@ describe('ChatService.runConversation (sem tool)', () => {
       getOpenAiSchemas: () => [],
       getHandler: () => null,
     } as any;
-    const service = new ChatService({} as any, llm, registry, {
-      get: (k: string) =>
-        (({ CHAT_MODEL: 'mock', CHAT_MAX_TOOL_ITERATIONS: 3 }) as any)[k],
-    } as any);
+    const service = new ChatService(
+      {} as any,
+      llm,
+      registry,
+      {
+        get: (k: string) => (({ CHAT_MAX_TOOL_ITERATIONS: 3 }) as any)[k],
+      } as any,
+      makeLlmConfigService(),
+    );
 
     const result = await (service as any).runConversation({
       userId: 'u1',
+      llmConfig: mockLlmConfig,
       systemPrompt: 'sys',
       messages: [{ role: 'USER', content: 'oi' }],
       persist,
@@ -32,6 +58,49 @@ describe('ChatService.runConversation (sem tool)', () => {
       role: 'ASSISTANT',
       content: 'Resposta mock.',
     });
+  });
+
+  it('usa cfg.model e cfg.params.temperature ao chamar o LLM provider', async () => {
+    const complete = jest.fn().mockResolvedValue({
+      choices: [
+        {
+          message: { role: 'assistant', content: 'ok', tool_calls: [] },
+          finish_reason: 'stop',
+        },
+      ],
+    });
+    const llm = { complete } as any;
+    const registry = {
+      getOpenAiSchemas: () => [],
+      getHandler: () => null,
+    } as any;
+    const cfg = {
+      ...mockLlmConfig,
+      model: 'gpt-4-custom',
+      params: { temperature: 0.42 },
+    };
+    const service = new ChatService(
+      {} as any,
+      llm,
+      registry,
+      { get: () => 3 } as any,
+      makeLlmConfigService(cfg),
+    );
+
+    await (service as any).runConversation({
+      userId: 'u1',
+      llmConfig: cfg,
+      systemPrompt: 'sys',
+      messages: [{ role: 'USER', content: 'oi' }],
+      persist: async (m: any) => m,
+    });
+
+    expect(complete).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'gpt-4-custom',
+        temperature: 0.42,
+      }),
+    );
   });
 });
 
@@ -55,12 +124,17 @@ describe('ChatService.runConversation (com tool)', () => {
         extractedText: 'Texto X',
       }),
     } as any;
-    const service = new ChatService({} as any, llm, registry, {
-      get: () => 3,
-    } as any);
+    const service = new ChatService(
+      {} as any,
+      llm,
+      registry,
+      { get: () => 3 } as any,
+      makeLlmConfigService(),
+    );
 
     const result = await (service as any).runConversation({
       userId: 'u1',
+      llmConfig: mockLlmConfig,
       systemPrompt: '<document id="abc"></document>',
       messages: [{ role: 'USER', content: 'qual o valor total?' }],
       persist,
@@ -106,18 +180,101 @@ describe('ChatService.runConversation (com tool)', () => {
       getOpenAiSchemas: () => [],
       getHandler: () => async () => ({ extractedText: 'x' }),
     } as any;
-    const service = new ChatService({} as any, llm, registry, {
-      get: () => 3,
-    } as any);
+    const service = new ChatService(
+      {} as any,
+      llm,
+      registry,
+      { get: () => 3 } as any,
+      makeLlmConfigService(),
+    );
 
     await expect(
       (service as any).runConversation({
         userId: 'u1',
+        llmConfig: mockLlmConfig,
         systemPrompt: 'sys',
         messages: [{ role: 'USER', content: 'q' }],
         persist: async (m: any) => m,
       }),
     ).rejects.toThrow(InternalServerErrorException);
+  });
+});
+
+describe('ChatService LlmConfig.CHAT consumption', () => {
+  const makePrisma = () => ({
+    chatSession: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+      upsert: jest.fn(),
+    },
+    chatMessage: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+    },
+    document: { findFirst: jest.fn(), findMany: jest.fn() },
+  });
+
+  it('sendWorkspaceMessage falha (500) quando não há LlmConfig.CHAT ativa', async () => {
+    const prisma: any = makePrisma();
+    prisma.chatSession.findFirst.mockResolvedValue({ id: 's1', title: null });
+    prisma.chatMessage.create.mockResolvedValue({});
+    prisma.chatMessage.findMany.mockResolvedValue([]);
+    prisma.document.findMany.mockResolvedValue([]);
+
+    const llmConfigService = makeLlmConfigService(null);
+    const svc = new ChatService(
+      prisma,
+      new MockLlmProvider(),
+      { getOpenAiSchemas: () => [], getHandler: () => null } as any,
+      { get: () => 20 } as any,
+      llmConfigService,
+    );
+
+    await expect(svc.sendWorkspaceMessage('u1', 's1', 'oi')).rejects.toThrow(
+      InternalServerErrorException,
+    );
+    expect(llmConfigService.findActive).toHaveBeenCalledWith(LlmConfigKey.CHAT);
+  });
+
+  it('sendDocumentMessage usa cfg.prompt como base do system prompt', async () => {
+    const prisma: any = makePrisma();
+    prisma.document.findFirst = jest.fn().mockResolvedValue({
+      id: 'd1',
+      filename: 'a.pdf',
+      summary: { core: {}, items: [], extras: [], narrative: '' },
+      status: 'READY',
+    });
+    prisma.chatSession.upsert = jest.fn().mockResolvedValue({ id: 's1' });
+    prisma.chatMessage.create = jest.fn().mockResolvedValue({});
+    prisma.chatMessage.findMany = jest.fn().mockResolvedValue([]);
+
+    const complete = jest.fn().mockResolvedValue({
+      choices: [
+        {
+          message: { role: 'assistant', content: 'ok', tool_calls: [] },
+          finish_reason: 'stop',
+        },
+      ],
+    });
+    const llm = { complete } as any;
+    const customPrompt = 'CUSTOM_CHAT_PROMPT_FROM_DB';
+    const cfg = { ...mockLlmConfig, prompt: customPrompt };
+
+    const svc = new ChatService(
+      prisma,
+      llm,
+      { getOpenAiSchemas: () => [], getHandler: () => null } as any,
+      { get: () => 20 } as any,
+      makeLlmConfigService(cfg),
+    );
+    await svc.sendDocumentMessage('u1', 'd1', 'oi');
+
+    const sysMsg = complete.mock.calls[0][0].messages.find(
+      (m: any) => m.role === 'system',
+    );
+    expect(sysMsg.content).toContain(customPrompt);
   });
 });
 
@@ -147,6 +304,7 @@ describe('ChatService session ops', () => {
       {} as any,
       {} as any,
       { get: () => 20 } as any,
+      makeLlmConfigService(),
     );
     const r = await svc.createSession('u1');
     expect(prisma.chatSession.create).toHaveBeenCalledWith({
@@ -164,6 +322,7 @@ describe('ChatService session ops', () => {
       {} as any,
       {} as any,
       { get: () => 20 } as any,
+      makeLlmConfigService(),
     );
     await expect(svc.listMessages('u1', 's1', false)).rejects.toThrow(
       'Not Found',
@@ -196,6 +355,7 @@ describe('ChatService document ops', () => {
       {} as any,
       {} as any,
       { get: () => 20 } as any,
+      makeLlmConfigService(),
     );
     await expect(
       svc.sendDocumentMessage('u1', 'd1', 'oi'),
@@ -221,9 +381,13 @@ describe('ChatService document ops', () => {
       getHandler: () => null,
     } as any;
 
-    const svc = new ChatService(prisma, llm, registry, {
-      get: () => 20,
-    } as any);
+    const svc = new ChatService(
+      prisma,
+      llm,
+      registry,
+      { get: () => 20 } as any,
+      makeLlmConfigService(),
+    );
     await svc.sendDocumentMessage('u1', 'd1', 'oi');
 
     expect(prisma.chatSession.upsert).toHaveBeenCalledWith({
@@ -243,6 +407,7 @@ describe('ChatService document ops', () => {
       {} as any,
       {} as any,
       { get: () => 20 } as any,
+      makeLlmConfigService(),
     );
     await svc.clearDocumentMessages('u1', 'd1');
     expect(prisma.chatMessage.deleteMany).not.toHaveBeenCalled();

@@ -1,8 +1,10 @@
 import { buildDocumentSystem, buildWorkspaceSystem } from './system.prompt';
 
+const RULES = 'Você é o assistente da Paggo (regras de teste).';
+
 describe('buildDocumentSystem', () => {
   it('inclui RULES + XML do doc + narrative + summary (core/items/extras)', () => {
-    const prompt = buildDocumentSystem({
+    const prompt = buildDocumentSystem(RULES, {
       id: 'doc1',
       filename: 'nf.pdf',
       summary: {
@@ -29,7 +31,7 @@ describe('buildDocumentSystem', () => {
   });
 
   it('normaliza narrative ausente para string vazia (sem quebrar o XML)', () => {
-    const prompt = buildDocumentSystem({
+    const prompt = buildDocumentSystem(RULES, {
       id: 'doc2',
       filename: 'old.pdf',
       summary: { core: { total: '50' } } as any,
@@ -40,13 +42,13 @@ describe('buildDocumentSystem', () => {
 
 describe('buildWorkspaceSystem', () => {
   it('com lista vazia, indica que user não tem docs', () => {
-    const prompt = buildWorkspaceSystem([]);
+    const prompt = buildWorkspaceSystem(RULES, []);
     expect(prompt).toContain('Você é o assistente da Paggo');
     expect(prompt).toContain('ainda não fez upload');
   });
 
   it('com lista, inclui cada doc num delimiter XML com narrative + core', () => {
-    const prompt = buildWorkspaceSystem([
+    const prompt = buildWorkspaceSystem(RULES, [
       {
         id: 'd1',
         filename: 'a.pdf',
@@ -77,7 +79,7 @@ describe('buildWorkspaceSystem', () => {
 
   it('trunca narrative em 240 chars no workspace (evita prompt explosivo)', () => {
     const long = 'X'.repeat(500);
-    const prompt = buildWorkspaceSystem([
+    const prompt = buildWorkspaceSystem(RULES, [
       {
         id: 'd1',
         filename: 'a.pdf',
@@ -91,7 +93,7 @@ describe('buildWorkspaceSystem', () => {
 
 describe('security — XML injection resistance', () => {
   it('buildDocumentSystem escapa narrative que tenta quebrar o XML', () => {
-    const prompt = buildDocumentSystem({
+    const prompt = buildDocumentSystem(RULES, {
       id: 'doc1',
       filename: 'nf.pdf',
       summary: {
@@ -107,7 +109,7 @@ describe('security — XML injection resistance', () => {
   });
 
   it('buildWorkspaceSystem escapa narrative que tenta quebrar o XML', () => {
-    const prompt = buildWorkspaceSystem([
+    const prompt = buildWorkspaceSystem(RULES, [
       {
         id: 'd1',
         filename: 'a.pdf',
