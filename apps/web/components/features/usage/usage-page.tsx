@@ -26,6 +26,7 @@ const STATUS_COLORS: Record<string, string> = {
   READY: 'var(--color-success)',
   FAILED: 'var(--color-destructive)',
   REJECTED: 'var(--color-warning)',
+  DUPLICATE: 'var(--color-muted-foreground)',
   QUEUED: 'var(--color-muted-foreground)',
   OCR_RUNNING: 'var(--color-primary)',
 };

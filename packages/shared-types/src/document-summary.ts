@@ -10,6 +10,7 @@ export interface DocumentSummary {
   summary: InvoiceSummary | null;
   failureReason: string | null;
   retryCount: number;
+  duplicateOfId: string | null;
   documentType: string | null;
   confidence: number | null;
   rejectionReason: string | null;

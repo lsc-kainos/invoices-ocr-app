@@ -11,7 +11,7 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 vi.mock('sonner', () => ({
-  toast: { success: vi.fn(), error: vi.fn() },
+  toast: { success: vi.fn(), info: vi.fn(), error: vi.fn() },
 }));
 
 function makeDoc(id: string, status: DocumentSummary['status']): DocumentSummary {
@@ -24,6 +24,7 @@ function makeDoc(id: string, status: DocumentSummary['status']): DocumentSummary
     summary: null,
     failureReason: null,
     retryCount: 0,
+    duplicateOfId: null,
     documentType: null,
     confidence: null,
     rejectionReason: null,
