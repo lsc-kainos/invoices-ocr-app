@@ -13,8 +13,7 @@ interface ModelSelectProps {
 }
 
 /**
- * Brutalist native <select>: bordas pretas grossas, mono, ALL CAPS.
- * Concessão pra inputs: rounded-none (0px), sem cantos arredondados.
+ * Refined native <select> — alinhado com Input shadcn (h-9, border, rounded-md).
  */
 export function ModelSelect({
   id,
@@ -34,19 +33,18 @@ export function ModelSelect({
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
       className={cn(
-        'border-foreground bg-background text-foreground font-mono text-xs tracking-wider uppercase',
-        'h-10 w-full rounded-none border-2 px-3 py-2 outline-none',
-        'focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-0',
+        'border-input bg-background text-foreground h-9 w-full rounded-md border px-3 text-sm outline-none',
+        'focus-visible:ring-ring/50 focus-visible:ring-3',
         'disabled:cursor-not-allowed disabled:opacity-60',
-        'transition-none',
+        'transition-colors duration-150 ease-out',
         className,
       )}
     >
-      <option value="">— SELECT MODEL —</option>
+      <option value="">— Selecione um modelo —</option>
       {filtered.map((m) => (
         <option key={m.id} value={m.id}>
-          {m.id} · {m.provider.toUpperCase()}
-          {m.vision ? ' · VISION' : ''}
+          {m.id} · {m.provider}
+          {m.vision ? ' · vision' : ''}
         </option>
       ))}
     </select>

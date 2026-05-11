@@ -14,10 +14,11 @@ import { cn } from '@/lib/utils';
 const KEYS: LlmConfigKey[] = ['EXTRACTOR', 'CHAT'];
 
 /**
- * Brutalist /admin/llm-configs.
+ * /admin/llm-configs — refined editorial dark.
  *
- * Stagger reveal via inline animationDelay (não usa CSS @media nem hooks).
- * Tabs como brutalist buttons — não shadcn Tabs (que tem ring/rounded built-in).
+ * Layout aprovado (PR #51) preservado: header, tabs EXTRACTOR/CHAT,
+ * active card no topo, histórico abaixo, editor/test em modal.
+ * Estética alinhada com o resto da app (document-detail/documents-list).
  */
 export function LlmConfigsPage() {
   const t = useTranslations('admin.llmConfigs');
@@ -39,9 +40,6 @@ export function LlmConfigsPage() {
     try {
       const created = await create(input);
       toast.success(t('toast.created', { n: created.version }));
-      // Switch tab to the just-created config's key so the user immediately
-      // sees their new version land in the list (fix for "list not refreshing"
-      // when the new row was on a different tab).
       setActiveTab(created.key);
       return created;
     } catch (err) {
@@ -61,28 +59,23 @@ export function LlmConfigsPage() {
   }
 
   return (
-    <main className="container mx-auto px-4 py-12 sm:py-16">
-      {/* Header — eyebrow + manchete em mono. */}
+    <main className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:gap-10 sm:px-6 sm:py-10">
+      {/* Header */}
       <header
-        className="animate-brutal-reveal mb-12 flex flex-col gap-3"
+        className="animate-config-reveal flex flex-col gap-2"
         style={{ animationDelay: '0ms' }}
       >
-        <span className="text-muted-foreground font-mono text-[11px] font-semibold tracking-[0.14em] uppercase">
-          {t('eyebrow')}
-        </span>
-        <h1 className="text-foreground font-mono text-3xl font-bold tracking-tight uppercase sm:text-4xl">
+        <span className="eyebrow">{t('eyebrow')}</span>
+        <h1 className="text-foreground text-2xl font-semibold tracking-tight sm:text-3xl">
           {t('title')}
         </h1>
-        <p className="text-muted-foreground max-w-2xl font-mono text-xs tracking-wider uppercase">
-          {t('subtitle')}
-        </p>
-        <div aria-hidden className="brutal-rule mt-4" />
+        <p className="text-muted-foreground max-w-2xl text-sm">{t('subtitle')}</p>
       </header>
 
-      {/* Tabs como brutalist buttons */}
+      {/* Tabs — refined pill-style */}
       <nav
-        className="animate-brutal-reveal mb-8 flex flex-wrap gap-3"
-        style={{ animationDelay: '80ms' }}
+        className="animate-config-reveal border-border/40 -mx-1 flex flex-wrap gap-1 border-b"
+        style={{ animationDelay: '60ms' }}
         role="tablist"
         aria-label={t('title')}
       >
@@ -97,13 +90,13 @@ export function LlmConfigsPage() {
               data-testid={`tab-${key}`}
               onClick={() => setActiveTab(key)}
               className={cn(
-                'border-foreground rounded-none border-2 px-5 py-2 font-mono text-xs font-semibold tracking-[0.14em] uppercase transition-none',
+                'relative -mb-px px-4 py-2.5 text-sm font-medium transition-colors duration-200 ease-out',
                 isActive
-                  ? 'bg-foreground text-background shadow-brutal-primary'
-                  : 'bg-background text-foreground shadow-brutal',
+                  ? 'text-foreground border-primary border-b-2'
+                  : 'text-muted-foreground hover:text-foreground border-b-2 border-transparent',
               )}
             >
-              [ {key} ]
+              {key === 'EXTRACTOR' ? 'Extractor' : 'Chat'}
             </button>
           );
         })}
@@ -113,7 +106,7 @@ export function LlmConfigsPage() {
       {isLoading ? (
         <LoadingSkeleton />
       ) : (
-        <div role="tabpanel" className="flex flex-col gap-12">
+        <div role="tabpanel" className="flex flex-col gap-10">
           <ActiveConfigCard
             config={active[activeTab]}
             configKey={activeTab}
@@ -123,14 +116,13 @@ export function LlmConfigsPage() {
           />
 
           <section
-            className="animate-brutal-reveal flex flex-col gap-4"
-            style={{ animationDelay: '240ms' }}
+            className="animate-config-reveal flex flex-col gap-3"
+            style={{ animationDelay: '180ms' }}
           >
-            <div className="flex items-baseline gap-4">
-              <h2 className="text-foreground font-mono text-sm font-semibold tracking-[0.14em] uppercase">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-foreground text-sm font-medium tracking-tight">
                 {t('history.title')}
               </h2>
-              <span aria-hidden className="brutal-double-rule flex-1" />
             </div>
             <ConfigHistoryList
               rows={history[activeTab]}
@@ -156,12 +148,12 @@ export function LlmConfigsPage() {
 
 function LoadingSkeleton() {
   return (
-    <div className="flex flex-col gap-12" data-testid="llm-configs-skeleton">
-      <Skeleton className="border-foreground h-[320px] w-full rounded-none border-2" />
-      <div className="flex flex-col gap-3">
-        <Skeleton className="border-foreground h-16 w-full rounded-none border-2" />
-        <Skeleton className="border-foreground h-16 w-full rounded-none border-2" />
-        <Skeleton className="border-foreground h-16 w-full rounded-none border-2" />
+    <div className="flex flex-col gap-10" data-testid="llm-configs-skeleton">
+      <Skeleton className="h-[320px] w-full rounded-lg" />
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-14 w-full rounded-lg" />
+        <Skeleton className="h-14 w-full rounded-lg" />
+        <Skeleton className="h-14 w-full rounded-lg" />
       </div>
     </div>
   );
