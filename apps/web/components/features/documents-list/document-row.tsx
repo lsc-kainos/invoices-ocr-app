@@ -23,6 +23,16 @@ const STATUS_TONE: Record<DocumentSummary['status'], string> = {
   REJECTED: 'bg-warning-muted text-warning-foreground',
 };
 
+// Mobile short labels — full labels ("Documento incompatível", "Erro no
+// processamento") do not slice cleanly with a character count.
+const STATUS_SHORT: Record<DocumentSummary['status'], string> = {
+  QUEUED: 'Fila',
+  OCR_RUNNING: 'Proc.',
+  READY: 'OK',
+  FAILED: 'Erro',
+  REJECTED: 'Incomp.',
+};
+
 export function DocumentRow({ doc }: { doc: DocumentSummary }) {
   const t = useTranslations('documents.list');
   const isImage = doc.mime?.startsWith('image/');
@@ -54,7 +64,7 @@ export function DocumentRow({ doc }: { doc: DocumentSummary }) {
           <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', STATUS_DOT[doc.status])} />
           <Badge variant="outline" className={cn(STATUS_TONE[doc.status], 'text-[10px]')}>
             <span className="hidden sm:inline">{t(`status.${doc.status}`)}</span>
-            <span className="sm:hidden">{t(`status.${doc.status}`).slice(0, 3)}</span>
+            <span className="sm:hidden">{STATUS_SHORT[doc.status]}</span>
           </Badge>
         </div>
       </Link>

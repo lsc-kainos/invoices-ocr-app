@@ -21,6 +21,17 @@ const DOT: Record<DocumentStatus, string> = {
   REJECTED: 'bg-warning',
 };
 
+// Short labels for mobile breakpoint — the full labels are descriptive
+// ("Documento incompatível", "Erro no processamento") and don't truncate
+// cleanly with a character slice. These mirror the long labels' intent.
+const SHORT_LABEL: Record<DocumentStatus, string> = {
+  QUEUED: 'Fila',
+  OCR_RUNNING: 'Extr.',
+  READY: 'Pronta',
+  FAILED: 'Erro',
+  REJECTED: 'Incomp.',
+};
+
 interface StatusBadgeProps {
   status: DocumentStatus;
   className?: string;
@@ -32,7 +43,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     <Badge variant="outline" className={cn('flex items-center gap-1.5', TONE[status], className)}>
       <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', DOT[status])} />
       <span className="hidden sm:inline">{t(status)}</span>
-      <span className="sm:hidden">{t(status).slice(0, 4)}</span>
+      <span className="sm:hidden">{SHORT_LABEL[status]}</span>
     </Badge>
   );
 }

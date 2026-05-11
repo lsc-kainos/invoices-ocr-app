@@ -74,8 +74,12 @@ test('card mostra estado REJECTED com mensagem amber e ladder warn', async ({ pa
   // The upload card for the REJECTED doc should appear
   await expect(page.getByText('nf-teste.pdf')).toBeVisible({ timeout: 5_000 });
 
-  // Amber rejection message should be visible
-  await expect(page.getByText('Tipo de documento não suportado')).toBeVisible({ timeout: 5_000 });
+  // Amber rejection message should be visible (unknown documentType fallback)
+  await expect(
+    page.getByText(
+      'Não conseguimos identificar como nota fiscal ou boleto. Verifique se enviou o arquivo correto.',
+    ),
+  ).toBeVisible({ timeout: 5_000 });
 
   // The "Estrutura" ladder step should show amber "!" icon
   // The card's ladder has the step text "Estrutura"
@@ -118,7 +122,11 @@ test('card REJECTED com low_confidence mostra mensagem de confiança', async ({ 
 
   await page.goto('/');
   await expect(page.getByText('boleto.pdf')).toBeVisible({ timeout: 10_000 });
-  await expect(page.getByText('Confiança insuficiente — revise manualmente')).toBeVisible({
-    timeout: 5_000,
-  });
+  await expect(
+    page.getByText(
+      'Extraímos os dados, mas com confiança abaixo do mínimo aceitável. Tente uma imagem mais nítida ou um PDF original.',
+    ),
+  ).toBeVisible({ timeout: 5_000 });
+  // Confidence percentage should appear (40% from confidence: 0.4)
+  await expect(page.getByText('Confiança da extração: 40%')).toBeVisible({ timeout: 5_000 });
 });

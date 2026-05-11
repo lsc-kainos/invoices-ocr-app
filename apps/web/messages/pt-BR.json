@@ -5,27 +5,32 @@
     "retry": "Tentar de novo"
   },
   "errors": {
-    "unknown": "Erro inesperado. Tente novamente.",
+    "unknown": "Não conseguimos completar a operação. Tente de novo em instantes.",
     "upload": {
-      "invalid_type": "Formato não suportado. Use JPG, PNG ou PDF.",
-      "too_large": "Arquivo grande demais. Máximo 10 MB.",
-      "rate_limit": "Você excedeu o limite de uploads por minuto. Tente em instantes.",
-      "network": "Falha de rede. Tente de novo.",
-      "invalid_type_named": "{name}: formato não suportado. Use JPG, PNG ou PDF.",
-      "too_large_named": "{name}: arquivo grande demais. Máximo 10 MB.",
-      "rate_limit_named": "{name}: limite de uploads por minuto excedido.",
-      "network_named": "{name}: falha de rede. Tente de novo."
+      "invalid_type": "Apenas PNG, JPG e PDF são aceitos.",
+      "too_large": "Arquivo maior que 10 MB.",
+      "rate_limit": "Limite de uploads por minuto atingido. Aguarde alguns segundos antes de enviar mais.",
+      "network": "Não conseguimos enviar o arquivo. Verifique sua conexão.",
+      "invalid_type_named": "{name}: apenas PNG, JPG e PDF são aceitos.",
+      "too_large_named": "{name}: arquivo maior que 10 MB.",
+      "rate_limit_named": "{name}: limite de uploads por minuto atingido. Aguarde alguns segundos.",
+      "network_named": "{name}: não conseguimos enviar. Verifique sua conexão."
     },
     "ocr": {
-      "rate_limit": "Limite da IA atingido temporariamente",
-      "timeout": "A IA demorou demais para responder",
-      "invalid_image": "Não conseguimos ler o arquivo",
-      "parse_failure": "A IA retornou um resultado inesperado",
-      "provider_error": "Erro do serviço de IA",
-      "storage_missing": "O arquivo original não está mais disponível. Por favor, envie a nota novamente.",
-      "unknown": "Falha desconhecida",
-      "low_confidence": "Confiança insuficiente — revise manualmente",
-      "unsupported_type": "Tipo de documento não suportado"
+      "rate_limit": "Volume de processamento alto no momento. Tente reprocessar em alguns minutos.",
+      "timeout": "O processamento demorou mais do que o esperado. Tente reenviar.",
+      "invalid_image": "Não conseguimos abrir o arquivo. Tente reenviar em PNG, JPG ou PDF original.",
+      "parse_failure": "Não conseguimos estruturar os dados desta nota. Tente reenviar uma imagem mais nítida.",
+      "provider_error": "Falha temporária no serviço de IA. Tente reprocessar em instantes.",
+      "storage_missing": "Arquivo não encontrado no storage. Tente reenviar.",
+      "unknown": "Falha não identificada no processamento.",
+      "low_confidence": "Extraímos os dados, mas com confiança abaixo do mínimo aceitável. Tente uma imagem mais nítida ou um PDF original.",
+      "unsupported_type": "Não conseguimos identificar como nota fiscal ou boleto. Verifique se enviou o arquivo correto."
+    },
+    "chat": {
+      "networkError": "Não conseguimos enviar sua mensagem. Verifique sua conexão.",
+      "rateLimit": "Muitas mensagens em sequência. Aguarde alguns segundos.",
+      "providerError": "Serviço de IA temporariamente indisponível. Tente de novo em instantes."
     }
   },
   "login": {
@@ -90,8 +95,8 @@
       "QUEUED": "Na fila",
       "OCR_RUNNING": "Extraindo",
       "READY": "Pronta",
-      "FAILED": "Falhou",
-      "REJECTED": "Rejeitada"
+      "FAILED": "Erro no processamento",
+      "REJECTED": "Documento incompatível"
     },
     "ladder": {
       "upload": "Upload",
@@ -118,8 +123,8 @@
     "retrying": "Tentando de novo automaticamente…",
     "progress": {
       "uploading": "Enviando {percent}%",
-      "queued": "Aguardando processamento",
-      "ocr": "Extraindo dados"
+      "queued": "Na fila, processamento começa em alguns segundos",
+      "ocr": "Extraindo dados..."
     },
     "toasts": {
       "ready": "{name} está pronta",
@@ -130,6 +135,21 @@
   "document": {
     "breadcrumb": {
       "list": "Minhas notas"
+    },
+    "rejection": {
+      "unsupportedTypeWithLabel": "Identificamos como {type}. Aceitamos apenas NF-e, NFS-e e boletos.",
+      "unsupportedTypeUnknown": "Não conseguimos identificar como nota fiscal ou boleto. Verifique se enviou o arquivo correto.",
+      "lowConfidence": "Extraímos os dados, mas com confiança abaixo do mínimo aceitável. Tente uma imagem mais nítida ou um PDF original.",
+      "confidenceLabel": "Confiança da extração: {percent}%"
+    },
+    "documentTypes": {
+      "receipt": "recibo",
+      "id_card": "documento de identidade",
+      "letter": "carta",
+      "contract": "contrato",
+      "screenshot": "captura de tela",
+      "other": "outro tipo",
+      "unknown": "desconhecido"
     },
     "header": {
       "back": "Minhas notas",
@@ -210,13 +230,14 @@
     "list": {
       "title": "Minhas notas",
       "subtitle": "Documentos enviados, ordenados pelos mais recentes.",
-      "empty_title": "Você ainda não enviou nenhum documento",
-      "empty_cta": "Fazer primeiro upload",
+      "empty_title": "Você ainda não enviou nenhuma nota. Clique em 'Nova nota' para começar.",
+      "empty_cta": "Nova nota",
       "status": {
         "QUEUED": "Na fila",
         "OCR_RUNNING": "Processando",
         "READY": "Pronto",
-        "FAILED": "Falhou"
+        "FAILED": "Erro no processamento",
+        "REJECTED": "Documento incompatível"
       },
       "updated_at": "atualizado {when}"
     },
@@ -302,11 +323,11 @@
     "new_conversation": "Nova conversa",
     "untitled": "Sem título",
     "sidebar_empty": "Nenhuma conversa ainda. Comece uma nova.",
-    "error_generic": "Não consegui responder. Tente de novo.",
-    "error_rate_limit": "Muitas mensagens. Aguarde um instante.",
-    "error_provider": "Serviço de IA temporariamente indisponível.",
-    "empty_state_title": "Pergunte qualquer coisa",
-    "empty_state_subtitle": "Toque em uma sugestão ou digite abaixo.",
+    "error_generic": "Não conseguimos gerar uma resposta. Tente de novo em instantes.",
+    "error_rate_limit": "Muitas mensagens em sequência. Aguarde alguns segundos.",
+    "error_provider": "Serviço de IA temporariamente indisponível. Tente novamente em instantes.",
+    "empty_state_title": "Faça uma pergunta sobre suas notas.",
+    "empty_state_subtitle": "Toque em uma sugestão abaixo ou escreva a sua própria pergunta.",
     "tab_conversa": "Conversa",
     "no_sessions": "Sem conversas ainda. Crie uma nova na sidebar.",
     "select_conversation_title": "Selecione uma conversa",

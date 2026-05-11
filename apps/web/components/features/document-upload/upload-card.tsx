@@ -59,10 +59,24 @@ interface UploadCardProps {
   doc: DocumentSummary;
 }
 
+// Known document type keys whose translation is available under
+// `document.documentTypes.*`. Anything else (or empty/null) falls back to the
+// "unknown" variant of the rejection message.
+const KNOWN_DOC_TYPES = new Set([
+  'receipt',
+  'id_card',
+  'letter',
+  'contract',
+  'screenshot',
+  'other',
+]);
+
 export function UploadCard({ doc }: UploadCardProps) {
   const t = useTranslations('upload');
   const tErrors = useTranslations('errors.ocr');
   const tRetry = useTranslations('upload.retry');
+  const tRejection = useTranslations('document.rejection');
+  const tDocTypes = useTranslations('document.documentTypes');
   const { retry, isPending } = useDocumentRetry();
 
   // TODO(f2.5): rebuild upload-card chip without `tipo` (universal schema)
@@ -198,7 +212,24 @@ export function UploadCard({ doc }: UploadCardProps) {
 
           {isRejected && doc.rejectionReason ? (
             <div className="mt-2 sm:mt-3">
-              <p className="text-[11px] text-amber-500">{tErrors(doc.rejectionReason)}</p>
+              <p className="text-[11px] text-amber-500">
+                {doc.rejectionReason === 'unsupported_type'
+                  ? doc.documentType && KNOWN_DOC_TYPES.has(doc.documentType)
+                    ? tRejection('unsupportedTypeWithLabel', {
+                        type: tDocTypes(doc.documentType),
+                      })
+                    : tRejection('unsupportedTypeUnknown')
+                  : doc.rejectionReason === 'low_confidence'
+                    ? tRejection('lowConfidence')
+                    : tErrors(doc.rejectionReason)}
+              </p>
+              {doc.rejectionReason === 'low_confidence' && doc.confidence != null ? (
+                <p className="text-muted-foreground mt-1 text-[10px]">
+                  {tRejection('confidenceLabel', {
+                    percent: Math.round(doc.confidence * 100),
+                  })}
+                </p>
+              ) : null}
             </div>
           ) : null}
 
