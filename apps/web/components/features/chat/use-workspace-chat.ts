@@ -52,11 +52,19 @@ export function useWorkspaceChat(activeSessionId?: string) {
     let alive = true;
     inFlight.current.add(activeSessionId);
     fetch(`/api/chat/sessions/${activeSessionId}/messages`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data: Message[]) => {
-        messageCache.current.set(activeSessionId, data);
+      .then(async (r) => {
         inFlight.current.delete(activeSessionId);
-        if (alive) setMessages(data);
+        if (!r.ok) {
+          // Não limpar mensagens em erro (ex: 429) — manter o que está na tela.
+          if (alive) setError(r.status === 429 ? 'error_rate_limit' : 'error_generic');
+          return;
+        }
+        const data: Message[] = await r.json();
+        messageCache.current.set(activeSessionId, data);
+        if (alive) {
+          setError(null);
+          setMessages(data);
+        }
       })
       .catch(() => {
         inFlight.current.delete(activeSessionId);
