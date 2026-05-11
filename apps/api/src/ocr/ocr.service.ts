@@ -34,6 +34,7 @@ export interface DocumentOps {
   ): Promise<void>;
   findByIdInternal(
     id: string,
+    userId: string,
   ): Promise<{ id: string; mime: string; storagePath: string } | null>;
 }
 
@@ -48,11 +49,11 @@ export class OcrService {
     private readonly config: ConfigService,
   ) {}
 
-  async process(docId: string): Promise<void> {
+  async process(docId: string, userId: string): Promise<void> {
     await this.docs.markRunning(docId);
 
     try {
-      const doc = await this.docs.findByIdInternal(docId);
+      const doc = await this.docs.findByIdInternal(docId, userId);
       if (!doc) {
         await this.docs.markFailed(docId, 'unknown');
         return;

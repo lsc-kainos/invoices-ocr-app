@@ -21,21 +21,21 @@ describe('OcrProcessor', () => {
     processor = mod.get(OcrProcessor);
   });
 
-  it('delega para OcrService.process com documentId', async () => {
-    const fakeJob = { data: { documentId: 'doc-xyz' } } as never;
+  it('delega para OcrService.process com documentId e userId', async () => {
+    const fakeJob = { data: { documentId: 'doc-xyz', userId: 'u1' } } as never;
     await processor.process(fakeJob);
-    expect(ocr.process).toHaveBeenCalledWith('doc-xyz');
+    expect(ocr.process).toHaveBeenCalledWith('doc-xyz', 'u1');
   });
 
   it('propaga exceção do OcrService (erros transientes chegam ao BullMQ)', async () => {
     ocr.process.mockRejectedValue(new Error('timeout'));
-    const fakeJob = { data: { documentId: 'doc-xyz' } } as never;
+    const fakeJob = { data: { documentId: 'doc-xyz', userId: 'u1' } } as never;
     await expect(processor.process(fakeJob)).rejects.toThrow('timeout');
   });
 
   it('onFailed chama markFailed com transient_exhausted', async () => {
     const fakeJob = {
-      data: { documentId: 'doc-xyz' },
+      data: { documentId: 'doc-xyz', userId: 'u1' },
       attemptsMade: 3,
     } as never;
     await processor.onFailed(fakeJob, new Error('timeout'));

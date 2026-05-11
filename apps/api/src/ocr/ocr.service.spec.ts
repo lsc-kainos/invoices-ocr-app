@@ -74,8 +74,9 @@ describe('OcrService', () => {
 
   it('happy: markRunning → extract → markReady', async () => {
     provider.extract.mockResolvedValue(happy);
-    await svc.process('d1');
+    await svc.process('d1', 'user1');
     expect(docs.markRunning).toHaveBeenCalledWith('d1');
+    expect(docs.findByIdInternal).toHaveBeenCalledWith('d1', 'user1');
     expect(provider.extract).toHaveBeenCalledTimes(1);
     expect(docs.markReady).toHaveBeenCalledWith(
       'd1',
@@ -89,7 +90,7 @@ describe('OcrService', () => {
     const err: Error & { status?: number } = new Error('rl');
     err.status = 429;
     provider.extract.mockRejectedValue(err);
-    await expect(svc.process('d1')).rejects.toThrow('rl');
+    await expect(svc.process('d1', 'user1')).rejects.toThrow('rl');
     expect(docs.markFailed).not.toHaveBeenCalled();
   });
 
@@ -97,14 +98,15 @@ describe('OcrService', () => {
     const err = new Error('bad');
     (err as { name: string }).name = 'ZodError';
     provider.extract.mockRejectedValue(err);
-    await svc.process('d1');
+    await svc.process('d1', 'user1');
     expect(provider.extract).toHaveBeenCalledTimes(1);
     expect(docs.markFailed).toHaveBeenCalledWith('d1', 'parse_failure');
   });
 
   it('doc não encontrado → markFailed("unknown")', async () => {
     docs.findByIdInternal.mockResolvedValue(null);
-    await svc.process('d1');
+    await svc.process('d1', 'user1');
+    expect(docs.findByIdInternal).toHaveBeenCalledWith('d1', 'user1');
     expect(docs.markFailed).toHaveBeenCalledWith('d1', 'unknown');
     expect(provider.extract).not.toHaveBeenCalled();
   });
@@ -122,7 +124,7 @@ describe('OcrService', () => {
       confidence: 0.9,
     };
     provider.extract.mockResolvedValue(result);
-    await svc.process('d1');
+    await svc.process('d1', 'user1');
     expect(docs.markReady).toHaveBeenCalledWith(
       'd1',
       result.summary,
@@ -138,7 +140,7 @@ describe('OcrService', () => {
       confidence: 0.4,
     };
     provider.extract.mockResolvedValue(result);
-    await svc.process('d1');
+    await svc.process('d1', 'user1');
     expect(docs.markRejected).toHaveBeenCalledWith(
       'd1',
       'low_confidence',
@@ -154,7 +156,7 @@ describe('OcrService', () => {
       confidence: 0.9,
     };
     provider.extract.mockResolvedValue(result);
-    await svc.process('d1');
+    await svc.process('d1', 'user1');
     expect(docs.markRejected).toHaveBeenCalledWith(
       'd1',
       'unsupported_type',
@@ -170,7 +172,7 @@ describe('OcrService', () => {
       confidence: 0.9,
     };
     provider.extract.mockResolvedValue(result);
-    await svc.process('d1');
+    await svc.process('d1', 'user1');
     expect(docs.markRejected).toHaveBeenCalledWith(
       'd1',
       'unsupported_type',

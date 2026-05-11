@@ -176,7 +176,7 @@ describe('DocumentsService', () => {
       expect(prisma.document.update).toHaveBeenCalled();
       expect(ocrQueue.add).toHaveBeenCalledWith(
         'process',
-        { documentId: dto.id },
+        { documentId: dto.id, userId: 'user1' },
         expect.objectContaining({ jobId: dto.id, attempts: 3 }),
       );
       expect(dto.status).toBeDefined();
@@ -271,7 +271,7 @@ describe('DocumentsService', () => {
   });
 
   describe('streamFile', () => {
-    it('token inválido → Unauthorized', async () => {
+    it('token inválido → NotFound (evita enumeração)', async () => {
       prisma.document.findUnique.mockResolvedValue(
         baseDoc({ id: 'd1', userId: 'user1' }),
       );
@@ -279,10 +279,10 @@ describe('DocumentsService', () => {
       const res = makeRes();
       await expect(
         svc.streamFile('d1', `${exp}.deadbeef`, res as never),
-      ).rejects.toBeInstanceOf(UnauthorizedException);
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
 
-    it('token expirado → Unauthorized', async () => {
+    it('token expirado → NotFound (evita enumeração)', async () => {
       prisma.document.findUnique.mockResolvedValue(
         baseDoc({ id: 'd1', userId: 'user1' }),
       );
@@ -293,7 +293,7 @@ describe('DocumentsService', () => {
       const res = makeRes();
       await expect(
         svc.streamFile('d1', `${expiredExp}.${sig}`, res as never),
-      ).rejects.toBeInstanceOf(UnauthorizedException);
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('token válido: stream do volume com mime correto', async () => {
@@ -310,7 +310,7 @@ describe('DocumentsService', () => {
       expect(res.end).toHaveBeenCalled();
     });
 
-    it('token de outro user → Unauthorized', async () => {
+    it('token de outro user → NotFound (evita enumeração)', async () => {
       prisma.document.findUnique.mockResolvedValue(
         baseDoc({ id: 'd1', userId: 'realOwner' }),
       );
@@ -322,7 +322,7 @@ describe('DocumentsService', () => {
       const res = makeRes();
       await expect(
         svc.streamFile('d1', `${exp}.${sig}`, res as never),
-      ).rejects.toBeInstanceOf(UnauthorizedException);
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
@@ -406,7 +406,7 @@ describe('DocumentsService', () => {
       });
       expect(ocrQueue.add).toHaveBeenCalledWith(
         'process',
-        { documentId: 'doc1' },
+        { documentId: 'doc1', userId: 'u1' },
         expect.objectContaining({ jobId: 'doc1', attempts: 3 }),
       );
       expect(result.status).toBe('QUEUED');

@@ -17,7 +17,7 @@ export class OcrProcessor extends WorkerHost {
   }
 
   async process(job: Job<OcrJobData>): Promise<void> {
-    await this.ocr.process(job.data.documentId);
+    await this.ocr.process(job.data.documentId, job.data.userId);
   }
 
   @OnWorkerEvent('failed')

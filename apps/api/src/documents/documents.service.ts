@@ -104,7 +104,7 @@ export class DocumentsService implements DocumentOps {
 
     await this.ocrQueue.add(
       'process',
-      { documentId: updated.id },
+      { documentId: updated.id, userId },
       {
         jobId: updated.id,
         attempts: 3,
@@ -166,7 +166,7 @@ export class DocumentsService implements DocumentOps {
       await this.ocrQueue.remove(id).catch(() => undefined);
       await this.ocrQueue.add(
         'process',
-        { documentId: updated.id },
+        { documentId: updated.id, userId: doc.userId },
         {
           jobId: updated.id,
           attempts: 3,
@@ -199,8 +199,11 @@ export class DocumentsService implements DocumentOps {
   async streamFile(id: string, token: string, res: Response): Promise<void> {
     const [expStr, sig] = (token ?? '').split('.');
     const exp = Number(expStr);
+
+    // Validação do token PRIMEIRO, antes de tocar no banco.
+    // Qualquer falha retorna 404 genérico para evitar enumeração de IDs.
     if (!exp || exp < Math.floor(Date.now() / 1000)) {
-      throw new UnauthorizedException();
+      throw new NotFoundException();
     }
 
     const doc = await this.prisma.document.findUnique({ where: { id } });
@@ -212,7 +215,7 @@ export class DocumentsService implements DocumentOps {
     const sigBuf = Buffer.from(sig ?? '', 'hex');
     const expBuf = Buffer.from(expected, 'hex');
     if (sigBuf.length !== expBuf.length || !timingSafeEqual(sigBuf, expBuf)) {
-      throw new UnauthorizedException();
+      throw new NotFoundException();
     }
 
     let buffer: Buffer;
@@ -361,9 +364,10 @@ export class DocumentsService implements DocumentOps {
 
   async findByIdInternal(
     id: string,
+    userId: string,
   ): Promise<{ id: string; mime: string; storagePath: string } | null> {
-    return this.prisma.document.findUnique({
-      where: { id },
+    return this.prisma.document.findFirst({
+      where: { id, userId },
       select: { id: true, mime: true, storagePath: true },
     });
   }
