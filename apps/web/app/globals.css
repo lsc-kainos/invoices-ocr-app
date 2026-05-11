@@ -238,3 +238,76 @@ html {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid oklch(0.3618 0.0101 106.8928 / 0.3);
 }
+
+/* ===== Brutalist utilities (used by /admin/llm-configs) =====
+   Honest, undecorated, mechanical. No blur, no easing curves.
+   Sombras duras offset, sem suavização. Feedback tátil:
+   hover empurra 2px e a sombra encolhe pra 2px. */
+.shadow-brutal {
+  box-shadow: 4px 4px 0 0 var(--foreground);
+  transition:
+    transform 100ms linear,
+    box-shadow 100ms linear;
+}
+.shadow-brutal:hover:not(:disabled):not([aria-disabled='true']) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 0 var(--foreground);
+}
+.shadow-brutal:active:not(:disabled):not([aria-disabled='true']) {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 0 var(--foreground);
+}
+
+.shadow-brutal-primary {
+  box-shadow: 4px 4px 0 0 var(--primary);
+  transition:
+    transform 100ms linear,
+    box-shadow 100ms linear;
+}
+.shadow-brutal-primary:hover:not(:disabled):not([aria-disabled='true']) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 0 var(--primary);
+}
+.shadow-brutal-primary:active:not(:disabled):not([aria-disabled='true']) {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 0 var(--primary);
+}
+
+/* Display serif chapado pesado para números de versão.
+   Não usar var(--font-serif) — esse é Instrument Serif italic 400.
+   Aqui queremos PESO, não elegância. */
+.font-brutal-display {
+  font-family: 'Times New Roman', 'Times', serif;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+}
+
+/* Stagger reveal — linear, não ease-out. Sem mola, sem curva. */
+@keyframes brutal-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-brutal-reveal {
+  animation: brutal-reveal 200ms linear forwards;
+  opacity: 0;
+}
+
+/* Régua horizontal cobre — divisor entre seções macro.
+   1px bg-primary, sem decoração. */
+.brutal-rule {
+  height: 1px;
+  width: 100%;
+  background: var(--primary);
+}
+
+/* Underline duplo decorativo para eyebrows. */
+.brutal-double-rule {
+  border-bottom: 3px double var(--foreground);
+}

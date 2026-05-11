@@ -78,7 +78,7 @@ function renderPage() {
   );
 }
 
-describe('<LlmConfigsPage />', () => {
+describe('<LlmConfigsPage /> (brutalist)', () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
   });
@@ -115,10 +115,11 @@ describe('<LlmConfigsPage />', () => {
       expect(screen.getByTestId('active-prompt')).toBeInTheDocument();
     });
 
-    // Click "Nova versão a partir desta" to open the editor pre-filled
-    fireEvent.click(screen.getByRole('button', { name: /Nova versão a partir desta/i }));
+    // Click FORK (was "Nova versão a partir desta") via testid — resilient to copy
+    fireEvent.click(screen.getByTestId('active-fork'));
 
-    // Submit (prompt + model + temperature are already pre-populated)
+    // Submit the editor (pre-populated fields). Submit button has aria-label="Criar"
+    // (keeps backwards-compat for /Criar/i regex selectors).
     const submit = await screen.findByRole('button', { name: /Criar/i });
     fireEvent.click(submit);
 
@@ -129,5 +130,19 @@ describe('<LlmConfigsPage />', () => {
     });
     const row = screen.getByTestId('history-row-cfg-new-2');
     expect(within(row).getByText(/v2/)).toBeInTheDocument();
+  });
+
+  it('renders tabs as brutalist buttons (EXTRACTOR active by default)', async () => {
+    installFetchMock([makeConfig({ id: 'cfg-1', version: 1, active: true })]);
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('tab-EXTRACTOR')).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByTestId('tab-CHAT')).toHaveAttribute('aria-selected', 'false');
+    });
+
+    fireEvent.click(screen.getByTestId('tab-CHAT'));
+    expect(screen.getByTestId('tab-CHAT')).toHaveAttribute('aria-selected', 'true');
   });
 });

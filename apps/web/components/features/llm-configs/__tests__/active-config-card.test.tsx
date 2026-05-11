@@ -37,34 +37,44 @@ function setup(config: LlmConfigDto | undefined) {
   return { onCloneFromActive, onTest, onCreateFirst };
 }
 
-describe('<ActiveConfigCard />', () => {
-  it('renders the prompt body and exposes "Nova versão a partir desta" + "Testar"', () => {
+describe('<ActiveConfigCard /> (brutalist)', () => {
+  it('renders the prompt body, version manchete, and exposes Fork + Test', () => {
     const { onCloneFromActive, onTest } = setup(BASE);
 
     // Prompt body is rendered
     const pre = screen.getByTestId('active-prompt');
     expect(pre.textContent).toContain('Prompt rendered into the card pre.');
 
-    // Version badge / metadata
-    expect(screen.getByText(/v12/)).toBeInTheDocument();
+    // Brutalist version display (V12.) + metadata strip (v12)
+    expect(screen.getByTestId('active-version').textContent).toBe('V12.');
     expect(screen.getByText('gpt-4o')).toBeInTheDocument();
+    // creator email surfaces inside the BY. {who} pattern
     expect(screen.getByText(/admin@paggo.test/)).toBeInTheDocument();
 
-    // Action buttons
-    fireEvent.click(screen.getByRole('button', { name: /Nova versão a partir desta/i }));
+    // Action buttons — selected by testid to remain resilient to copy/case changes
+    fireEvent.click(screen.getByTestId('active-fork'));
     expect(onCloneFromActive).toHaveBeenCalledWith(BASE);
 
-    fireEvent.click(screen.getByRole('button', { name: /Testar/i }));
+    fireEvent.click(screen.getByTestId('active-test'));
     expect(onTest).toHaveBeenCalledWith(BASE);
   });
 
   it('renders empty state with CTA when no active config', () => {
     const { onCreateFirst } = setup(undefined);
 
+    // Active card not in DOM, but empty container is
     expect(screen.queryByTestId('active-config-card')).toBeNull();
+    expect(screen.getByTestId('active-config-empty')).toBeInTheDocument();
     expect(screen.getByText(/Sem versão ativa para EXTRACTOR/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /Criar primeira versão/i }));
+    fireEvent.click(screen.getByTestId('active-create-first'));
     expect(onCreateFirst).toHaveBeenCalledWith('EXTRACTOR');
+  });
+
+  it('does NOT decorate hover with blurred shadows — uses shadow-brutal utility', () => {
+    setup(BASE);
+    const card = screen.getByTestId('active-config-card');
+    // Sanity check that brutalist shadow utility is present (no blur, hard offset)
+    expect(card.className).toMatch(/shadow-brutal/);
   });
 });
