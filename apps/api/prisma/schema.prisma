@@ -21,6 +21,7 @@ enum DocumentStatus {
   READY
   FAILED
   REJECTED
+  DUPLICATE
 }
 
 enum ChatRole {

@@ -11,6 +11,7 @@ const TONE: Record<DocumentStatus, string> = {
   READY: 'bg-success-muted text-success-foreground',
   FAILED: 'bg-destructive/15 text-destructive',
   REJECTED: 'bg-warning-muted text-warning-foreground',
+  DUPLICATE: 'bg-muted text-muted-foreground',
 };
 
 const DOT: Record<DocumentStatus, string> = {
@@ -19,6 +20,7 @@ const DOT: Record<DocumentStatus, string> = {
   READY: 'bg-success',
   FAILED: 'bg-destructive',
   REJECTED: 'bg-warning',
+  DUPLICATE: 'bg-muted-foreground/60',
 };
 
 // Short labels for mobile breakpoint — the full labels are descriptive
@@ -30,6 +32,7 @@ const SHORT_LABEL: Record<DocumentStatus, string> = {
   READY: 'Pronta',
   FAILED: 'Erro',
   REJECTED: 'Incomp.',
+  DUPLICATE: 'Dupl.',
 };
 
 interface StatusBadgeProps {

@@ -18,7 +18,7 @@ export const ActiveUploadsContext = createContext<ActiveUploadsContextValue | nu
 const INITIAL_DELAY_MS = 1500;
 const MAX_DELAY_MS = 8000;
 const ACTIVE_FILTER = 'QUEUED,OCR_RUNNING';
-const FINISHED_FILTER = 'READY,FAILED';
+const FINISHED_FILTER = 'READY,FAILED,DUPLICATE';
 const CATCHUP_LIMIT = 5;
 
 type ToastFn = ReturnType<typeof useTranslations>;
@@ -35,6 +35,8 @@ function emitToast(doc: DocumentSummary, t: ToastFn, tErrors: ToastFn, push: Rou
   } else if (doc.status === 'FAILED') {
     const reason = tErrors(doc.failureReason ?? 'unknown');
     toast.error(t('toasts.failed', { name: doc.filename, reason }));
+  } else if (doc.status === 'DUPLICATE') {
+    toast.info(t('toasts.duplicate', { name: doc.filename }));
   }
 }
 

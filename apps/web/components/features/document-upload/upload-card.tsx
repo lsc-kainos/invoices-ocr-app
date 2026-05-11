@@ -28,6 +28,7 @@ const PROGRESS: Record<DocumentStatus, number> = {
   READY: 100,
   FAILED: 100,
   REJECTED: 100,
+  DUPLICATE: 100,
 };
 
 type StepState = 'done' | 'active' | 'pending' | 'failed' | 'warn';
@@ -41,6 +42,7 @@ const LADDER: Record<
   READY: { upload: 'done', ocr: 'done', structure: 'done', ready: 'done' },
   FAILED: { upload: 'done', ocr: 'failed', structure: 'pending', ready: 'pending' },
   REJECTED: { upload: 'done', ocr: 'done', structure: 'warn', ready: 'pending' },
+  DUPLICATE: { upload: 'done', ocr: 'done', structure: 'warn', ready: 'pending' },
 };
 
 const STUCK_THRESHOLD_MS = 3 * 60 * 1000; // 3 minutes
@@ -85,6 +87,7 @@ export function UploadCard({ doc }: UploadCardProps) {
   const isReady = doc.status === 'READY';
   const isFailed = doc.status === 'FAILED';
   const isRejected = doc.status === 'REJECTED';
+  const isDuplicate = doc.status === 'DUPLICATE';
   const isRunning = doc.status === 'OCR_RUNNING';
   const isAutoRetrying = isRunning && doc.retryCount > 0;
   const retryPending = isPending(doc.id);
@@ -97,15 +100,15 @@ export function UploadCard({ doc }: UploadCardProps) {
   // and the status-derived default takes over — no useEffect needed.
   const [userToggle, setUserToggle] = useState<{ status: string; expanded: boolean } | null>(null);
 
-  const defaultExpanded = isRunning || isFailed || isRejected;
+  const defaultExpanded = isRunning || isFailed || isRejected || isDuplicate;
   const isExpanded = userToggle?.status === doc.status ? userToggle.expanded : defaultExpanded;
 
   const toggleExpanded = () => setUserToggle({ status: doc.status, expanded: !isExpanded });
 
   // failure/rejected/ready states always expanded; clickable states have no toggle (they're a Link)
-  const isClickable = isReady || isFailed || isRejected;
-  const canToggle = !isFailed && !isRejected && !isReady;
-  const forceExpanded = isFailed || isRejected;
+  const isClickable = isReady || isFailed || isRejected || isDuplicate;
+  const canToggle = !isFailed && !isRejected && !isDuplicate && !isReady;
+  const forceExpanded = isFailed || isRejected || isDuplicate;
 
   const showLadder = forceExpanded || isExpanded;
 

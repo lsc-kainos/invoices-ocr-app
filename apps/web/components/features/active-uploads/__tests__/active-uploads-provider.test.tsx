@@ -299,7 +299,7 @@ describe('<ActiveUploadsProvider />', () => {
     const failedDoc = makeDoc('f1', 'FAILED');
 
     fetchSpy.mockImplementation((url: string) => {
-      // catch-up: /api/documents?status=READY,FAILED
+      // catch-up: /api/documents?status=READY,FAILED,DUPLICATE
       if (url.includes('status=READY')) return Promise.resolve(jsonResponse([readyDoc, failedDoc]));
       // polling: /api/documents?status=QUEUED,OCR_RUNNING
       if (url.includes('status=QUEUED')) return Promise.resolve(jsonResponse([]));
