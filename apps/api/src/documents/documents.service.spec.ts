@@ -70,6 +70,9 @@ const baseDoc = (over: Partial<Document>): Document => {
     status: 'READY',
     failureReason: null,
     retryCount: 0,
+    semanticHash: null,
+    duplicateOfId: null,
+    duplicateReason: null,
     summary: null,
     extractedText: 'hello',
     ocrStartedAt: now,
@@ -342,15 +345,62 @@ describe('DocumentsService', () => {
         'd1',
         { core: {} as never, items: [], extras: [], narrative: '' },
         'text',
+        'hash-1',
       );
       expect(prisma.document.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             status: 'READY',
             extractedText: 'text',
+            semanticHash: 'hash-1',
           }),
         }),
       );
+    });
+
+    it('markDuplicate seta DUPLICATE + vínculo com original + parcial', async () => {
+      await svc.markDuplicate(
+        'd2',
+        'd1',
+        'nf_access_key',
+        {
+          documentType: 'nf-e',
+          confidence: 0.95,
+          summary: { core: {} as never, items: [], extras: [], narrative: '' },
+          extractedText: 'text',
+        },
+        'NFKEY:123',
+      );
+      expect(prisma.document.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'd2' },
+          data: expect.objectContaining({
+            status: 'DUPLICATE',
+            duplicateOfId: 'd1',
+            duplicateReason: 'nf_access_key',
+            semanticHash: 'NFKEY:123',
+            extractedText: 'text',
+          }),
+        }),
+      );
+    });
+
+    it('findReadyDuplicate busca READY do mesmo usuário pela assinatura', async () => {
+      prisma.document.findUnique.mockResolvedValue({ userId: 'u1' });
+      prisma.document.findFirst.mockResolvedValue({ id: 'original' });
+      await expect(svc.findReadyDuplicate('d2', 'NFKEY:123')).resolves.toEqual({
+        id: 'original',
+      });
+      expect(prisma.document.findFirst).toHaveBeenCalledWith({
+        where: {
+          userId: 'u1',
+          semanticHash: 'NFKEY:123',
+          status: 'READY',
+          id: { not: 'd2' },
+        },
+        select: { id: true },
+        orderBy: { createdAt: 'asc' },
+      });
     });
 
     it('markFailed seta FAILED + failureReason + retryCount++', async () => {

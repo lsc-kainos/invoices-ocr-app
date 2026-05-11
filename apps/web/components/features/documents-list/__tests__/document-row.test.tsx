@@ -23,6 +23,9 @@ const doc = {
   documentType: null,
   confidence: null,
   rejectionReason: null,
+  semanticHash: null,
+  duplicateOfId: null,
+  duplicateReason: null,
   verifiedAt: null,
   verifiedBy: null,
 };

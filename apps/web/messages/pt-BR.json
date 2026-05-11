@@ -106,7 +106,8 @@
       "OCR_RUNNING": "Extraindo",
       "READY": "Pronta",
       "FAILED": "Erro no processamento",
-      "REJECTED": "Documento incompatível"
+      "REJECTED": "Documento incompatível",
+      "DUPLICATE": "Duplicado"
     },
     "ladder": {
       "upload": "Upload",
@@ -139,6 +140,7 @@
     "toasts": {
       "ready": "{name} está pronta",
       "failed": "{name} falhou: {reason}",
+      "duplicate": "{name}: documento duplicado identificado.",
       "view": "Ver documento"
     }
   },
@@ -255,7 +257,8 @@
         "OCR_RUNNING": "Processando",
         "READY": "Pronto",
         "FAILED": "Erro no processamento",
-        "REJECTED": "Documento incompatível"
+        "REJECTED": "Documento incompatível",
+        "DUPLICATE": "Duplicado"
       },
       "updated_at": "atualizado {when}",
       "summary": {
@@ -415,6 +418,7 @@
         "READY": "Prontos",
         "FAILED": "Falhou",
         "REJECTED": "Rejeitados",
+        "DUPLICATE": "Duplicados",
         "QUEUED": "Na fila",
         "OCR_RUNNING": "Processando"
       },

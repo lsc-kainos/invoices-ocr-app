@@ -41,6 +41,8 @@ function makeDoc(id: string, total: string | null, invoiceDate: string | null): 
     documentType: null,
     confidence: null,
     rejectionReason: null,
+    duplicateOfId: null,
+    duplicateReason: null,
     verifiedAt: null,
     verifiedBy: null,
   };

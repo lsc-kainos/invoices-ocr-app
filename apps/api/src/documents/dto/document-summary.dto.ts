@@ -13,6 +13,8 @@ export interface DocumentSummaryDto {
   documentType: string | null;
   confidence: number | null;
   rejectionReason: string | null;
+  duplicateOfId: string | null;
+  duplicateReason: string | null;
   verifiedAt: string | null;
   verifiedBy: string | null;
   createdAt: string;
@@ -32,6 +34,8 @@ export function toSummaryDto(doc: Document): DocumentSummaryDto {
     documentType: doc.documentType ?? null,
     confidence: doc.confidence ?? null,
     rejectionReason: doc.rejectionReason ?? null,
+    duplicateOfId: doc.duplicateOfId ?? null,
+    duplicateReason: doc.duplicateReason ?? null,
     verifiedAt: doc.verifiedAt?.toISOString() ?? null,
     verifiedBy: doc.verifiedBy ?? null,
     createdAt: doc.createdAt.toISOString(),

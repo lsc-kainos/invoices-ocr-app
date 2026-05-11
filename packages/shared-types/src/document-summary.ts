@@ -13,6 +13,8 @@ export interface DocumentSummary {
   documentType: string | null;
   confidence: number | null;
   rejectionReason: string | null;
+  duplicateOfId: string | null;
+  duplicateReason: string | null;
   verifiedAt: string | null;
   verifiedBy: string | null;
   createdAt: string;

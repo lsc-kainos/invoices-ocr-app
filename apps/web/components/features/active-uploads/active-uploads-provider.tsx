@@ -18,7 +18,7 @@ export const ActiveUploadsContext = createContext<ActiveUploadsContextValue | nu
 const INITIAL_DELAY_MS = 1500;
 const MAX_DELAY_MS = 8000;
 const ACTIVE_FILTER = 'QUEUED,OCR_RUNNING';
-const FINISHED_FILTER = 'READY,FAILED';
+const FINISHED_FILTER = 'READY,FAILED,DUPLICATE';
 const CATCHUP_LIMIT = 5;
 
 type ToastFn = ReturnType<typeof useTranslations>;
@@ -27,6 +27,13 @@ type RouterPush = ReturnType<typeof useRouter>['push'];
 function emitToast(doc: DocumentSummary, t: ToastFn, tErrors: ToastFn, push: RouterPush) {
   if (doc.status === 'READY') {
     toast.success(t('toasts.ready', { name: doc.filename }), {
+      action: {
+        label: t('toasts.view'),
+        onClick: () => push(`/documents/${doc.id}`),
+      },
+    });
+  } else if (doc.status === 'DUPLICATE') {
+    toast.info(t('toasts.duplicate', { name: doc.filename }), {
       action: {
         label: t('toasts.view'),
         onClick: () => push(`/documents/${doc.id}`),
