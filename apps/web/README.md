@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# @invoices-ocr/web
 
-## Getting Started
+Frontend Next.js 16 do case técnico Paggo — OCR + LLM chat sobre invoices.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js 16 (App Router)
+- Tailwind CSS v4
+- shadcn/ui + Radix UI
+- next-auth (Google + GitHub OAuth)
+- next-themes (dark default)
+- next-intl (pt-BR)
+- react-dropzone
+- react-markdown + rehype-sanitize
+- sonner (toasts)
+- recharts (gráficos do dashboard)
+
+## Estrutura
+
+```
+app/
+├── (authed)/           # rotas protegidas (middleware redirect)
+│   ├── page.tsx        # home — upload de documentos
+│   ├── documents/      # listagem + detalhe + download
+│   ├── chat/           # chat workspace (sidebar + painel)
+│   └── admin/          # painel admin (ADMIN only)
+├── login/page.tsx      # tela de login OAuth
+├── api/                # BFF route handlers (proxy pra API Nest)
+│   ├── upload/
+│   ├── documents/
+│   ├── chat/
+│   └── auth/[...nextauth]/
+├── layout.tsx          # root layout (fonts, providers)
+└── globals.css         # paleta OKLCH Paggo + tokens Tailwind
+
+components/
+├── ui/                 # primitivos shadcn
+├── layout/             # topbar, logo, user-menu, nav-links
+└── features/
+    ├── document-upload/
+    ├── active-uploads/
+    ├── document-detail/
+    ├── document-download/
+    ├── documents-list/
+    ├── chat/
+    └── benchmark/
+
+lib/
+├── auth.ts             # next-auth config (providers, callbacks)
+├── api.ts              # helpers fetch server-side com Bearer JWT
+├── prisma.ts           # Prisma client singleton (para callbacks auth)
+└── env.ts              # validação zod de envs
+
+messages/
+└── pt-BR.json          # todas as strings de UI (i18n)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Testes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run test        # unit + integration (Vitest + Testing Library, 28+ testes)
+npm run test:e2e    # E2E (Playwright)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Para rodar um único teste:
 
-## Learn More
+```bash
+cd apps/web && npx vitest run chat-panel
+```
 
-To learn more about Next.js, take a look at the following resources:
+## i18n
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Todas as strings de UI estão em `messages/pt-BR.json`. Não hardcodar texto em componentes — sempre usar `t('key')` do `next-intl`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Auth
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+NextAuth v4 com JWT strategy. O web faz upsert do `User` no Postgres via Prisma no callback `signIn`. O token JWT é compartilhado com o NestJS (mesmo `NEXTAUTH_SECRET`), que valida via `passport-jwt`.

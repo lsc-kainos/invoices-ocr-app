@@ -6,16 +6,18 @@ OCR + LLM chat sobre invoices — case técnico Paggo.
 
 - Monorepo: npm workspaces + Turborepo
 - `apps/web`: Next.js 16 (App Router) + Tailwind v4 + shadcn/ui + next-themes + next-intl (pt-BR)
-- `apps/api`: NestJS 11 + Prisma 6 + helmet + Throttler + class-validator + zod
+- `apps/api`: NestJS 11 + Prisma 6 + helmet + Throttler + class-validator + zod + BullMQ
 - `packages/shared-types`: DTOs compartilhados
 - DB local: Postgres 16 via docker-compose
-- Deploy: Railway (Dockerfiles + `railway.json`)
+- Fila local: Redis 7 via Docker (para jobs OCR)
+- Deploy: Railway (web + api + Postgres + Redis + Volume)
 
 ## Pré-requisitos
 
 - Node 22 (ver `.nvmrc`)
 - npm 10+
 - Docker + Docker Compose v2
+- Redis 7 (para fila OCR local — `docker run -p 6379:6379 redis:7-alpine`)
 
 ## Setup local
 
@@ -103,6 +105,45 @@ output). Em produção (Railway) o `STORAGE_URL_SECRET` precisa ser uma string
 estável (não regenerar a cada deploy — invalida URLs assinadas em voo) e o
 `VOLUME_ROOT` aponta para o volume Railway montado em `/data`.
 
+### Chat setup local (F3)
+
+Por default o dev local roda com `LLM_PROVIDER=mock`: respostas determinísticas,
+sem consumo de tokens. Para rodar com OpenAI real:
+
+```
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-...
+CHAT_MODEL=gpt-4o-mini
+```
+
+Streaming pode ser ativado com `CHAT_STREAMING=true` (requer `LLM_PROVIDER=openai`).
+
+### Storage dual — Railway Volume vs Cloudflare R2
+
+Por default (`STORAGE_DRIVER=volume`) os arquivos ficam em `./.data/volume`.
+Para usar Cloudflare R2 em produção:
+
+```
+STORAGE_DRIVER=r2
+R2_ACCOUNT_ID=...
+R2_ACCESS_KEY_ID=...
+R2_SECRET_ACCESS_KEY=...
+R2_BUCKET=...
+```
+
+A troca é transparente — o `StorageService` abstrai ambos os providers.
+
+### Admin / Benchmark / LLM Configs (F2.5–F3.5)
+
+Usuários com `role=ADMIN` (configurado via `ADMIN_EMAILS`) acessam `/admin`:
+
+- **Métricas:** storage, usuários, custo estimado de IA
+- **Benchmark:** rodar extração contra dataset rotulado em `samples/invoice-dataset/`
+- **LLM Configs:** versionar prompts do extractor e do chat, ativar por ambiente
+
+O dataset de benchmark é carregado automaticamente se `BENCHMARK_DATASET_DIR`
+estiver vazio (resolve para `../../samples/invoice-dataset`).
+
 ## Comandos úteis
 
 | Comando                                                                 | O que faz                                                                                                    |
@@ -139,4 +180,6 @@ Containers via Dockerfile multi-stage (`apps/web/Dockerfile`, `apps/api/Dockerfi
 - Spec F0.5 (Skeleton): `docs/superpowers/specs/2026-05-07-fase-0.5-skeleton.md`
 - Spec F1 (Auth): `docs/superpowers/specs/2026-05-07-fase-1-auth.md`
 - Spec F2 (OCR): `docs/superpowers/specs/2026-05-07-fase-2-ocr.md`
+- Spec F3 (Chat): `docs/superpowers/specs/2026-05-07-fase-3-chat.md`
+- Spec F4 (Listagem + Download): `docs/superpowers/specs/2026-05-09-fase-4-lista-download.md`
 - Design tokens e mockups: `docs/claude-design/`
