@@ -43,6 +43,7 @@ model User {
   llmConfigs        LlmConfig[]
   verifiedDocuments Document[]     @relation("DocumentVerifier")
   documentEdits     DocumentEdit[]
+  benchmarkRuns     BenchmarkRun[]
 }
 
 model Document {
@@ -134,8 +135,30 @@ model LlmConfig {
   creator   User         @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   createdAt DateTime     @default(now())
 
+  benchmarkRuns BenchmarkRun[]
+
   @@unique([key, version])
   @@index([key, active])
+}
+
+model BenchmarkRun {
+  id             String     @id @default(cuid())
+  runBy          String
+  runner         User       @relation(fields: [runBy], references: [id], onDelete: Cascade)
+  llmConfigId    String?
+  llmConfig      LlmConfig? @relation(fields: [llmConfigId], references: [id], onDelete: SetNull)
+  modelSnapshot  String
+  promptSnapshot String     @db.Text
+  paramsSnapshot Json
+  datasetVersion String
+  sampleCount    Int
+  aggregate      Json
+  results        Json
+  durationMs     Int
+  createdAt      DateTime   @default(now())
+
+  @@index([createdAt])
+  @@index([llmConfigId, createdAt])
 }
 
 model DocumentEdit {

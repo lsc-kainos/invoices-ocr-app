@@ -68,6 +68,7 @@ export const envSchema = z
       .min(0)
       .max(1)
       .default(0.6),
+    BENCHMARK_DATASET_VERSION: z.string().default('v1'),
   })
   .superRefine((env, ctx) => {
     if (env.OCR_PROVIDER === 'openai' && !env.OPENAI_API_KEY) {

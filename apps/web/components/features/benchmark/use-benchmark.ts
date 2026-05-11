@@ -22,12 +22,14 @@ export function useBenchmark() {
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
+  const [savedRunId, setSavedRunId] = useState<string | null>(null);
 
   const run = useCallback(async () => {
     setRunning(true);
     setResults([]);
     setAggregate(null);
     setError(null);
+    setSavedRunId(null);
 
     try {
       const res = await fetch('/api/admin/benchmark', { method: 'POST' });
@@ -63,6 +65,8 @@ export function useBenchmark() {
               setResults((prev) => [...prev, event as ImageResult]);
             } else if (event.type === 'complete') {
               setAggregate(event.aggregate as Aggregate);
+            } else if (event.type === 'persisted') {
+              setSavedRunId(event.runId as string);
             }
           } catch {
             /* ignore malformed */
@@ -76,5 +80,5 @@ export function useBenchmark() {
     }
   }, []);
 
-  return { run, running, progress, results, aggregate, error };
+  return { run, running, progress, results, aggregate, error, savedRunId };
 }

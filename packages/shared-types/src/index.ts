@@ -12,3 +12,11 @@ export type { InvoiceCore, InvoiceItem, InvoiceExtra, InvoiceSummary } from './i
 export type { DocumentSummary } from './document-summary.js';
 export type { DocumentDetail } from './document-detail.js';
 export * from './llm-config.js';
+export type {
+  BenchmarkErrorCounts,
+  BenchmarkFieldAggregate,
+  BenchmarkAggregate,
+  BenchmarkSampleResult,
+  BenchmarkRunDto,
+  BenchmarkRunDetailDto,
+} from './benchmark.js';
