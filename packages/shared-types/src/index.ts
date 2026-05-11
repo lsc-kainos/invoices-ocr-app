@@ -21,3 +21,11 @@ export type {
   BenchmarkRunDto,
   BenchmarkRunDetailDto,
 } from './benchmark.js';
+export type {
+  DailyPoint,
+  DocumentMetrics,
+  ChatMetrics,
+  QueueMetrics,
+  UserMetrics,
+  MetricsResponseDto,
+} from './metrics.js';
