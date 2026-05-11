@@ -228,6 +228,7 @@
   },
   "documents": {
     "list": {
+      "eyebrow": "NOTAS",
       "title": "Minhas notas",
       "subtitle": "Documentos enviados, ordenados pelos mais recentes.",
       "empty_title": "Você ainda não enviou nenhuma nota. Clique em 'Nova nota' para começar.",

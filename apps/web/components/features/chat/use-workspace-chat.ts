@@ -36,21 +36,33 @@ export function useWorkspaceChat(activeSessionId?: string) {
   }, []);
 
   useEffect(() => {
+    let alive = true;
+
     if (!activeSessionId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset de mensagens quando a sessão é desselecionada; reescrever via state derivation exigiria refactor maior do hook
-      setMessages([]);
-      return;
+      Promise.resolve().then(() => {
+        if (alive) setMessages([]);
+      });
+      return () => {
+        alive = false;
+      };
     }
 
     const cached = messageCache.current.get(activeSessionId);
     if (cached) {
-      setMessages(cached);
-      return;
+      Promise.resolve(cached).then((data) => {
+        if (alive) setMessages(data);
+      });
+      return () => {
+        alive = false;
+      };
     }
 
-    if (inFlight.current.has(activeSessionId)) return;
+    if (inFlight.current.has(activeSessionId)) {
+      return () => {
+        alive = false;
+      };
+    }
 
-    let alive = true;
     inFlight.current.add(activeSessionId);
     fetch(`/api/chat/sessions/${activeSessionId}/messages`)
       .then(async (r) => {
