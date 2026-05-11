@@ -13,6 +13,7 @@ import { DocumentsModule } from './documents/documents.module';
 import { OcrModule } from './ocr/ocr.module';
 import { BenchmarkModule } from './ocr/benchmark/benchmark.module';
 import { QueuesAdminModule } from './admin/queues.module';
+import { MetricsModule } from './admin/metrics/metrics.module';
 import { ChatModule } from './chat/chat.module';
 import { DownloadModule } from './download/download.module';
 import { AiRuntimeModule } from './ai-runtime/ai-runtime.module';
@@ -53,6 +54,7 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
     AiRuntimeModule,
     ...(process.env.NODE_ENV !== 'test' ? [BenchmarkModule] : []),
     ...(process.env.BULL_BOARD_ENABLED === 'true' ? [QueuesAdminModule] : []),
+    MetricsModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: LoggerInterceptor },
