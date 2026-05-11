@@ -22,6 +22,9 @@ npx --no-install prisma migrate status || true
 echo "[entrypoint] aplicando migrations pendentes..."
 npx --no-install prisma migrate deploy
 
+echo "[entrypoint] rodando seeds (idempotente)..."
+npx --no-install prisma db seed
+
 cd /app
 echo "[entrypoint] iniciando Nest..."
 exec node apps/api/dist/main.js

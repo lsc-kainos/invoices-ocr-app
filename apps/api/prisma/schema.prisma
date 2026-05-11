@@ -39,6 +39,7 @@ model User {
 
   documents    Document[]
   chatSessions ChatSession[]
+  llmConfigs   LlmConfig[]
 }
 
 model Document {
@@ -102,4 +103,26 @@ model ChatMessage {
   createdAt  DateTime    @default(now())
 
   @@index([sessionId, createdAt])
+}
+
+enum LlmConfigKey {
+  EXTRACTOR
+  CHAT
+}
+
+model LlmConfig {
+  id        String       @id @default(cuid())
+  key       LlmConfigKey
+  version   Int
+  model     String
+  prompt    String       @db.Text
+  params    Json
+  active    Boolean      @default(false)
+  notes     String?      @db.Text
+  createdBy String
+  creator   User         @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([key, version])
+  @@index([key, active])
 }

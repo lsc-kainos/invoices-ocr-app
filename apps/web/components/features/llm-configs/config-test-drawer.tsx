@@ -1,0 +1,88 @@
+'use client';
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import type { TestLlmConfigResult } from '@invoices-ocr/shared-types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+interface ConfigTestDrawerProps {
+  configId: string | null;
+  onClose: () => void;
+  onTest: (id: string, sampleFilename: string) => Promise<TestLlmConfigResult>;
+}
+
+export function ConfigTestDrawer({ configId, onClose, onTest }: ConfigTestDrawerProps) {
+  const t = useTranslations('admin.llmConfigs');
+
+  const [sample, setSample] = useState('');
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<TestLlmConfigResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleRun() {
+    if (!configId || !sample.trim()) return;
+    setRunning(true);
+    setError(null);
+    setResult(null);
+    try {
+      const res = await onTest(configId, sample.trim());
+      setResult(res);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  function handleClose() {
+    setSample('');
+    setResult(null);
+    setError(null);
+    onClose();
+  }
+
+  return (
+    <Dialog open={configId !== null} onOpenChange={(o) => !o && handleClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t('test.title')}</DialogTitle>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-2">
+            <Input
+              value={sample}
+              onChange={(e) => setSample(e.target.value)}
+              placeholder={t('test.sample')}
+              className="flex-1"
+            />
+            <Button onClick={() => void handleRun()} disabled={running || !sample.trim()}>
+              {t('test.run')}
+            </Button>
+          </div>
+
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
+          {result && (
+            <div className="flex flex-col gap-2">
+              <div className="text-muted-foreground flex items-center justify-between text-xs">
+                <span>{t('test.result')}</span>
+                <span>{t('test.duration', { ms: result.durationMs })}</span>
+              </div>
+              <pre className="bg-muted max-h-80 overflow-auto rounded-md p-3 text-xs whitespace-pre-wrap">
+                {JSON.stringify(
+                  result.ok
+                    ? result.result
+                    : { error: result.error, errorClass: result.errorClass },
+                  null,
+                  2,
+                )}
+              </pre>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { join } from 'node:path';
 import { promises as fs } from 'node:fs';
-import { OpenAiOcrProvider } from '../providers/openai-ocr.provider';
+import { ExtractorService } from '../extractor.service';
 import { invoiceSummarySchema } from '../schemas/invoice-summary.schema';
 import { loadCsvSamples } from './csv-loader';
 import {
@@ -45,7 +45,7 @@ function classifyError(err: unknown): string {
 
 @Injectable()
 export class BenchmarkService {
-  constructor(private readonly provider: OpenAiOcrProvider) {}
+  constructor(private readonly extractor: ExtractorService) {}
 
   async *runStream(samplesDir: string): AsyncGenerator<BenchmarkEvent> {
     const samples = await loadCsvSamples(samplesDir);
@@ -61,7 +61,7 @@ export class BenchmarkService {
 
       try {
         const buffer = await fs.readFile(imagePath);
-        const raw = await this.provider.extract(buffer, 'image/jpeg');
+        const raw = await this.extractor.extract(buffer, 'image/jpeg');
         const parsed = invoiceSummarySchema.parse(raw);
         const fieldResults = compareFields(
           parsed.summary.core,

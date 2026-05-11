@@ -20,12 +20,15 @@
     "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json",
     "dev": "nest start --watch",
     "typecheck": "tsc --noEmit",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:seed:llm": "ts-node prisma/seed-llm-config.ts"
   },
   "prisma": {
-    "schema": "prisma/schema.prisma"
+    "schema": "prisma/schema.prisma",
+    "seed": "ts-node prisma/seed-llm-config.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.63",
     "@aws-sdk/client-s3": "^3.1045.0",
     "@bull-board/api": "^6.7.1",
     "@bull-board/express": "^6.7.1",
@@ -42,6 +45,7 @@
     "@panva/hkdf": "^1.2.1",
     "@prisma/client": "^6.19.3",
     "@types/archiver": "^7.0.0",
+    "ai": "^6.0.177",
     "archiver": "^7.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",

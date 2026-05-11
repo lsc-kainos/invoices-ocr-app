@@ -227,5 +227,39 @@
     "suggestion_document_1": "Qual o valor total?",
     "suggestion_document_2": "Quem é o emitente?",
     "suggestion_document_3": "Qual a chave NF-e?"
+  },
+  "admin": {
+    "llmConfigs": {
+      "title": "Configurações de IA",
+      "newVersion": "Nova versão",
+      "reloadCache": "Recarregar cache",
+      "table": {
+        "version": "Versão",
+        "model": "Modelo",
+        "createdAt": "Criado em",
+        "active": "Ativa",
+        "actions": "Ações"
+      },
+      "actions": {
+        "activate": "Ativar",
+        "test": "Testar"
+      },
+      "editor": {
+        "title": "Nova versão de config",
+        "key": "Tipo (Extractor/Chat)",
+        "model": "Modelo",
+        "prompt": "Prompt",
+        "temperature": "Temperature",
+        "notes": "Notas (opcional)",
+        "submit": "Criar (não ativar ainda)"
+      },
+      "test": {
+        "title": "Testar config",
+        "sample": "Nome do arquivo de amostra",
+        "run": "Rodar",
+        "result": "Resultado",
+        "duration": "Duração: {ms}ms"
+      }
+    }
   }
 }
