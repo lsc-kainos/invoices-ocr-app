@@ -12,6 +12,8 @@ export interface DocumentSummary {
   retryCount: number;
   duplicateOfId: string | null;
   duplicateReason: string | null;
+  possibleDuplicateOfId: string | null;
+  duplicateMatchStrength: string | null;
   documentType: string | null;
   confidence: number | null;
   rejectionReason: string | null;

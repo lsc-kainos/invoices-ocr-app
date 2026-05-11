@@ -26,6 +26,8 @@ const baseDoc = {
   retryCount: 1,
   duplicateOfId: null,
   duplicateReason: null,
+  possibleDuplicateOfId: null,
+  duplicateMatchStrength: null,
   documentType: null,
   confidence: null,
   rejectionReason: null,

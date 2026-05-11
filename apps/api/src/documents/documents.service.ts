@@ -24,7 +24,7 @@ import type {
   InvoiceSummary,
   InvoiceSummaryResult,
 } from '../ocr/schemas/invoice-summary.schema';
-import type { DocumentOps } from '../ocr/ocr.service';
+import type { DocumentOps, ReadyDuplicateSuggestion } from '../ocr/ocr.service';
 import { OCR_QUEUE_NAME, type OcrJobData } from '../ocr/queues/ocr.queue';
 import { sanitizeFilename } from './helpers/sanitize-filename';
 import { mimeToExt } from './helpers/mime-to-ext';
@@ -210,6 +210,8 @@ export class DocumentsService implements DocumentOps {
         contentHash: args.contentHash,
         duplicateOfId,
         duplicateReason: 'content_hash',
+        possibleDuplicateOfId: null,
+        duplicateMatchStrength: 'strong',
         status: DocumentStatus.DUPLICATE,
       },
     });
@@ -415,6 +417,7 @@ export class DocumentsService implements DocumentOps {
     summary: InvoiceSummary,
     extractedText: string,
     semanticHash: string | null = null,
+    duplicateSuggestion: ReadyDuplicateSuggestion | null = null,
   ): Promise<void> {
     await this.prisma.document.update({
       where: { id },
@@ -426,7 +429,11 @@ export class DocumentsService implements DocumentOps {
         ocrCompletedAt: new Date(),
         failureReason: null,
         duplicateOfId: null,
-        duplicateReason: null,
+        duplicateReason: duplicateSuggestion?.duplicateReason ?? null,
+        possibleDuplicateOfId:
+          duplicateSuggestion?.possibleDuplicateOfId ?? null,
+        duplicateMatchStrength:
+          duplicateSuggestion?.duplicateMatchStrength ?? null,
       },
     });
   }
@@ -466,6 +473,8 @@ export class DocumentsService implements DocumentOps {
         status: DocumentStatus.DUPLICATE,
         duplicateOfId,
         duplicateReason: reason,
+        possibleDuplicateOfId: null,
+        duplicateMatchStrength: 'strong',
         semanticHash,
         documentType: partial.documentType,
         confidence: partial.confidence,

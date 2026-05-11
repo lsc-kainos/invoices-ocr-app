@@ -153,6 +153,7 @@ describe('OcrService', () => {
       'low_confidence',
       result,
     );
+    expect(docs.findReadySemanticDuplicate).not.toHaveBeenCalled();
     expect(docs.markReady).not.toHaveBeenCalled();
   });
 
@@ -207,6 +208,120 @@ describe('OcrService', () => {
     expect(docs.markReady).not.toHaveBeenCalled();
   });
 
+  it('invoice com IDs fiscais iguais a documento READY vira DUPLICATE', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'invoice',
+      summary: {
+        ...happy.summary,
+        core: {
+          ...happy.summary.core,
+          invoiceDate: '11/05/2026',
+          sellerName: 'ACME Ltda',
+          clientName: 'Kainos Labs',
+          total: 'R$ 1.234,56',
+        },
+        extras: [
+          { label: 'CNPJ emitente', value: '12.345.678/0001-90', mono: true },
+          {
+            label: 'CNPJ destinatario',
+            value: '98.765.432/0001-10',
+            mono: true,
+          },
+        ],
+      },
+    };
+    docs.findReadySemanticDuplicate.mockResolvedValue({ id: 'original-doc' });
+    provider.extract.mockResolvedValue(result);
+
+    await svc.process('d1');
+
+    const semanticHash = docs.findReadySemanticDuplicate.mock.calls[0][1];
+    expect(semanticHash).toMatch(/^DOCID:v1:[0-9a-f]{64}$/);
+    expect(docs.markDuplicate).toHaveBeenCalledWith(
+      'd1',
+      'original-doc',
+      'document_identity',
+      result,
+      semanticHash,
+    );
+    expect(docs.markReady).not.toHaveBeenCalled();
+  });
+
+  it('invoice com nomes livres igual a READY fica READY com possibleDuplicateOfId', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'invoice',
+      summary: {
+        ...happy.summary,
+        core: {
+          ...happy.summary.core,
+          invoiceDate: '11/05/2026',
+          sellerName: 'ACME Ltda',
+          clientName: 'Kainos Labs',
+          total: 'R$ 1.234,56',
+        },
+      },
+    };
+    docs.findReadySemanticDuplicate.mockResolvedValue({ id: 'candidate-doc' });
+    provider.extract.mockResolvedValue(result);
+
+    await svc.process('d1');
+
+    const semanticHash = docs.findReadySemanticDuplicate.mock.calls[0][1];
+    expect(docs.markDuplicate).not.toHaveBeenCalled();
+    expect(docs.markReady).toHaveBeenCalledWith(
+      'd1',
+      result.summary,
+      result.extractedText,
+      semanticHash,
+      {
+        possibleDuplicateOfId: 'candidate-doc',
+        duplicateMatchStrength: 'needs_confirmation',
+        duplicateReason: 'document_identity',
+      },
+    );
+  });
+
+  it('boleto com identificador forte igual a READY vira DUPLICATE', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'boleto',
+      summary: {
+        ...happy.summary,
+        core: {
+          ...happy.summary.core,
+          dueDate: '11/05/2026',
+          sellerName: 'Banco Exemplo',
+          clientName: 'Kainos Labs',
+          total: '250,00',
+        },
+        extras: [
+          {
+            label: 'Linha digitável',
+            value: '00190.00009 01234.567890 12345.678901 1 12345678901234',
+            mono: true,
+          },
+        ],
+      },
+    };
+    docs.findReadySemanticDuplicate.mockResolvedValue({
+      id: 'boleto-original',
+    });
+    provider.extract.mockResolvedValue(result);
+
+    await svc.process('d1');
+
+    const semanticHash = docs.findReadySemanticDuplicate.mock.calls[0][1];
+    expect(docs.markDuplicate).toHaveBeenCalledWith(
+      'd1',
+      'boleto-original',
+      'boleto_identifier',
+      result,
+      semanticHash,
+    );
+  });
+
   it('unknown type → markRejected(unsupported_type)', async () => {
     const result: InvoiceSummaryResult = {
       ...happy,
@@ -220,6 +335,7 @@ describe('OcrService', () => {
       'unsupported_type',
       result,
     );
+    expect(docs.findReadySemanticDuplicate).not.toHaveBeenCalled();
     expect(docs.markReady).not.toHaveBeenCalled();
   });
 

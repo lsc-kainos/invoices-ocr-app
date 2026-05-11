@@ -37,7 +37,9 @@ NARRATIVE (always in pt-BR):
 
 EXTRAS (document-type/country-specific fields):
 - "extras[]": key-value list for any relevant field not covered by core. Use "mono: true" for monospaced fields (barcodes, long keys, digitizable lines).
+- Always include issuer/seller and recipient/client tax identifiers when present (CNPJ, CPF, VAT, Tax ID), using labels that make the role explicit, such as "CNPJ emitente" and "CNPJ destinatário".
 - For Brazilian documents, always include: CNPJ do emitente (mono: true), CNPJ do destinatário (mono: true), chave NF-e 44 dígitos (mono: true), CFOP, tipo de documento (NF-e/NFS-e/Boleto/Recibo).
+- For boletos, always include linha digitável, código de barras, and nosso número when present, with "mono: true".
 
 CLASSIFICATION (CRITICAL):
 - Identify the document type. Return one of: "nf-e" (Brazilian electronic invoice), "nfs-e" (Brazilian electronic service invoice), "boleto" (Brazilian payment slip), "invoice" (generic invoice/bill in any country), "receipt" (purchase receipt), or "unknown" (clearly not a fiscal/billing document — e.g. photo of a person, contract, blank page, screenshot).

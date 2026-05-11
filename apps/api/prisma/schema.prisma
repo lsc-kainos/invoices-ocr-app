@@ -62,6 +62,8 @@ model Document {
   duplicateOf     Document?  @relation("DocumentDuplicates", fields: [duplicateOfId], references: [id], onDelete: SetNull)
   duplicates      Document[] @relation("DocumentDuplicates")
   duplicateReason String?
+  possibleDuplicateOfId String?
+  duplicateMatchStrength String?
 
   status        DocumentStatus @default(QUEUED)
   failureReason String?
@@ -90,6 +92,7 @@ model Document {
   @@index([userId, contentHash])
   @@index([userId, semanticHash, status])
   @@index([duplicateOfId])
+  @@index([possibleDuplicateOfId])
 }
 
 model ChatSession {
