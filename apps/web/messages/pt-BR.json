@@ -47,6 +47,7 @@
       "home": "Início",
       "list": "Minhas notas",
       "chat": "Chat",
+      "admin": "Admin",
       "menu_label": "Abrir menu"
     },
     "user_menu_label": "Conta",
@@ -55,8 +56,7 @@
       "theme_light": "Claro",
       "theme_dark": "Escuro",
       "theme_system": "Sistema",
-      "logout": "Sair",
-      "admin_hub": "Área Admin"
+      "logout": "Sair"
     }
   },
   "home": {

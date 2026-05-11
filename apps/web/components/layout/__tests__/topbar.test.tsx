@@ -86,10 +86,17 @@ describe('<Topbar />', () => {
     ).toBeInTheDocument();
   });
 
-  it('Admin hub não aparece na nav de nenhum role (acesso via user menu)', () => {
+  it('Role USER NÃO vê o item Admin na nav principal', () => {
     renderTopbar('USER');
     const nav = screen.getByRole('navigation', { name: /primary/i });
     expect(within(nav).queryByText('Benchmark')).toBeNull();
-    expect(within(nav).queryByText(/Admin/i)).toBeNull();
+    expect(within(nav).queryByRole('link', { name: /Admin/i })).toBeNull();
+  });
+
+  it('Role ADMIN vê o item Admin na nav principal apontando para /admin', () => {
+    renderTopbar('ADMIN');
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+    const adminLink = within(nav).getByRole('link', { name: /Admin/i });
+    expect(adminLink).toHaveAttribute('href', '/admin');
   });
 });
