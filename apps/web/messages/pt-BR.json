@@ -213,21 +213,45 @@
     }
   },
   "benchmark": {
+    "eyebrow": "Admin / Benchmark",
+    "title": "OCR Benchmark",
+    "subtitle": "Execute o benchmark de extração contra o dataset de amostras e acompanhe a evolução dos resultados ao longo do tempo.",
     "tabs": {
       "run": "Executar",
       "history": "Histórico"
     },
     "runner": {
-      "button": "Executar Benchmark",
+      "button": "Executar benchmark",
       "running": "Executando…",
-      "saved": "Run salvo",
-      "viewHistory": "Ver no histórico"
+      "saved": "Run salvo no histórico",
+      "viewHistory": "Ver no histórico",
+      "dismiss": "Fechar",
+      "progressLabel": "Progresso",
+      "averageScore": "Score médio",
+      "field": "Campo",
+      "correctTotal": "Corretos / Total",
+      "accuracy": "Precisão",
+      "results": "Resultados por amostra",
+      "noResults": "Nenhum resultado ainda. Execute o benchmark para começar.",
+      "columnIndex": "#",
+      "columnFile": "Arquivo",
+      "columnScore": "Score",
+      "expected": "Esperado",
+      "extracted": "Extraído",
+      "errorStatus": "erro"
     },
     "history": {
       "title": "Histórico de runs",
       "refresh": "Atualizar",
       "empty": "Nenhum run encontrado",
-      "loading": "Carregando…"
+      "loading": "Carregando…",
+      "columnDate": "Data/Hora",
+      "columnModel": "Modelo",
+      "columnScore": "Score",
+      "columnSamples": "Amostras",
+      "columnDuration": "Duração",
+      "columnAction": "Ação",
+      "view": "Ver"
     },
     "detail": {
       "title": "Detalhes do run",
@@ -241,7 +265,13 @@
       "failed": "Falharam",
       "promptSnapshot": "Prompt",
       "results": "Resultados por amostra",
-      "close": "Fechar"
+      "close": "Fechar",
+      "tabAggregate": "Resumo",
+      "tabSamples": "Amostras",
+      "tabPrompt": "Prompt",
+      "columnFile": "Arquivo",
+      "columnScore": "Score",
+      "columnError": "Erro"
     }
   },
   "disabled": {

@@ -4,11 +4,20 @@ import { useTranslations } from 'next-intl';
 import { useBenchmark } from './use-benchmark';
 import { BenchmarkTable } from './benchmark-table';
 import { BenchmarkAggregate } from './benchmark-aggregate';
+import { Button } from '@/components/ui/button';
+import { XIcon } from 'lucide-react';
 
 interface BenchmarkRunnerProps {
   onViewHistory?: (runId: string) => void;
 }
 
+/**
+ * Benchmark runner — refined editorial dark.
+ *
+ * - Card de run em andamento com border-l-2 cobre.
+ * - Barra de progresso fina (h-1) com tom primary, sem gradiente brutalist.
+ * - Métricas e tabelas em sans + mono só nos dados técnicos.
+ */
 export function BenchmarkRunner({ onViewHistory }: BenchmarkRunnerProps) {
   const t = useTranslations('benchmark');
   const { run, running, progress, results, aggregate, error, savedRunId } = useBenchmark();
@@ -19,72 +28,124 @@ export function BenchmarkRunner({ onViewHistory }: BenchmarkRunnerProps) {
   const showBanner = savedRunId !== null && !dismissed;
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-4 p-4 sm:gap-6 sm:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-xl font-semibold sm:text-2xl">OCR Benchmark</h1>
-        <button
+    <div className="flex flex-col gap-6 sm:gap-8">
+      {/* Run trigger row */}
+      <div
+        className="animate-config-reveal flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        style={{ animationDelay: '120ms' }}
+      >
+        <div className="flex flex-col gap-1">
+          <span className="eyebrow">{t('runner.progressLabel')}</span>
+          <p className="text-foreground text-sm">
+            {running
+              ? t('runner.running')
+              : progress.current > 0
+                ? `${progress.current} / ${progress.total}`
+                : '—'}
+          </p>
+        </div>
+        <Button
           type="button"
+          variant="default"
           onClick={() => {
             setDismissed(false);
             void run();
           }}
           disabled={running}
-          className="bg-primary text-primary-foreground shadow-primary/20 hover:shadow-primary/40 h-11 w-full rounded-lg px-4 py-2 text-sm font-medium shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:shadow-none disabled:hover:scale-100 sm:h-9 sm:w-auto"
+          data-testid="benchmark-run-button"
+          className="w-full sm:w-auto"
         >
           {running ? t('runner.running') : t('runner.button')}
-        </button>
+        </Button>
       </div>
 
+      {/* Saved banner */}
       {showBanner && (
-        <div className="border-primary/30 bg-primary/10 text-primary flex items-center justify-between rounded-md border p-3 text-sm">
-          <span>
-            ✓ {t('runner.saved')} —{' '}
+        <div
+          className="border-border bg-card border-l-primary animate-config-reveal flex items-center justify-between gap-3 rounded-lg border border-l-2 px-4 py-3 text-sm shadow-sm"
+          style={{ animationDelay: '160ms' }}
+          data-testid="benchmark-saved-banner"
+        >
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="text-foreground font-medium">{t('runner.saved')}</span>
             <button
               type="button"
-              className="underline underline-offset-2"
+              className="text-primary text-xs underline-offset-2 hover:underline"
               onClick={() => {
                 if (savedRunId) onViewHistory?.(savedRunId);
               }}
             >
               {t('runner.viewHistory')}
             </button>
-          </span>
+          </div>
           <button
             type="button"
-            aria-label="Fechar"
-            className="ml-4 opacity-60 hover:opacity-100"
+            aria-label={t('runner.dismiss')}
+            className="text-muted-foreground hover:text-foreground -mr-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors duration-150 ease-out"
             onClick={() => setDismissed(true)}
           >
-            ×
+            <XIcon className="size-4" />
           </button>
         </div>
       )}
 
+      {/* Error */}
       {error && (
-        <div className="border-destructive/50 bg-destructive/10 text-destructive rounded-lg border p-3 text-sm">
+        <div
+          className="border-destructive/50 bg-destructive/10 text-destructive rounded-lg border px-4 py-3 text-sm"
+          data-testid="benchmark-error"
+        >
           {error}
         </div>
       )}
 
+      {/* Progress card */}
       {showProgress && (
-        <div className="flex flex-col gap-1">
-          <div className="text-muted-foreground flex justify-between font-mono text-xs">
-            <span>
-              {progress.current} / {progress.total}
+        <section
+          className="border-border bg-card border-l-primary animate-config-reveal flex flex-col gap-4 rounded-lg border border-l-2 p-5 shadow-sm sm:p-6"
+          style={{ animationDelay: '180ms' }}
+          data-testid="benchmark-progress-card"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <span className="eyebrow">{t('runner.progressLabel')}</span>
+            <span className="text-muted-foreground font-mono text-xs tabular-nums">
+              {progress.current} / {progress.total} · {pct}%
             </span>
-            <span>{pct}%</span>
           </div>
-          <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
+          <div
+            className="bg-muted h-1 w-full overflow-hidden rounded-full"
+            role="progressbar"
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
             <div
-              className="from-primary/60 via-primary to-primary/80 h-full rounded-full bg-gradient-to-r transition-all"
+              className="bg-primary h-full rounded-full transition-[width] duration-200 ease-out"
               style={{ width: `${pct}%` }}
             />
           </div>
+        </section>
+      )}
+
+      {/* Aggregate */}
+      {aggregate && (
+        <div
+          className="animate-config-reveal"
+          style={{ animationDelay: '220ms' }}
+          data-testid="benchmark-aggregate-wrapper"
+        >
+          <BenchmarkAggregate aggregate={aggregate} />
         </div>
       )}
 
-      <BenchmarkAggregate aggregate={aggregate} />
-      <BenchmarkTable results={results} />
+      {/* Results table */}
+      <div
+        className="animate-config-reveal"
+        style={{ animationDelay: '260ms' }}
+        data-testid="benchmark-table-wrapper"
+      >
+        <BenchmarkTable results={results} />
+      </div>
     </div>
   );
 }
