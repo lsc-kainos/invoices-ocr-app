@@ -21,11 +21,11 @@
     "dev": "nest start --watch",
     "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate",
-    "db:seed:llm": "ts-node prisma/seed-llm-config.ts"
+    "db:seed:llm": "node prisma/seed-llm-config.js"
   },
   "prisma": {
     "schema": "prisma/schema.prisma",
-    "seed": "ts-node prisma/seed-llm-config.ts"
+    "seed": "node prisma/seed-llm-config.js"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.63",
