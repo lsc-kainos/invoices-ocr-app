@@ -1,5 +1,23 @@
 import { Test } from '@nestjs/testing';
 import { ExecutionContext } from '@nestjs/common';
+
+jest.mock('./providers/available-models', () => ({
+  availableModels: () => [
+    {
+      id: 'gpt-4o',
+      provider: 'openai',
+      requires: 'OPENAI_API_KEY',
+      vision: true,
+    },
+    {
+      id: 'gpt-4o-mini',
+      provider: 'openai',
+      requires: 'OPENAI_API_KEY',
+      vision: true,
+    },
+  ],
+}));
+
 import { LlmConfigController } from './llm-config.controller';
 import { LlmConfigService } from './llm-config.service';
 import { LlmConfigKey } from '@prisma/client';

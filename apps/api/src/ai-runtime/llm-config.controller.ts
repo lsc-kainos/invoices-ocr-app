@@ -30,7 +30,7 @@ interface AuthRequest extends Request {
   user: { id: string };
 }
 
-type LlmConfigWithCreator = LlmConfig & { creator?: { email: string } };
+type LlmConfigWithCreator = LlmConfig & { creator?: { email: string } | null };
 
 @Controller('api/v1/admin/llm-configs')
 @UseGuards(JwtAuthGuard, RolesGuard)
