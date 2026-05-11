@@ -12,6 +12,7 @@ const STATUS_DOT: Record<DocumentSummary['status'], string> = {
   READY: 'bg-success',
   FAILED: 'bg-destructive',
   REJECTED: 'bg-warning',
+  DUPLICATE: 'bg-muted-foreground/60',
 };
 
 const STATUS_TONE: Record<DocumentSummary['status'], string> = {
@@ -20,6 +21,7 @@ const STATUS_TONE: Record<DocumentSummary['status'], string> = {
   READY: 'bg-success-muted text-success-foreground',
   FAILED: 'bg-destructive/15 text-destructive',
   REJECTED: 'bg-warning-muted text-warning-foreground',
+  DUPLICATE: 'bg-muted text-muted-foreground',
 };
 
 // Mobile short labels — full labels ("Documento incompatível", "Erro no
@@ -30,6 +32,7 @@ const STATUS_SHORT: Record<DocumentSummary['status'], string> = {
   READY: 'OK',
   FAILED: 'Erro',
   REJECTED: 'Incomp.',
+  DUPLICATE: 'Dupl.',
 };
 
 export function DocumentRow({ doc }: { doc: DocumentSummary }) {

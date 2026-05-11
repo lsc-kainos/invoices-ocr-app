@@ -14,7 +14,8 @@ export function useDocumentDetail(initial: DocumentDetail) {
     if (
       initial.status === 'READY' ||
       initial.status === 'FAILED' ||
-      initial.status === 'REJECTED'
+      initial.status === 'REJECTED' ||
+      initial.status === 'DUPLICATE'
     ) {
       return;
     }
@@ -31,7 +32,12 @@ export function useDocumentDetail(initial: DocumentDetail) {
         const next = (await res.json()) as DocumentDetail;
         if (!alive) return;
         setDoc(next);
-        if (next.status === 'READY' || next.status === 'FAILED' || next.status === 'REJECTED') {
+        if (
+          next.status === 'READY' ||
+          next.status === 'FAILED' ||
+          next.status === 'REJECTED' ||
+          next.status === 'DUPLICATE'
+        ) {
           // re-roda o RSC para repopular initial e cache server-side
           router.refresh();
           return;

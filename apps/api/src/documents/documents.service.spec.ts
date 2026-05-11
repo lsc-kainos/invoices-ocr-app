@@ -24,13 +24,13 @@ import {
   PayloadTooLargeException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { createHmac } from 'node:crypto';
+import { createHash, createHmac } from 'node:crypto';
 import { DocumentsService } from './documents.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { STORAGE_SERVICE } from '../storage/storage.service';
 import { OCR_QUEUE_NAME } from '../ocr/queues/ocr.queue';
 import type { Document } from '@prisma/client';
-import { DocumentStatus } from '@prisma/client';
+import { DocumentStatus, Prisma } from '@prisma/client';
 import type { InvoiceSummary } from '../ocr/schemas/invoice-summary.schema';
 
 const SECRET = 'a'.repeat(32);
@@ -67,6 +67,8 @@ const baseDoc = (over: Partial<Document>): Document => {
     mime: 'image/jpeg',
     size: 100,
     storagePath: 'user1/d1/original.jpg',
+    contentHash: null,
+    duplicateOfId: null,
     status: 'READY',
     failureReason: null,
     retryCount: 0,
@@ -169,10 +171,34 @@ describe('DocumentsService', () => {
   });
 
   describe('create', () => {
-    it('happy path: persiste arquivo + row + emite evento', async () => {
-      const dto = await svc.create('user1', file(buildJpeg()));
+    it('upload novo enfileira OCR e salva contentHash', async () => {
+      const buffer = buildJpeg();
+      const expectedHash = createHash('sha256').update(buffer).digest('hex');
+
+      const dto = await svc.create('user1', file(buffer));
+
+      expect(prisma.document.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            userId: 'user1',
+            contentHash: expectedHash,
+            status: {
+              in: [
+                DocumentStatus.READY,
+                DocumentStatus.REJECTED,
+                DocumentStatus.DUPLICATE,
+              ],
+            },
+          }),
+        }),
+      );
       expect(storage.put).toHaveBeenCalled();
-      expect(prisma.document.create).toHaveBeenCalled();
+      expect(prisma.document.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          contentHash: expectedHash,
+          status: DocumentStatus.QUEUED,
+        }),
+      });
       expect(prisma.document.update).toHaveBeenCalled();
       expect(ocrQueue.add).toHaveBeenCalledWith(
         'process',
@@ -180,6 +206,105 @@ describe('DocumentsService', () => {
         expect.objectContaining({ jobId: dto.id, attempts: 3 }),
       );
       expect(dto.status).toBeDefined();
+    });
+
+    it('hash duplicado cria DUPLICATE sem storage.put nem OCR', async () => {
+      const buffer = buildJpeg();
+      const expectedHash = createHash('sha256').update(buffer).digest('hex');
+      prisma.document.findFirst.mockResolvedValue(
+        baseDoc({
+          id: 'original1',
+          status: DocumentStatus.READY,
+          contentHash: expectedHash,
+          storagePath: 'user1/original1/original.jpg',
+        }),
+      );
+      prisma.document.create.mockResolvedValueOnce(
+        baseDoc({
+          id: 'dup1',
+          status: DocumentStatus.DUPLICATE,
+          contentHash: expectedHash,
+          duplicateOfId: 'original1',
+          storagePath: 'duplicate:original1',
+        }),
+      );
+
+      const dto = await svc.create('user1', file(buffer));
+
+      expect(dto.status).toBe(DocumentStatus.DUPLICATE);
+      expect(dto.duplicateOfId).toBe('original1');
+      expect(storage.put).not.toHaveBeenCalled();
+      expect(ocrQueue.add).not.toHaveBeenCalled();
+      expect(prisma.document.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          status: DocumentStatus.DUPLICATE,
+          contentHash: expectedHash,
+          duplicateOfId: 'original1',
+          storagePath: 'duplicate:original1',
+        }),
+      });
+    });
+
+    it('corrida por unique constraint retorna duplicata sem enfileirar OCR', async () => {
+      const buffer = buildJpeg();
+      const expectedHash = createHash('sha256').update(buffer).digest('hex');
+      prisma.document.findFirst
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(
+          baseDoc({
+            id: 'original-race',
+            status: DocumentStatus.QUEUED,
+            contentHash: expectedHash,
+            storagePath: 'pending',
+          }),
+        );
+      prisma.document.create
+        .mockRejectedValueOnce(
+          new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+            code: 'P2002',
+            clientVersion: 'test',
+            meta: { target: ['userId', 'contentHash'] },
+          }),
+        )
+        .mockResolvedValueOnce(
+          baseDoc({
+            id: 'dup-race',
+            status: DocumentStatus.DUPLICATE,
+            contentHash: expectedHash,
+            duplicateOfId: 'original-race',
+            storagePath: 'duplicate:original-race',
+          }),
+        );
+
+      const dto = await svc.create('user1', file(buffer));
+
+      expect(dto.status).toBe(DocumentStatus.DUPLICATE);
+      expect(storage.put).not.toHaveBeenCalled();
+      expect(ocrQueue.add).not.toHaveBeenCalled();
+      expect(prisma.document.findFirst).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          where: expect.objectContaining({
+            userId: 'user1',
+            contentHash: expectedHash,
+            status: {
+              in: [
+                DocumentStatus.QUEUED,
+                DocumentStatus.OCR_RUNNING,
+                DocumentStatus.READY,
+                DocumentStatus.REJECTED,
+              ],
+            },
+          }),
+        }),
+      );
+      expect(prisma.document.create).toHaveBeenLastCalledWith({
+        data: expect.objectContaining({
+          status: DocumentStatus.DUPLICATE,
+          duplicateOfId: 'original-race',
+          contentHash: expectedHash,
+        }),
+      });
     });
 
     it('magic bytes inválidos → BadRequest sem put', async () => {
@@ -306,6 +431,37 @@ describe('DocumentsService', () => {
         .digest('hex');
       const res = makeRes();
       await svc.streamFile('d1', `${exp}.${sig}`, res as never);
+      expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'image/jpeg');
+      expect(res.end).toHaveBeenCalled();
+    });
+
+    it('documento DUPLICATE faz stream do arquivo do original', async () => {
+      prisma.document.findUnique
+        .mockResolvedValueOnce(
+          baseDoc({
+            id: 'dup1',
+            userId: 'user1',
+            status: DocumentStatus.DUPLICATE,
+            duplicateOfId: 'original1',
+            storagePath: 'duplicate:original1',
+          }),
+        )
+        .mockResolvedValueOnce(
+          baseDoc({
+            id: 'original1',
+            userId: 'user1',
+            storagePath: 'user1/original1/original.jpg',
+          }),
+        );
+      const exp = Math.floor(Date.now() / 1000) + 600;
+      const sig = createHmac('sha256', SECRET)
+        .update(`dup1.user1.${exp}`)
+        .digest('hex');
+      const res = makeRes();
+
+      await svc.streamFile('dup1', `${exp}.${sig}`, res as never);
+
+      expect(storage.read).toHaveBeenCalledWith('user1/original1/original.jpg');
       expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'image/jpeg');
       expect(res.end).toHaveBeenCalled();
     });

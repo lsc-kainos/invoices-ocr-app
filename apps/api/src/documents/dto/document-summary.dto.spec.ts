@@ -8,6 +8,8 @@ describe('toSummaryDto', () => {
     mime: 'application/pdf',
     size: 1024,
     storagePath: 'u1/doc1/original.pdf',
+    contentHash: null,
+    duplicateOfId: null,
     status: 'FAILED' as const,
     failureReason: 'rate_limit',
     retryCount: 2,
@@ -27,6 +29,11 @@ describe('toSummaryDto', () => {
   it('mapeia retryCount do row Prisma', () => {
     const dto = toSummaryDto(baseDoc);
     expect(dto.retryCount).toBe(2);
+  });
+
+  it('mapeia vínculo com documento original quando é duplicado', () => {
+    const dto = toSummaryDto({ ...baseDoc, duplicateOfId: 'doc-original' });
+    expect(dto.duplicateOfId).toBe('doc-original');
   });
 
   it('mantém retryCount=0 em doc novo', () => {

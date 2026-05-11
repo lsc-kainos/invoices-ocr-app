@@ -24,6 +24,7 @@ const baseDoc = {
   summary: null,
   failureReason: 'parse_failure' as const,
   retryCount: 1,
+  duplicateOfId: null,
   documentType: null,
   confidence: null,
   rejectionReason: null,
