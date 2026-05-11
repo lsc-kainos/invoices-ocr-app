@@ -47,26 +47,32 @@ model User {
 }
 
 model Document {
-  id             String         @id @default(cuid())
-  userId         String
-  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  filename       String
-  mime           String
-  size           Int
-  storagePath    String
+  filename    String
+  mime        String
+  size        Int
+  storagePath String
 
-  status         DocumentStatus @default(QUEUED)
-  failureReason  String?
-  retryCount     Int            @default(0)
+  status        DocumentStatus @default(QUEUED)
+  failureReason String?
+  retryCount    Int            @default(0)
 
-  summary        Json?
-  extractedText  String?        @db.Text
+  summary       Json?
+  extractedText String? @db.Text
+
+  contentHash     String?
+  duplicateOfId   String?
+  duplicateOf     Document?  @relation("DocumentDuplicates", fields: [duplicateOfId], references: [id], onDelete: SetNull)
+  duplicates      Document[] @relation("DocumentDuplicates")
+  duplicateReason String?
 
   ocrStartedAt   DateTime?
   ocrCompletedAt DateTime?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   documentType    String?
   confidence      Float?
@@ -78,41 +84,43 @@ model Document {
 
   chatSessions ChatSession[]
 
+  @@unique([userId, contentHash])
+  @@index([duplicateOfId])
   @@index([userId, status])
   @@index([userId, updatedAt])
 }
 
 model ChatSession {
-  id         String        @id @default(cuid())
-  userId     String
-  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   documentId String?
-  document   Document?     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  document   Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
-  title      String?
-  messages   ChatMessage[]
+  title    String?
+  messages ChatMessage[]
 
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, documentId])
   @@index([userId, updatedAt])
 }
 
 model ChatMessage {
-  id         String      @id @default(cuid())
-  sessionId  String
-  session    ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  id        String      @id @default(cuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
-  role       ChatRole
-  content    String      @db.Text
+  role    ChatRole
+  content String   @db.Text
 
   toolCallId String?
   toolName   String?
   toolArgs   Json?
 
-  createdAt  DateTime    @default(now())
+  createdAt DateTime @default(now())
 
   @@index([sessionId, createdAt])
 }

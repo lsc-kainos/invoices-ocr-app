@@ -13,6 +13,9 @@ describe('toSummaryDto', () => {
     retryCount: 2,
     summary: null,
     extractedText: null,
+    contentHash: 'sha256:abc',
+    duplicateOfId: 'doc-original',
+    duplicateReason: 'same_content_hash',
     ocrStartedAt: null,
     ocrCompletedAt: null,
     documentType: null,
@@ -27,6 +30,13 @@ describe('toSummaryDto', () => {
   it('mapeia retryCount do row Prisma', () => {
     const dto = toSummaryDto(baseDoc);
     expect(dto.retryCount).toBe(2);
+  });
+
+  it('mapeia metadados de duplicidade do row Prisma', () => {
+    const dto = toSummaryDto(baseDoc);
+    expect(dto.contentHash).toBe('sha256:abc');
+    expect(dto.duplicateOfId).toBe('doc-original');
+    expect(dto.duplicateReason).toBe('same_content_hash');
   });
 
   it('mantém retryCount=0 em doc novo', () => {
