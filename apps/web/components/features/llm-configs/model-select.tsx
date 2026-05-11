@@ -9,8 +9,13 @@ interface ModelSelectProps {
   onChange: (value: string) => void;
   visionOnly?: boolean;
   className?: string;
+  disabled?: boolean;
 }
 
+/**
+ * Brutalist native <select>: bordas pretas grossas, mono, ALL CAPS.
+ * Concessão pra inputs: rounded-none (0px), sem cantos arredondados.
+ */
 export function ModelSelect({
   id,
   models,
@@ -18,6 +23,7 @@ export function ModelSelect({
   onChange,
   visionOnly,
   className,
+  disabled,
 }: ModelSelectProps) {
   const filtered = visionOnly ? models.filter((m) => m.vision) : models;
 
@@ -26,15 +32,21 @@ export function ModelSelect({
       id={id}
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      disabled={disabled}
       className={cn(
-        'border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full rounded-lg border px-2.5 py-1 text-sm transition-colors outline-none focus-visible:ring-3',
+        'border-foreground bg-background text-foreground font-mono text-xs tracking-wider uppercase',
+        'h-10 w-full rounded-none border-2 px-3 py-2 outline-none',
+        'focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-0',
+        'disabled:cursor-not-allowed disabled:opacity-60',
+        'transition-none',
         className,
       )}
     >
-      <option value="">—</option>
+      <option value="">— SELECT MODEL —</option>
       {filtered.map((m) => (
         <option key={m.id} value={m.id}>
-          {m.id} ({m.provider}){m.vision ? ' ✦' : ''}
+          {m.id} · {m.provider.toUpperCase()}
+          {m.vision ? ' · VISION' : ''}
         </option>
       ))}
     </select>

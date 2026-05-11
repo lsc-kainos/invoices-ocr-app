@@ -7,17 +7,9 @@ import type {
   LlmConfigDto,
   LlmConfigKey,
 } from '@invoices-ocr/shared-types';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ModelSelect } from './model-select';
+import { cn } from '@/lib/utils';
 
 export type EditorMode =
   | { kind: 'closed' }
@@ -48,12 +40,27 @@ function modeId(mode: EditorMode): string {
   return 'closed';
 }
 
+/**
+ * Brutalist editor — Dialog shadcn estilizado pra raw.
+ * - Container border-2 foreground + shadow-brutal-primary (sombra cobre).
+ * - Header com EDITOR. eyebrow + subtítulo FROM V{n}. quando clonando.
+ * - Inputs/textarea com border-2, rounded-none, mono font.
+ * - Read-only: container vira bg-muted, inputs disabled com cursor:not-allowed.
+ */
 export function ConfigEditorDrawer({ mode, onClose, models, onSubmit }: ConfigEditorDrawerProps) {
   const open = mode.kind !== 'closed';
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent
+        className={cn(
+          // override defaults: no rounded, no ring, brutal shadow
+          'border-foreground bg-card text-card-foreground rounded-none border-2 sm:max-w-2xl',
+          'shadow-[6px_6px_0_0_var(--primary)] ring-0',
+          'gap-0 p-0',
+        )}
+        showCloseButton={false}
+      >
         {open && (
           <ConfigEditorForm
             // key forces state reset whenever the mode meaningfully changes
@@ -121,25 +128,51 @@ function ConfigEditorForm({ mode, models, onSubmit, onClose }: ConfigEditorFormP
     }
   }
 
-  let title: string;
+  let subtitle: string | null = null;
   if (mode.kind === 'view' && base) {
-    title = t('editor.viewMode', { n: base.version });
+    subtitle = t('editor.viewMode', { n: base.version });
   } else if (mode.kind === 'clone' && base) {
-    title = t('editor.fromBase', { n: base.version });
-  } else {
-    title = t('editor.title');
+    subtitle = t('editor.fromBase', { n: base.version });
   }
 
+  const inputBase =
+    'border-foreground bg-background text-foreground rounded-none border-2 px-3 py-2 font-mono text-xs outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0 transition-none disabled:cursor-not-allowed disabled:opacity-70';
+  const labelBase =
+    'font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground';
+
   return (
-    <>
-      <DialogHeader>
-        <DialogTitle>{title}</DialogTitle>
+    <div className={cn('flex flex-col', readOnly && 'bg-muted')}>
+      <DialogHeader
+        className={cn(
+          'border-foreground flex flex-row items-start justify-between gap-3 border-b-2 px-6 py-5',
+        )}
+      >
+        <div className="flex flex-col gap-1">
+          <DialogTitle className="text-foreground font-mono text-base font-semibold tracking-[0.14em] uppercase">
+            {t('editor.title')}
+          </DialogTitle>
+          {subtitle && (
+            <span className="text-primary font-mono text-[11px] tracking-wider uppercase">
+              {readOnly ? '↳ ' : ''}
+              {subtitle}
+              {!readOnly ? ' →' : ''}
+            </span>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="border-foreground bg-background text-foreground hover:bg-foreground hover:text-background rounded-none border-2 px-2 py-1 font-mono text-[11px] font-semibold tracking-wider uppercase transition-none"
+        >
+          X
+        </button>
       </DialogHeader>
 
-      <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
+      <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-5 px-6 py-6">
         {/* Key select */}
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="cfg-editor-key" className="text-sm font-medium">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="cfg-editor-key" className={labelBase}>
             {t('editor.key')}
           </label>
           <select
@@ -147,7 +180,7 @@ function ConfigEditorForm({ mode, models, onSubmit, onClose }: ConfigEditorFormP
             value={key}
             onChange={(e) => setKey(e.target.value as LlmConfigKey)}
             disabled={readOnly || mode.kind === 'clone'}
-            className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full rounded-lg border px-2.5 py-1 text-sm transition-colors outline-none focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-60"
+            className={cn(inputBase, 'h-10 w-full tracking-wider uppercase')}
           >
             <option value="EXTRACTOR">EXTRACTOR</option>
             <option value="CHAT">CHAT</option>
@@ -155,12 +188,18 @@ function ConfigEditorForm({ mode, models, onSubmit, onClose }: ConfigEditorFormP
         </div>
 
         {/* Model select */}
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="cfg-editor-model" className="text-sm font-medium">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="cfg-editor-model" className={labelBase}>
             {t('editor.model')}
           </label>
           {readOnly ? (
-            <Input id="cfg-editor-model" value={model} disabled className="font-mono text-xs" />
+            <input
+              id="cfg-editor-model"
+              value={model}
+              disabled
+              readOnly
+              className={cn(inputBase, 'h-10 w-full')}
+            />
           ) : (
             <ModelSelect
               id="cfg-editor-model"
@@ -173,28 +212,30 @@ function ConfigEditorForm({ mode, models, onSubmit, onClose }: ConfigEditorFormP
         </div>
 
         {/* Prompt */}
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="cfg-editor-prompt" className="text-sm font-medium">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="cfg-editor-prompt" className={labelBase}>
             {t('editor.prompt')}
           </label>
-          <Textarea
+          <textarea
             id="cfg-editor-prompt"
+            aria-label="Prompt"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            rows={readOnly ? 12 : 8}
+            rows={readOnly ? 14 : 12}
             required={!readOnly}
             disabled={readOnly}
-            className="font-mono text-xs"
+            className={cn(inputBase, 'min-h-[260px] w-full resize-y leading-relaxed')}
           />
         </div>
 
         {/* Temperature */}
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="cfg-editor-temperature" className="text-sm font-medium">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="cfg-editor-temperature" className={labelBase}>
             {t('editor.temperature')}
           </label>
-          <Input
+          <input
             id="cfg-editor-temperature"
+            aria-label="Temperature"
             type="number"
             min={0}
             max={2}
@@ -203,36 +244,57 @@ function ConfigEditorForm({ mode, models, onSubmit, onClose }: ConfigEditorFormP
             disabled={readOnly}
             onChange={(e) => setTemperature(e.target.value)}
             aria-invalid={!readOnly && temperatureInvalid ? true : undefined}
+            className={cn(inputBase, 'h-10 w-full max-w-[140px]')}
           />
           {!readOnly && temperatureInvalid && (
-            <p className="text-destructive text-xs">{t('validation.temperatureRequired')}</p>
+            <p className="text-destructive font-mono text-[11px] tracking-wider uppercase">
+              {t('validation.temperatureRequired')}
+            </p>
           )}
         </div>
 
         {/* Notes */}
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="cfg-editor-notes" className="text-sm font-medium">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="cfg-editor-notes" className={labelBase}>
             {t('editor.notes')}
           </label>
-          <Textarea
+          <textarea
             id="cfg-editor-notes"
+            aria-label="Notas"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             disabled={readOnly}
+            className={cn(inputBase, 'w-full resize-y')}
           />
         </div>
 
-        {error && <p className="text-destructive text-sm">{error}</p>}
+        {error && (
+          <p className="text-destructive font-mono text-xs tracking-wider uppercase">{error}</p>
+        )}
 
         {!readOnly && (
-          <DialogFooter>
-            <Button type="submit" disabled={submitDisabled}>
+          <div className="border-foreground bg-card -mx-6 mt-2 -mb-6 flex justify-end gap-3 border-t-2 px-6 py-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="border-foreground bg-background text-foreground shadow-brutal rounded-none border-2 px-5 py-2 font-mono text-xs font-semibold tracking-wider uppercase"
+            >
+              [ CANCEL ]
+            </button>
+            <button
+              type="submit"
+              name="Criar"
+              aria-label="Criar"
+              disabled={submitDisabled}
+              data-testid="editor-submit"
+              className="border-foreground bg-foreground text-background shadow-brutal-primary rounded-none border-2 px-5 py-2 font-mono text-xs font-semibold tracking-wider uppercase disabled:cursor-not-allowed disabled:opacity-50"
+            >
               {t('editor.submit')}
-            </Button>
-          </DialogFooter>
+            </button>
+          </div>
         )}
       </form>
-    </>
+    </div>
   );
 }

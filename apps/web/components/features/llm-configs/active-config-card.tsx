@@ -1,8 +1,6 @@
 'use client';
 import { useTranslations } from 'next-intl';
 import type { LlmConfigDto, LlmConfigKey } from '@invoices-ocr/shared-types';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('pt-BR', {
@@ -26,6 +24,15 @@ interface ActiveConfigCardProps {
   onCreateFirst: (key: LlmConfigKey) => void;
 }
 
+/**
+ * Brutalist active config card — the manifesto block.
+ *
+ * - Border 2px foreground, sombra dura offset 4px 4px 0 0.
+ * - V{n}. em serif Times 80px weight 900 (NÃO Instrument Serif italic).
+ * - Eyebrows mono ALL CAPS terminando com ponto ou dois-pontos.
+ * - Prompt em <pre> com border só top/bottom (caixa aberta, não fechada).
+ * - Botões: sombra cobre, hover empurra 2px.
+ */
 export function ActiveConfigCard({
   config,
   configKey,
@@ -37,61 +44,107 @@ export function ActiveConfigCard({
 
   if (!config) {
     return (
-      <section className="border-border bg-card flex flex-col items-start gap-3 rounded-lg border p-6">
-        <p className="text-muted-foreground text-sm">{t('active.empty', { key: configKey })}</p>
-        <Button onClick={() => onCreateFirst(configKey)}>{t('active.createFirst')}</Button>
+      <section
+        className="border-foreground bg-card shadow-brutal animate-brutal-reveal flex flex-col items-start gap-4 rounded-none border-2 p-8"
+        style={{ animationDelay: '160ms' }}
+        data-testid="active-config-empty"
+      >
+        <p className="text-muted-foreground font-mono text-xs tracking-wider uppercase">
+          {t('active.empty', { key: configKey })}
+        </p>
+        <button
+          type="button"
+          onClick={() => onCreateFirst(configKey)}
+          data-testid="active-create-first"
+          className="border-foreground bg-foreground text-background shadow-brutal-primary rounded-none border-2 px-5 py-2 font-mono text-xs font-semibold tracking-wider uppercase"
+        >
+          {t('active.createFirst')}
+        </button>
       </section>
     );
   }
 
   const creator = config.createdByEmail ?? config.createdBy;
+  const temp = tempFrom(config.params);
+  const date = formatDate(config.createdAt);
 
   return (
     <section
       data-testid="active-config-card"
-      className="bg-card border-l-primary relative flex flex-col gap-4 rounded-lg border border-l-4 p-6 shadow-sm"
+      className="border-foreground bg-card shadow-brutal animate-brutal-reveal relative flex flex-col gap-6 rounded-none border-2 p-6 sm:p-8"
+      style={{ animationDelay: '160ms' }}
     >
-      <header className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm">
-        <Badge variant="default" className="tracking-wide uppercase">
+      {/* Manchete: V{n}. enorme, chapado, cobre */}
+      <div className="flex flex-col gap-2">
+        <span
+          data-testid="active-version"
+          className="font-brutal-display text-primary text-[64px] sm:text-[80px]"
+        >
+          V{config.version}.
+        </span>
+        <span aria-hidden className="brutal-double-rule w-12" />
+      </div>
+
+      {/* Metadata strip — mono ALL CAPS, separadores · */}
+      <header className="text-foreground flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] tracking-wider uppercase">
+        <span className="border-foreground bg-foreground text-background border-2 px-2 py-0.5 font-semibold">
           {t('active.label')}
-        </Badge>
-        <span className="text-foreground font-mono">v{config.version}</span>
+        </span>
         <span className="text-muted-foreground">·</span>
-        <span className="text-muted-foreground font-mono text-xs">{config.model}</span>
+        <span>v{config.version}</span>
         <span className="text-muted-foreground">·</span>
-        <span className="text-muted-foreground text-xs">{t('active.by', { who: creator })}</span>
+        <span>{config.model}</span>
         <span className="text-muted-foreground">·</span>
-        <span className="text-muted-foreground text-xs">{formatDate(config.createdAt)}</span>
+        <span>
+          {t('active.metaTemp')} {temp}
+        </span>
+        <span className="text-muted-foreground">·</span>
+        <span className="break-all">{t('active.by', { who: creator })}</span>
+        <span className="text-muted-foreground">·</span>
+        <span>{date}</span>
       </header>
 
-      <div className="flex flex-col gap-1.5">
-        <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-          {t('editor.prompt')}
+      {/* Prompt block — caixa aberta, só border top/bottom */}
+      <div className="flex flex-col gap-3">
+        <span className="text-foreground font-mono text-[11px] font-semibold tracking-[0.14em] uppercase">
+          {t('active.promptLabel')}
         </span>
         <pre
           data-testid="active-prompt"
-          className="bg-muted/40 border-border text-foreground max-h-[280px] overflow-y-auto rounded-md border p-3 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap"
+          className="border-foreground text-foreground max-h-[280px] overflow-y-auto border-y-2 py-4 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap"
         >
           {config.prompt}
         </pre>
       </div>
 
+      {/* Notes — sempre presente, mono, com em-dash quando vazio */}
       <div className="flex flex-col gap-1">
-        <p className="text-muted-foreground text-xs">
-          <span className="text-foreground font-medium">{t('editor.temperature')}:</span>{' '}
-          <span className="font-mono">{tempFrom(config.params)}</span>
-        </p>
-        <p className="text-muted-foreground text-xs">
-          <span className="text-foreground font-medium">{t('editor.notes')}:</span>{' '}
-          {config.notes && config.notes.trim() !== '' ? config.notes : '—'}
-        </p>
+        <span className="text-muted-foreground font-mono text-[11px] tracking-wider uppercase">
+          {t('active.notesLabel')}{' '}
+          <span className="text-foreground">
+            {config.notes && config.notes.trim() !== '' ? config.notes : '—'}
+          </span>
+        </span>
       </div>
 
-      <div className="flex flex-wrap gap-2 pt-1">
-        <Button onClick={() => onCloneFromActive(config)}>{t('active.newFromThis')}</Button>
-        <Button variant="outline" onClick={() => onTest(config)}>
+      {/* Actions — primary tem sombra cobre, secondary tem sombra foreground */}
+      <div className="flex flex-wrap gap-4 pt-1">
+        <button
+          type="button"
+          onClick={() => onCloneFromActive(config)}
+          data-testid="active-fork"
+          className="border-foreground bg-foreground text-background shadow-brutal-primary rounded-none border-2 px-5 py-2 font-mono text-xs font-semibold tracking-wider uppercase"
+        >
+          {t('active.newFromThis')}
+        </button>
+        <button
+          type="button"
+          onClick={() => onTest(config)}
+          data-testid="active-test"
+          className="border-foreground bg-background text-foreground shadow-brutal rounded-none border-2 px-5 py-2 font-mono text-xs font-semibold tracking-wider uppercase"
+        >
           {t('actions.test')}
-        </Button>
+        </button>
       </div>
     </section>
   );

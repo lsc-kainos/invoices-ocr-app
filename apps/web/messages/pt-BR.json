@@ -243,35 +243,39 @@
   },
   "admin": {
     "llmConfigs": {
-      "title": "Configurações de IA",
+      "title": "LLM Configs.",
+      "eyebrow": "ADMIN / LLM",
       "subtitle": "Versão ativa, histórico e iteração de prompts por tipo.",
       "newVersion": "Nova versão",
       "active": {
-        "label": "Ativa",
+        "label": "ATIVA",
         "empty": "Sem versão ativa para {key}.",
-        "createFirst": "Criar primeira versão",
-        "newFromThis": "Nova versão a partir desta",
-        "by": "por {who}"
+        "createFirst": "[ CRIAR PRIMEIRA →  ]",
+        "newFromThis": "[ FORK →  ]",
+        "by": "POR. {who}",
+        "promptLabel": "PROMPT.",
+        "metaTemp": "TEMP",
+        "notesLabel": "NOTAS."
       },
       "history": {
-        "title": "Histórico",
+        "title": "HISTÓRICO.",
         "empty": "Sem versões anteriores"
       },
       "actions": {
-        "activate": "Ativar",
-        "test": "Testar",
-        "view": "Ver"
+        "activate": "[ ATIVAR →  ]",
+        "test": "[ TESTAR →  ]",
+        "view": "[ VER  ]"
       },
       "editor": {
-        "title": "Nova versão de config",
+        "title": "EDITOR.",
         "viewMode": "Visualizar v{n}",
         "fromBase": "Nova versão a partir de v{n}",
-        "key": "Tipo (Extractor/Chat)",
-        "model": "Modelo",
-        "prompt": "Prompt",
-        "temperature": "Temperature",
-        "notes": "Notas (opcional)",
-        "submit": "Criar (não ativar ainda)"
+        "key": "TIPO (EXTRACTOR / CHAT)",
+        "model": "MODELO",
+        "prompt": "PROMPT.",
+        "temperature": "TEMPERATURA",
+        "notes": "NOTAS (opcional)",
+        "submit": "[ SALVAR →  ]"
       },
       "validation": {
         "temperatureRequired": "Temperature é obrigatória"
@@ -281,11 +285,11 @@
         "activated": "v{n} agora é a ativa"
       },
       "test": {
-        "title": "Testar config",
+        "title": "TESTE.",
         "sample": "Nome do arquivo de amostra",
-        "run": "Rodar",
-        "result": "Resultado",
-        "duration": "Duração: {ms}ms"
+        "run": "[ EXECUTAR →  ]",
+        "result": "RESULTADO.",
+        "duration": "DURAÇÃO: {ms}ms"
       }
     }
   }
