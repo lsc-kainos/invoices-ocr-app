@@ -12,6 +12,8 @@ export default async function AdminHubPage() {
   if (session?.user?.role !== 'ADMIN') redirect('/');
   const t = await getTranslations('admin.hub');
 
+  const bullUrl = process.env.BULL_DASHBOARD_URL;
+
   const cards = [
     {
       href: '/admin/benchmark',
@@ -27,13 +29,17 @@ export default async function AdminHubPage() {
       description: t('llm_configs.description'),
       external: false,
     },
-    {
-      href: process.env.BULL_DASHBOARD_URL ?? '/api/admin/queues',
-      icon: ExternalLink,
-      title: t('bull.title'),
-      description: t('bull.description'),
-      external: true,
-    },
+    ...(bullUrl
+      ? [
+          {
+            href: bullUrl,
+            icon: ExternalLink,
+            title: t('bull.title'),
+            description: t('bull.description'),
+            external: true,
+          },
+        ]
+      : []),
   ];
 
   return (

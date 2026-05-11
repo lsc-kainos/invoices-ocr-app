@@ -63,17 +63,24 @@ export function UploadCard({ doc }: UploadCardProps) {
   const isFailed = doc.status === 'FAILED';
   const isRejected = doc.status === 'REJECTED';
   const isRunning = doc.status === 'OCR_RUNNING';
-  const isQueued = doc.status === 'QUEUED';
   const isAutoRetrying = isRunning && doc.retryCount > 0;
   const retryPending = isPending(doc.id);
 
   // Stuck: OCR_RUNNING for more than threshold (computed outside render via module-level helper)
   const isStuck = isRunning && isOlderThan(doc.updatedAt, STUCK_THRESHOLD_MS);
 
-  // Collapsed by default for passive states (QUEUED), expanded for active/error states
-  const [isExpanded, setIsExpanded] = useState(() => !isQueued && !isReady);
+  // Status-keyed toggle: user override only applies to the status it was set for.
+  // When status changes (e.g. QUEUED→OCR_RUNNING) the previous override is ignored
+  // and the status-derived default takes over — no useEffect needed.
+  const [userToggle, setUserToggle] = useState<{ status: string; expanded: boolean } | null>(null);
 
-  const canToggle = !isFailed && !isRejected; // failure states are always expanded
+  const defaultExpanded = isRunning || isFailed || isRejected;
+  const isExpanded = userToggle?.status === doc.status ? userToggle.expanded : defaultExpanded;
+
+  const toggleExpanded = () => setUserToggle({ status: doc.status, expanded: !isExpanded });
+
+  // failure/rejected states always expanded; READY has no toggle (it's a Link)
+  const canToggle = !isFailed && !isRejected && !isReady;
   const forceExpanded = isFailed || isRejected;
 
   const showLadder = forceExpanded || isExpanded;
@@ -118,7 +125,7 @@ export function UploadCard({ doc }: UploadCardProps) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              setIsExpanded((v) => !v);
+              toggleExpanded();
             }}
             aria-label={isExpanded ? 'Recolher' : 'Expandir'}
             className="text-muted-foreground hover:text-foreground ml-1 transition-colors"
@@ -143,27 +150,11 @@ export function UploadCard({ doc }: UploadCardProps) {
             <Progress value={PROGRESS[doc.status]} className="mt-2 h-1.5 sm:mt-3" />
           )}
 
-          {/* Stuck warning */}
+          {/* Stuck warning — informational only; retry requires FAILED status at backend */}
           {isStuck && (
-            <div className="mt-2 flex items-center justify-between gap-3 sm:mt-3">
-              <div className="text-warning-foreground flex items-center gap-1.5 text-[11px]">
-                <AlertTriangle size={12} className="text-warning" />
-                <span>{t('stuck_hint')}</span>
-              </div>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  void retry(doc.id, doc.filename);
-                }}
-                disabled={retryPending}
-                className="h-7 text-[11px]"
-              >
-                {retryPending ? tRetry('in_progress') : tRetry('stuck')}
-              </Button>
+            <div className="mt-2 flex items-center gap-1.5 text-[11px] sm:mt-3">
+              <AlertTriangle size={12} className="text-warning" />
+              <span className="text-warning-foreground">{t('stuck_hint')}</span>
             </div>
           )}
 

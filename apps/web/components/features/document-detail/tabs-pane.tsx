@@ -45,7 +45,7 @@ export function TabsPane({ doc }: TabsPaneProps) {
       : null;
 
   return (
-    <Tabs defaultValue="chat" className="flex h-full flex-col">
+    <Tabs defaultValue={doc.status === 'READY' ? 'chat' : 'raw'} className="flex h-full flex-col">
       <TabsList className="self-start overflow-x-auto" variant="line">
         <TabsTrigger value="chat">{t('tabs.chat')}</TabsTrigger>
         <TabsTrigger value="raw">{t('tabs.raw')}</TabsTrigger>
