@@ -144,15 +144,10 @@ function ConfigEditorForm({ mode, models, onSubmit, onClose }: ConfigEditorFormP
         <DialogTitle className="text-foreground text-base font-semibold tracking-tight">
           {t('editor.title')}
         </DialogTitle>
-        {subtitle && (
-          <span className="text-muted-foreground text-xs">{subtitle}</span>
-        )}
+        {subtitle && <span className="text-muted-foreground text-xs">{subtitle}</span>}
       </DialogHeader>
 
-      <form
-        onSubmit={(e) => void handleSubmit(e)}
-        className="flex min-h-0 flex-1 flex-col"
-      >
+      <form onSubmit={(e) => void handleSubmit(e)} className="flex min-h-0 flex-1 flex-col">
         <div className="flex flex-col gap-4 overflow-y-auto px-6 py-5">
           {/* Key select */}
           <div className="flex flex-col gap-1.5">

@@ -82,7 +82,9 @@ export function ActiveConfigCard({
           >
             {t('active.label')}
           </Badge>
-          <span className="text-muted-foreground text-xs">{configKey === 'EXTRACTOR' ? 'Extractor' : 'Chat'}</span>
+          <span className="text-muted-foreground text-xs">
+            {configKey === 'EXTRACTOR' ? 'Extractor' : 'Chat'}
+          </span>
         </div>
 
         <span

@@ -46,7 +46,7 @@ export function ConfigHistoryList({ rows, onView, onActivate, onTest }: ConfigHi
         return (
           <li
             key={cfg.id}
-            className="group/row animate-config-reveal hover:bg-muted/40 border-border/60 not-first:border-t transition-colors duration-150 ease-out"
+            className="group/row animate-config-reveal hover:bg-muted/40 border-border/60 transition-colors duration-150 ease-out not-first:border-t"
             style={{ animationDelay: `${180 + idx * 60}ms` }}
             data-testid={`history-row-${cfg.id}`}
           >
