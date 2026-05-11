@@ -22,6 +22,14 @@ type Props = {
   placeholder?: string;
 };
 
+const AUTO_SCROLL_THRESHOLD_PX = 96;
+
+function isNearBottom(element: HTMLDivElement): boolean {
+  return (
+    element.scrollHeight - element.scrollTop - element.clientHeight <= AUTO_SCROLL_THRESHOLD_PX
+  );
+}
+
 export function ChatPanel({
   messages,
   loading,
@@ -34,26 +42,53 @@ export function ChatPanel({
   const t = useTranslations('chat');
   const [input, setInput] = useState('');
   const empty = messages.length === 0;
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
+  const shouldStickToBottomRef = useRef(true);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView?.({ behavior: 'smooth' });
+    const scrollContainer = messagesScrollRef.current;
+    if (!scrollContainer || !shouldStickToBottomRef.current) return;
+
+    if (typeof scrollContainer.scrollTo === 'function') {
+      scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior: 'smooth' });
+      return;
+    }
+
+    scrollContainer.scrollTop = scrollContainer.scrollHeight;
   }, [messages, loading]);
+
+  const handleMessagesScroll = () => {
+    const scrollContainer = messagesScrollRef.current;
+    if (!scrollContainer) return;
+
+    shouldStickToBottomRef.current = isNearBottom(scrollContainer);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const text = input.trim();
     if (!text || loading) return;
+    shouldStickToBottomRef.current = true;
     onSend(text);
     setInput('');
+  };
+
+  const handleSuggestionPick = (text: string) => {
+    shouldStickToBottomRef.current = true;
+    onSend(text);
   };
 
   return (
     <div className="to-muted/10 flex min-h-0 flex-1 flex-col bg-gradient-to-b from-transparent via-transparent">
       {empty ? (
-        <EmptyChatState suggestions={suggestions ?? []} onPick={onSend} />
+        <EmptyChatState suggestions={suggestions ?? []} onPick={handleSuggestionPick} />
       ) : (
-        <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col space-y-6 overflow-y-auto px-3 py-4 sm:px-6 sm:py-6">
+        <div
+          ref={messagesScrollRef}
+          data-testid="chat-messages-scroll"
+          onScroll={handleMessagesScroll}
+          className="mx-auto flex w-full max-w-4xl flex-1 flex-col space-y-6 overflow-y-auto overscroll-contain px-3 py-4 sm:px-6 sm:py-6"
+        >
           {messages.map((m) => (
             <ChatMessageContent key={m.id} message={m} />
           ))}
@@ -67,7 +102,6 @@ export function ChatPanel({
               <span className="text-xs font-medium">{t('loading')}</span>
             </div>
           )}
-          <div ref={messagesEndRef} />
         </div>
       )}
 

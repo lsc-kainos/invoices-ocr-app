@@ -11,7 +11,7 @@ export default async function AuthedLayout({ children }: { children: React.React
     <div className="flex min-h-screen flex-col">
       <Topbar user={session.user} />
       <ActiveUploadsProvider>
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 pt-14">{children}</main>
       </ActiveUploadsProvider>
     </div>
   );

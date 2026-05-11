@@ -34,7 +34,7 @@ export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
   ];
 
   return (
-    <header className="border-border/40 bg-background/80 sticky top-0 z-50 flex h-14 flex-shrink-0 items-center gap-3 border-b px-4 backdrop-blur-md sm:gap-4 sm:px-6 lg:gap-6">
+    <header className="border-border/40 bg-background/90 fixed inset-x-0 top-0 z-50 flex h-14 flex-shrink-0 items-center gap-3 border-b px-4 backdrop-blur-md sm:gap-4 sm:px-6 lg:gap-6">
       <Logo size={24} />
       <div className="bg-border/50 hidden h-6 w-px sm:block" />
 

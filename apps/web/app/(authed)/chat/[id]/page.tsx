@@ -13,7 +13,7 @@ export default function WorkspaceChatPage() {
   const { sessions, messages, loading, error, createSession, send } = useWorkspaceChat(id);
 
   return (
-    <div className="flex h-[calc(100vh-56px)]">
+    <div className="flex h-[calc(100dvh-56px)]">
       {/* Desktop sidebar */}
       <WorkspaceSidebar sessions={sessions} activeId={id} onCreate={createSession} />
 
