@@ -6,19 +6,19 @@ import { cn } from '@/lib/utils';
 import type { DocumentStatus } from '@invoices-ocr/shared-types';
 
 const TONE: Record<DocumentStatus, string> = {
-  QUEUED: 'bg-muted text-muted-foreground dark:bg-muted/40 dark:text-muted-foreground',
-  OCR_RUNNING: 'bg-amber-500/15 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
-  READY: 'bg-emerald-500/15 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
-  FAILED: 'bg-destructive/15 text-destructive dark:bg-destructive/20 dark:text-destructive',
-  REJECTED: 'bg-orange-500/15 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300',
+  QUEUED: 'bg-muted text-muted-foreground',
+  OCR_RUNNING: 'bg-warning-muted text-warning-foreground',
+  READY: 'bg-success-muted text-success-foreground',
+  FAILED: 'bg-destructive/15 text-destructive',
+  REJECTED: 'bg-warning-muted text-warning-foreground',
 };
 
 const DOT: Record<DocumentStatus, string> = {
   QUEUED: 'bg-muted-foreground/40',
-  OCR_RUNNING: 'bg-amber-400',
-  READY: 'bg-emerald-400',
-  FAILED: 'bg-red-400',
-  REJECTED: 'bg-orange-400',
+  OCR_RUNNING: 'bg-warning',
+  READY: 'bg-success',
+  FAILED: 'bg-destructive',
+  REJECTED: 'bg-warning',
 };
 
 interface StatusBadgeProps {

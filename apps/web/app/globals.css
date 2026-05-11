@@ -22,6 +22,12 @@
   --accent-foreground: oklch(0.2671 0.0196 98.939);
   --destructive: oklch(0.6368 0.2078 25.3313);
   --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.55 0.15 142);
+  --success-foreground: oklch(1 0 0);
+  --success-muted: oklch(0.55 0.15 142 / 0.12);
+  --warning: oklch(0.65 0.16 60);
+  --warning-foreground: oklch(0.25 0.05 60);
+  --warning-muted: oklch(0.65 0.16 60 / 0.12);
   --border: oklch(0.8847 0.0069 97.3627);
   --border-strong: oklch(0.7621 0.0156 98.3528);
   --input: oklch(0.7621 0.0156 98.3528);
@@ -61,6 +67,12 @@
   --accent-foreground: oklch(0.9663 0.008 98.8792);
   --destructive: oklch(0.6368 0.2078 25.3313);
   --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.65 0.18 142);
+  --success-foreground: oklch(0.12 0.02 142);
+  --success-muted: oklch(0.65 0.18 142 / 0.15);
+  --warning: oklch(0.72 0.17 60);
+  --warning-foreground: oklch(0.15 0.04 60);
+  --warning-muted: oklch(0.72 0.17 60 / 0.15);
   --border: oklch(0.3618 0.0101 106.8928 / 0.6);
   --border-strong: oklch(0.3618 0.0101 106.8928);
   --input: oklch(0.4336 0.0113 100.2195);
@@ -97,6 +109,12 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-muted: var(--success-muted);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-muted: var(--warning-muted);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-input: var(--input);
@@ -237,6 +255,24 @@ html {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid oklch(0.3618 0.0101 106.8928 / 0.3);
+}
+
+/* Shimmer skeleton variant */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--muted) 0%, var(--muted-foreground) 50%, var(--muted) 100%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+/* On mobile, Sonner toasts bottom-centered */
+@media (max-width: 639px) {
+  [data-sonner-toaster] {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    bottom: 1rem !important;
+    top: auto !important;
+  }
 }
 
 /* ===== /admin/llm-configs reveal animation =====

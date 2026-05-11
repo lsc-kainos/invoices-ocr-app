@@ -1,13 +1,17 @@
 'use client';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { signOut } from 'next-auth/react';
 import { useTheme } from 'next-themes';
+import { ShieldCheck } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
@@ -18,7 +22,7 @@ import {
 export function UserMenu({
   user,
 }: {
-  user: { name?: string | null; email: string; image?: string | null };
+  user: { name?: string | null; email: string; image?: string | null; role?: string | null };
 }) {
   const t = useTranslations('topbar.menu');
   const tBar = useTranslations('topbar');
@@ -44,17 +48,24 @@ export function UserMenu({
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>{t('theme')}</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
-            <DropdownMenuItem onClick={() => setTheme('light')} aria-checked={theme === 'light'}>
-              {t('theme_light')}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme('dark')} aria-checked={theme === 'dark'}>
-              {t('theme_dark')}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme('system')} aria-checked={theme === 'system'}>
-              {t('theme_system')}
-            </DropdownMenuItem>
+            <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+              <DropdownMenuRadioItem value="light">{t('theme_light')}</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="dark">{t('theme_dark')}</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="system">{t('theme_system')}</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
+        {user.role === 'ADMIN' && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/admin" className="flex items-center gap-2">
+                <ShieldCheck size={14} />
+                {t('admin_hub')}
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/login' })}>
           {t('logout')}

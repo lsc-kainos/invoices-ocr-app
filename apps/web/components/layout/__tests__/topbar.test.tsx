@@ -8,6 +8,7 @@ vi.mock('next-auth/react', () => ({ signOut: vi.fn() }));
 vi.mock('next-themes', () => ({
   useTheme: () => ({ theme: 'dark', setTheme: vi.fn() }),
 }));
+vi.mock('next/navigation', () => ({ usePathname: () => '/' }));
 
 const user = {
   id: 'u',
@@ -91,10 +92,10 @@ describe('<Topbar />', () => {
     expect(within(nav).queryByText('Benchmark')).toBeNull();
   });
 
-  it('ADMIN vê o link de Benchmark apontando para /admin/benchmark', () => {
+  it('ADMIN vê o link de Admin apontando para /admin', () => {
     renderTopbar('ADMIN');
     const nav = screen.getByRole('navigation', { name: /primary/i });
     const link = within(nav).getByRole('link', { name: /Benchmark/i });
-    expect(link).toHaveAttribute('href', '/admin/benchmark');
+    expect(link).toHaveAttribute('href', '/admin');
   });
 });

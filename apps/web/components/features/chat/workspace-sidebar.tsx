@@ -5,18 +5,16 @@ import { useTranslations } from 'next-intl';
 
 type Session = { id: string; title: string | null; updatedAt: string };
 
-export function WorkspaceSidebar({
-  sessions,
-  activeId,
-  onCreate,
-}: {
+interface SidebarProps {
   sessions: Session[];
   activeId?: string;
   onCreate: () => void;
-}) {
+}
+
+export function SidebarContent({ sessions, activeId, onCreate }: SidebarProps) {
   const t = useTranslations('chat');
   return (
-    <aside className="bg-background/80 border-border/30 hidden h-full w-80 flex-col border-r backdrop-blur-md lg:flex">
+    <>
       <button
         onClick={onCreate}
         className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 m-3 flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-all"
@@ -47,6 +45,14 @@ export function WorkspaceSidebar({
           );
         })}
       </nav>
+    </>
+  );
+}
+
+export function WorkspaceSidebar({ sessions, activeId, onCreate }: SidebarProps) {
+  return (
+    <aside className="bg-background/80 border-border/30 hidden h-full w-80 flex-col border-r backdrop-blur-md lg:flex">
+      <SidebarContent sessions={sessions} activeId={activeId} onCreate={onCreate} />
     </aside>
   );
 }
