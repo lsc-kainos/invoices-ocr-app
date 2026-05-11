@@ -32,7 +32,7 @@ import { MockOcrProvider } from './providers/mock-ocr.provider';
         cfg: ConfigService,
         extractor: ExtractorService,
         mock: MockOcrProvider,
-      ) => (cfg.get('LLM_PROVIDER') === 'mock' ? mock : extractor),
+      ) => (cfg.get('OCR_PROVIDER') === 'mock' ? mock : extractor),
     },
     { provide: DOCUMENT_OPS, useExisting: DocumentsService },
   ],

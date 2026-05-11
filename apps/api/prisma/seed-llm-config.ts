@@ -5,14 +5,8 @@ import { resolve } from 'node:path';
 const prisma = new PrismaClient();
 
 async function main() {
-  const promptPath = resolve(
-    __dirname,
-    '../src/ocr/prompts/extractor.system.ts',
-  );
-  const fileContent = readFileSync(promptPath, 'utf-8');
-  const match = fileContent.match(/`([\s\S]*?)`;/);
-  if (!match) throw new Error('Não encontrei prompt em extractor.system.ts');
-  const prompt = match[1];
+  const promptPath = resolve(__dirname, './extractor-prompt.txt');
+  const prompt = readFileSync(promptPath, 'utf-8');
 
   const systemUser = await prisma.user.upsert({
     where: { email: 'system@invoices-ocr.local' },
