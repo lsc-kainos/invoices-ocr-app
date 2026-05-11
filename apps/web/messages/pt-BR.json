@@ -240,7 +240,19 @@
         "FAILED": "Erro no processamento",
         "REJECTED": "Documento incompatível"
       },
-      "updated_at": "atualizado {when}"
+      "updated_at": "atualizado {when}",
+      "summary": {
+        "eyebrow": "RESUMO",
+        "title": "Valores por mês",
+        "subtitle": "Somatório dos valores das notas nos últimos meses. No celular exibimos os 6 meses mais recentes.",
+        "totalLabel": "Total no período",
+        "chartAria": "Gráfico de barras com o somatório mensal dos valores de notas.",
+        "metrics": {
+          "months": "Meses com valor",
+          "invoices": "Notas somadas",
+          "average": "Média por mês ativo"
+        }
+      }
     },
     "download": {
       "button": "Download",

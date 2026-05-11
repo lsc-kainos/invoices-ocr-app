@@ -2,6 +2,7 @@
 import { useTranslations } from 'next-intl';
 import type { DocumentSummary } from '@invoices-ocr/shared-types';
 import { DocumentRow } from './document-row';
+import { DocumentsSummaryCard } from './documents-summary-card';
 import { useDocumentsList } from './use-documents-list';
 
 export function DocumentsList({ initialDocs }: { initialDocs: DocumentSummary[] }) {
@@ -20,6 +21,9 @@ export function DocumentsList({ initialDocs }: { initialDocs: DocumentSummary[] 
         </div>
         <p className="text-muted-foreground mt-2 text-sm">{t('subtitle')}</p>
       </header>
+      <div className="border-border/30 bg-background/40 border-b pt-4 sm:pt-6">
+        <DocumentsSummaryCard docs={docs} />
+      </div>
       <div className="divide-border/20 flex-1 divide-y overflow-y-auto">
         {docs.map((d, idx) => (
           <div
