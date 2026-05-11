@@ -24,7 +24,8 @@
     "db:seed:llm": "ts-node prisma/seed-llm-config.ts"
   },
   "prisma": {
-    "schema": "prisma/schema.prisma"
+    "schema": "prisma/schema.prisma",
+    "seed": "ts-node prisma/seed-llm-config.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.63",
