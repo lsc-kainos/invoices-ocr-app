@@ -239,19 +239,19 @@
         "empty": "Sem versão ativa para {key}.",
         "createFirst": "[ CRIAR PRIMEIRA →  ]",
         "newFromThis": "[ FORK →  ]",
-        "by": "BY. {who}",
+        "by": "POR. {who}",
         "promptLabel": "PROMPT.",
         "metaTemp": "TEMP",
         "notesLabel": "NOTAS."
       },
       "history": {
-        "title": "HISTORY.",
+        "title": "HISTÓRICO.",
         "empty": "Sem versões anteriores"
       },
       "actions": {
-        "activate": "[ ACTIVATE →  ]",
-        "test": "[ TEST →  ]",
-        "view": "[ VIEW  ]"
+        "activate": "[ ATIVAR →  ]",
+        "test": "[ TESTAR →  ]",
+        "view": "[ VER  ]"
       },
       "editor": {
         "title": "EDITOR.",
@@ -260,9 +260,9 @@
         "key": "TIPO (EXTRACTOR / CHAT)",
         "model": "MODELO",
         "prompt": "PROMPT.",
-        "temperature": "TEMPERATURE",
+        "temperature": "TEMPERATURA",
         "notes": "NOTAS (opcional)",
-        "submit": "[ SAVE →  ]"
+        "submit": "[ SALVAR →  ]"
       },
       "validation": {
         "temperatureRequired": "Temperature é obrigatória"
@@ -272,11 +272,11 @@
         "activated": "v{n} agora é a ativa"
       },
       "test": {
-        "title": "TEST.",
+        "title": "TESTE.",
         "sample": "Nome do arquivo de amostra",
-        "run": "[ RUN →  ]",
-        "result": "RESULT.",
-        "duration": "DURATION: {ms}ms"
+        "run": "[ EXECUTAR →  ]",
+        "result": "RESULTADO.",
+        "duration": "DURAÇÃO: {ms}ms"
       }
     }
   }
