@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DocumentChatTab } from './document-chat-tab';
+import { EditHistoryTab } from './edit-history-tab';
 import type { DocumentDetail } from '@invoices-ocr/shared-types';
 
 interface TabsPaneProps {
@@ -35,6 +36,7 @@ export function TabsPane({ doc }: TabsPaneProps) {
         <TabsTrigger value="chat">{t('tabs.chat')}</TabsTrigger>
         <TabsTrigger value="raw">{t('tabs.raw')}</TabsTrigger>
         <TabsTrigger value="history">{t('tabs.history')}</TabsTrigger>
+        <TabsTrigger value="edits">{t('tabs.edits')}</TabsTrigger>
       </TabsList>
 
       <TabsContent value="chat" className="mt-3 flex-1 overflow-hidden">
@@ -84,6 +86,10 @@ export function TabsPane({ doc }: TabsPaneProps) {
             </li>
           ) : null}
         </ul>
+      </TabsContent>
+
+      <TabsContent value="edits" className="mt-3 flex-1 overflow-auto">
+        <EditHistoryTab documentId={doc.id} verifiedAt={doc.verifiedAt} />
       </TabsContent>
     </Tabs>
   );

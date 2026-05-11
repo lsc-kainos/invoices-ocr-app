@@ -135,7 +135,8 @@
     "tabs": {
       "chat": "Conversa",
       "raw": "Texto bruto",
-      "history": "Histórico"
+      "history": "Histórico",
+      "edits": "Edições"
     },
     "fields": {
       "title": "Campos extraídos",
@@ -189,6 +190,16 @@
       "verified": "Verificado",
       "hint": "Corrija os campos extraídos pela IA",
       "addItem": "Adicionar item"
+    },
+    "editHistory": {
+      "tabLabel": "Edições",
+      "empty": "Nenhuma edição manual registrada.",
+      "loading": "Carregando edições…",
+      "error": "Não foi possível carregar o histórico.",
+      "editedBy": "Editado por {name}",
+      "before": "antes",
+      "after": "depois",
+      "noFieldsChanged": "Sem alterações de campos"
     }
   },
   "documents": {

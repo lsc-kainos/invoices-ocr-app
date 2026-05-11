@@ -100,6 +100,7 @@ describe('DocumentsService', () => {
     };
     documentEdit: {
       create: jest.Mock;
+      findMany: jest.Mock;
     };
     $transaction: jest.Mock;
   };
@@ -132,6 +133,7 @@ describe('DocumentsService', () => {
       },
       documentEdit: {
         create: jest.fn().mockResolvedValue({ id: 'edit1' }),
+        findMany: jest.fn().mockResolvedValue([]),
       },
       $transaction: jest
         .fn()
@@ -530,6 +532,75 @@ describe('DocumentsService', () => {
         }),
       );
       expect(result).toBeDefined();
+    });
+  });
+
+  describe('listEdits', () => {
+    it('doc not found or wrong user → NotFoundException', async () => {
+      prisma.document.findFirst.mockResolvedValue(null);
+      await expect(svc.listEdits('userB', 'd1')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+      expect(prisma.documentEdit.findMany).not.toHaveBeenCalled();
+    });
+
+    it('doc sem edits → array vazio', async () => {
+      prisma.document.findFirst.mockResolvedValue(
+        baseDoc({ id: 'd1', userId: 'user1' }),
+      );
+      prisma.documentEdit.findMany.mockResolvedValue([]);
+      const result = await svc.listEdits('user1', 'd1');
+      expect(result).toEqual([]);
+      expect(prisma.documentEdit.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            documentId: 'd1',
+            document: { userId: 'user1' },
+          }),
+          orderBy: { createdAt: 'desc' },
+          include: expect.objectContaining({
+            editor: { select: { name: true, email: true } },
+          }),
+        }),
+      );
+    });
+
+    it('doc com edits → mapeia para DTO ordenado desc', async () => {
+      prisma.document.findFirst.mockResolvedValue(
+        baseDoc({ id: 'd1', userId: 'user1' }),
+      );
+      const newer = new Date('2026-05-11T03:00:00Z');
+      const older = new Date('2026-05-10T03:00:00Z');
+      prisma.documentEdit.findMany.mockResolvedValue([
+        {
+          id: 'edit2',
+          createdAt: newer,
+          before: { core: { total: '100,00' } },
+          after: { core: { total: '110,00' } },
+          editor: { name: 'Alice', email: 'alice@example.com' },
+        },
+        {
+          id: 'edit1',
+          createdAt: older,
+          before: { core: { total: '90,00' } },
+          after: { core: { total: '100,00' } },
+          editor: { name: null, email: 'bob@example.com' },
+        },
+      ]);
+
+      const result = await svc.listEdits('user1', 'd1');
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual({
+        id: 'edit2',
+        createdAt: newer.toISOString(),
+        editor: { name: 'Alice', email: 'alice@example.com' },
+        before: { core: { total: '100,00' } },
+        after: { core: { total: '110,00' } },
+      });
+      expect(result[1].editor).toEqual({
+        name: null,
+        email: 'bob@example.com',
+      });
     });
   });
 });

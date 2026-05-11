@@ -35,6 +35,7 @@ import {
   toSummaryDto,
 } from './dto/document-summary.dto';
 import { type DocumentDetailDto, toDetailDto } from './dto/document-detail.dto';
+import { type DocumentEditDto, toEditDto } from './dto/document-edit.dto';
 import type { ListDocumentsQueryDto } from './dto/list-documents.query.dto';
 
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'application/pdf'] as const;
@@ -336,6 +337,26 @@ export class DocumentsService implements DocumentOps {
     });
 
     return toDetailDto(updated, this.signFileUrl(id, userId));
+  }
+
+  async listEdits(
+    userId: string,
+    documentId: string,
+  ): Promise<DocumentEditDto[]> {
+    // Ownership check explícito antes de listar — não exibir histórico de
+    // documento de outro user, mesmo se o ID for adivinhado.
+    const owns = await this.prisma.document.findFirst({
+      where: { id: documentId, userId },
+      select: { id: true },
+    });
+    if (!owns) throw new NotFoundException();
+
+    const rows = await this.prisma.documentEdit.findMany({
+      where: { documentId, document: { userId } },
+      include: { editor: { select: { name: true, email: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map(toEditDto);
   }
 
   async findByIdInternal(

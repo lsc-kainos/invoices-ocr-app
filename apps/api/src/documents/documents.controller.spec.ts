@@ -13,6 +13,7 @@ describe('DocumentsController', () => {
     streamFile: jest.Mock;
     retry: jest.Mock;
     updateSummary: jest.Mock;
+    listEdits: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -23,6 +24,7 @@ describe('DocumentsController', () => {
       streamFile: jest.fn(),
       retry: jest.fn(),
       updateSummary: jest.fn(),
+      listEdits: jest.fn(),
     };
     const mod = await Test.createTestingModule({
       controllers: [DocumentsController],
@@ -71,6 +73,16 @@ describe('DocumentsController', () => {
       const result = await ctrl.retry({ id: 'u1' } as never, 'doc1');
       expect(svc.retry).toHaveBeenCalledWith('u1', 'doc1');
       expect(result).toBe(summary);
+    });
+  });
+
+  describe('GET :id/edits', () => {
+    it('chama service.listEdits com user.id e param id', async () => {
+      const edits = [{ id: 'e1' }] as never;
+      svc.listEdits.mockResolvedValue(edits);
+      const result = await ctrl.listEdits({ id: 'u1' } as User, 'doc1');
+      expect(svc.listEdits).toHaveBeenCalledWith('u1', 'doc1');
+      expect(result).toBe(edits);
     });
   });
 
