@@ -1,7 +1,6 @@
 'use client';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { DownloadButton } from '../document-download/download-button';
 import type { DocumentSummary } from '@invoices-ocr/shared-types';
@@ -35,39 +34,34 @@ const STATUS_SHORT: Record<DocumentSummary['status'], string> = {
 
 export function DocumentRow({ doc }: { doc: DocumentSummary }) {
   const t = useTranslations('documents.list');
-  const isImage = doc.mime?.startsWith('image/');
+  const formattedDate = new Date(doc.updatedAt).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
 
   return (
-    <div className="group border-border/30 hover:bg-muted/40 flex min-h-[52px] items-center gap-3 border-b px-3 transition-all duration-200 sm:gap-4 sm:px-4">
+    <div className="group border-border/30 hover:bg-muted/40 grid min-h-[60px] grid-cols-[28px_minmax(0,1fr)_auto_auto] items-center gap-4 border-b px-4 transition-colors duration-150 ease-out sm:grid-cols-[28px_minmax(0,1fr)_140px_auto] sm:gap-5 sm:px-6">
+      <div className="flex h-7 w-7 items-center justify-center">
+        <span
+          className={cn('h-2 w-2 shrink-0 rounded-full', STATUS_DOT[doc.status])}
+          aria-hidden="true"
+        />
+      </div>
       <Link
         href={`/documents/${doc.id}`}
-        className="flex min-w-0 flex-1 items-center gap-3 py-3 sm:gap-4 sm:py-3.5"
+        className="flex min-w-0 flex-col justify-center gap-0.5 py-3.5"
         aria-label={doc.filename}
       >
-        <div
-          className={cn(
-            'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors sm:h-9 sm:w-9',
-            isImage ? 'bg-blue-500/10 text-blue-400' : 'bg-primary/10 text-primary/80',
-          )}
-        >
-          <FileText className="h-4 w-4" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-foreground group-hover:text-primary truncate text-[13px] font-medium transition-colors">
-            {doc.filename}
-          </div>
-          <div className="text-muted-foreground/60 mt-0.5 hidden text-[11px] sm:block">
-            {new Date(doc.updatedAt).toLocaleDateString('pt-BR')}
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', STATUS_DOT[doc.status])} />
-          <Badge variant="outline" className={cn(STATUS_TONE[doc.status], 'text-[10px]')}>
-            <span className="hidden sm:inline">{t(`status.${doc.status}`)}</span>
-            <span className="sm:hidden">{STATUS_SHORT[doc.status]}</span>
-          </Badge>
-        </div>
+        <span className="text-foreground truncate text-sm font-medium tracking-tight">
+          {doc.filename}
+        </span>
+        <span className="text-muted-foreground/70 truncate text-[11px]">{formattedDate}</span>
       </Link>
+      <Badge variant="outline" className={cn(STATUS_TONE[doc.status], 'text-[10px]')}>
+        <span className="hidden sm:inline">{t(`status.${doc.status}`)}</span>
+        <span className="sm:hidden">{STATUS_SHORT[doc.status]}</span>
+      </Badge>
       <DownloadButton
         documentId={doc.id}
         filename={doc.filename}
