@@ -68,7 +68,9 @@ const baseDoc = (over: Partial<Document>): Document => {
     size: 100,
     storagePath: 'user1/d1/original.jpg',
     contentHash: null,
+    semanticHash: null,
     duplicateOfId: null,
+    duplicateReason: null,
     status: 'READY',
     failureReason: null,
     retryCount: 0,
@@ -225,6 +227,7 @@ describe('DocumentsService', () => {
           status: DocumentStatus.DUPLICATE,
           contentHash: expectedHash,
           duplicateOfId: 'original1',
+          duplicateReason: 'content_hash',
           storagePath: 'duplicate:original1',
         }),
       );
@@ -240,6 +243,7 @@ describe('DocumentsService', () => {
           status: DocumentStatus.DUPLICATE,
           contentHash: expectedHash,
           duplicateOfId: 'original1',
+          duplicateReason: 'content_hash',
           storagePath: 'duplicate:original1',
         }),
       });
@@ -272,6 +276,7 @@ describe('DocumentsService', () => {
             status: DocumentStatus.DUPLICATE,
             contentHash: expectedHash,
             duplicateOfId: 'original-race',
+            duplicateReason: 'content_hash',
             storagePath: 'duplicate:original-race',
           }),
         );
@@ -302,6 +307,7 @@ describe('DocumentsService', () => {
         data: expect.objectContaining({
           status: DocumentStatus.DUPLICATE,
           duplicateOfId: 'original-race',
+          duplicateReason: 'content_hash',
           contentHash: expectedHash,
         }),
       });
@@ -503,6 +509,71 @@ describe('DocumentsService', () => {
         expect.objectContaining({
           data: expect.objectContaining({
             status: 'READY',
+            extractedText: 'text',
+            semanticHash: null,
+          }),
+        }),
+      );
+    });
+
+    it('markReady salva semanticHash quando informado', async () => {
+      await svc.markReady(
+        'd1',
+        { core: {} as never, items: [], extras: [], narrative: '' },
+        'text',
+        'NFKEY:123',
+      );
+      expect(prisma.document.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: 'READY',
+            semanticHash: 'NFKEY:123',
+            duplicateOfId: null,
+            duplicateReason: null,
+          }),
+        }),
+      );
+    });
+
+    it('findReadySemanticDuplicate busca READY do mesmo usuário pela assinatura', async () => {
+      prisma.document.findUnique.mockResolvedValue({ userId: 'u1' });
+      prisma.document.findFirst.mockResolvedValue({ id: 'original' });
+      await expect(
+        svc.findReadySemanticDuplicate('d2', 'NFKEY:123'),
+      ).resolves.toEqual({ id: 'original' });
+      expect(prisma.document.findFirst).toHaveBeenCalledWith({
+        where: {
+          userId: 'u1',
+          semanticHash: 'NFKEY:123',
+          status: DocumentStatus.READY,
+          id: { not: 'd2' },
+        },
+        select: { id: true },
+        orderBy: { createdAt: 'asc' },
+      });
+    });
+
+    it('markDuplicate seta DUPLICATE + vínculo semântico com original', async () => {
+      await svc.markDuplicate(
+        'd2',
+        'd1',
+        'nfe_access_key',
+        {
+          documentType: 'nf-e',
+          confidence: 0.95,
+          summary: { core: {} as never, items: [], extras: [], narrative: '' },
+          extractedText: 'text',
+        },
+        'NFKEY:123',
+      );
+      expect(prisma.document.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'd2' },
+          data: expect.objectContaining({
+            status: DocumentStatus.DUPLICATE,
+            duplicateOfId: 'd1',
+            duplicateReason: 'nfe_access_key',
+            semanticHash: 'NFKEY:123',
             extractedText: 'text',
           }),
         }),

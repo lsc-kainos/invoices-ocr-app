@@ -72,7 +72,7 @@ export class MetricsService {
       OCR_RUNNING: 0,
     };
     for (const g of statusGroups) {
-      byStatus[g.status as keyof typeof byStatus] = g._count.status;
+      byStatus[g.status] = g._count.status;
     }
 
     return {

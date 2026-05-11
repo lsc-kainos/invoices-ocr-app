@@ -4,6 +4,7 @@ import { OcrService, DOCUMENT_OPS } from './ocr.service';
 import { OCR_PROVIDER } from './providers/ocr-provider.interface';
 import { STORAGE_SERVICE } from '../storage/storage.service';
 import type { InvoiceSummaryResult } from './schemas/invoice-summary.schema';
+import { DocumentSemanticDuplicateService } from '../documents/document-semantic-duplicate.service';
 
 const happy: InvoiceSummaryResult = {
   documentType: 'invoice',
@@ -11,6 +12,7 @@ const happy: InvoiceSummaryResult = {
   summary: {
     core: {
       invoiceNumber: null,
+      accessKey: null,
       invoiceDate: null,
       dueDate: null,
       sellerName: null,
@@ -36,6 +38,8 @@ describe('OcrService', () => {
     markReady: jest.Mock;
     markFailed: jest.Mock;
     markRejected: jest.Mock;
+    findReadySemanticDuplicate: jest.Mock;
+    markDuplicate: jest.Mock;
     findByIdInternal: jest.Mock;
   };
   let storage: { read: jest.Mock };
@@ -47,6 +51,8 @@ describe('OcrService', () => {
       markReady: jest.fn().mockResolvedValue(undefined),
       markFailed: jest.fn().mockResolvedValue(undefined),
       markRejected: jest.fn().mockResolvedValue(undefined),
+      findReadySemanticDuplicate: jest.fn().mockResolvedValue(null),
+      markDuplicate: jest.fn().mockResolvedValue(undefined),
       findByIdInternal: jest.fn().mockResolvedValue({
         id: 'd1',
         mime: 'image/jpeg',
@@ -63,6 +69,7 @@ describe('OcrService', () => {
         { provide: DOCUMENT_OPS, useValue: docs },
         { provide: STORAGE_SERVICE, useValue: storage },
         { provide: OCR_PROVIDER, useValue: provider },
+        DocumentSemanticDuplicateService,
         {
           provide: ConfigService,
           useValue: { get: jest.fn().mockReturnValue(0.6) },
@@ -81,6 +88,7 @@ describe('OcrService', () => {
       'd1',
       happy.summary,
       happy.extractedText,
+      null,
     );
     expect(docs.markFailed).not.toHaveBeenCalled();
   });
@@ -127,6 +135,7 @@ describe('OcrService', () => {
       'd1',
       result.summary,
       result.extractedText,
+      null,
     );
     expect(docs.markRejected).not.toHaveBeenCalled();
   });
@@ -143,6 +152,57 @@ describe('OcrService', () => {
       'd1',
       'low_confidence',
       result,
+    );
+    expect(docs.markReady).not.toHaveBeenCalled();
+  });
+
+  it('NF-e nova vira READY com semanticHash', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'nf-e',
+      summary: {
+        ...happy.summary,
+        core: {
+          ...happy.summary.core,
+          accessKey: '35260412345678000190550010000231171123456789',
+        },
+      },
+    };
+    provider.extract.mockResolvedValue(result);
+    await svc.process('d1');
+    expect(docs.findReadySemanticDuplicate).toHaveBeenCalledWith(
+      'd1',
+      'NFKEY:35260412345678000190550010000231171123456789',
+    );
+    expect(docs.markReady).toHaveBeenCalledWith(
+      'd1',
+      result.summary,
+      result.extractedText,
+      'NFKEY:35260412345678000190550010000231171123456789',
+    );
+  });
+
+  it('NF-e com chave já existente vira DUPLICATE', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'nf-e',
+      summary: {
+        ...happy.summary,
+        core: {
+          ...happy.summary.core,
+          accessKey: '35260412345678000190550010000231171123456789',
+        },
+      },
+    };
+    docs.findReadySemanticDuplicate.mockResolvedValue({ id: 'original-doc' });
+    provider.extract.mockResolvedValue(result);
+    await svc.process('d1');
+    expect(docs.markDuplicate).toHaveBeenCalledWith(
+      'd1',
+      'original-doc',
+      'nfe_access_key',
+      result,
+      'NFKEY:35260412345678000190550010000231171123456789',
     );
     expect(docs.markReady).not.toHaveBeenCalled();
   });
