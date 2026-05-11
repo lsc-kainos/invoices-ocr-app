@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { TestLlmConfigResult } from '@invoices-ocr/shared-types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 interface ConfigTestDrawerProps {
@@ -12,10 +14,10 @@ interface ConfigTestDrawerProps {
 }
 
 /**
- * Brutalist test drawer — mesmo tratamento que o editor.
- * - Sample input + RUN button alinhados.
- * - Result pre block com border top/bottom, mono.
- * - Duration ALL CAPS no header do resultado.
+ * Test modal — refined editorial dark.
+ *
+ * - max-w-2xl + max-h-[85vh] + overflow-y-auto.
+ * - Result pre block dentro de caixa bg-muted/40 rounded.
  */
 export function ConfigTestDrawer({ configId, onClose, onTest }: ConfigTestDrawerProps) {
   const t = useTranslations('admin.llmConfigs');
@@ -47,64 +49,51 @@ export function ConfigTestDrawer({ configId, onClose, onTest }: ConfigTestDrawer
     onClose();
   }
 
-  const inputBase =
-    'border-foreground bg-background text-foreground rounded-none border-2 px-3 py-2 font-mono text-xs outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0 transition-none disabled:cursor-not-allowed disabled:opacity-70';
-
   return (
     <Dialog open={configId !== null} onOpenChange={(o) => !o && handleClose()}>
       <DialogContent
         className={cn(
-          'border-foreground bg-card text-card-foreground rounded-none border-2 sm:max-w-2xl',
-          'gap-0 p-0 shadow-[6px_6px_0_0_var(--primary)] ring-0',
+          'bg-card text-card-foreground gap-0 p-0',
+          'flex max-h-[85vh] w-full flex-col overflow-hidden sm:max-w-2xl',
         )}
-        showCloseButton={false}
+        showCloseButton
       >
-        <DialogHeader className="border-foreground flex flex-row items-start justify-between gap-3 border-b-2 px-6 py-5">
-          <DialogTitle className="text-foreground font-mono text-base font-semibold tracking-[0.14em] uppercase">
+        <DialogHeader className="border-border/60 shrink-0 border-b px-6 py-4">
+          <DialogTitle className="text-foreground text-base font-semibold tracking-tight">
             {t('test.title')}
           </DialogTitle>
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="Close"
-            className="border-foreground bg-background text-foreground hover:bg-foreground hover:text-background rounded-none border-2 px-2 py-1 font-mono text-[11px] font-semibold tracking-wider uppercase transition-none"
-          >
-            X
-          </button>
         </DialogHeader>
 
-        <div className="flex flex-col gap-5 px-6 py-6">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
-            <input
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 py-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Input
               value={sample}
               onChange={(e) => setSample(e.target.value)}
               placeholder={t('test.sample')}
-              className={cn(inputBase, 'h-10 w-full flex-1')}
+              className="flex-1"
             />
-            <button
+            <Button
               type="button"
               onClick={() => void handleRun()}
               disabled={running || !sample.trim()}
               data-testid="test-run"
-              className="border-foreground bg-foreground text-background shadow-brutal-primary rounded-none border-2 px-5 py-2 font-mono text-xs font-semibold tracking-wider uppercase disabled:cursor-not-allowed disabled:opacity-50"
+              variant="default"
             >
               {t('test.run')}
-            </button>
+            </Button>
           </div>
 
-          {error && (
-            <p className="text-destructive font-mono text-xs tracking-wider uppercase">{error}</p>
-          )}
+          {error && <p className="text-destructive text-sm">{error}</p>}
 
           {result && (
             <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between font-mono text-[11px] tracking-wider uppercase">
-                <span className="text-foreground font-semibold">{t('test.result')}</span>
-                <span className="text-muted-foreground">
+              <div className="flex items-center justify-between gap-2">
+                <span className="eyebrow">{t('test.result')}</span>
+                <span className="text-muted-foreground text-xs">
                   {t('test.duration', { ms: result.durationMs })}
                 </span>
               </div>
-              <pre className="border-foreground text-foreground max-h-80 overflow-auto border-y-2 py-4 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap">
+              <pre className="bg-muted/40 text-foreground max-h-80 overflow-auto rounded-md p-4 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap">
                 {JSON.stringify(
                   result.ok
                     ? result.result

@@ -275,39 +275,40 @@
   },
   "admin": {
     "llmConfigs": {
-      "title": "LLM Configs.",
-      "eyebrow": "ADMIN / LLM",
+      "title": "LLM Configs",
+      "eyebrow": "Admin / LLM",
       "subtitle": "Versão ativa, histórico e iteração de prompts por tipo.",
       "newVersion": "Nova versão",
       "active": {
-        "label": "ATIVA",
+        "label": "Ativa",
         "empty": "Sem versão ativa para {key}.",
-        "createFirst": "[ CRIAR PRIMEIRA →  ]",
-        "newFromThis": "[ FORK →  ]",
-        "by": "POR. {who}",
-        "promptLabel": "PROMPT.",
-        "metaTemp": "TEMP",
-        "notesLabel": "NOTAS."
+        "createFirst": "Criar primeira",
+        "newFromThis": "Bifurcar",
+        "by": "por {who}",
+        "promptLabel": "Prompt",
+        "metaTemp": "temp",
+        "notesLabel": "Notas"
       },
       "history": {
-        "title": "HISTÓRICO.",
+        "title": "Histórico",
         "empty": "Sem versões anteriores"
       },
       "actions": {
-        "activate": "[ ATIVAR →  ]",
-        "test": "[ TESTAR →  ]",
-        "view": "[ VER  ]"
+        "activate": "Ativar",
+        "test": "Testar",
+        "view": "Ver"
       },
       "editor": {
-        "title": "EDITOR.",
+        "title": "Editor",
         "viewMode": "Visualizar v{n}",
         "fromBase": "Nova versão a partir de v{n}",
-        "key": "TIPO (EXTRACTOR / CHAT)",
-        "model": "MODELO",
-        "prompt": "PROMPT.",
-        "temperature": "TEMPERATURA",
-        "notes": "NOTAS (opcional)",
-        "submit": "[ SALVAR →  ]"
+        "key": "Tipo (Extractor / Chat)",
+        "model": "Modelo",
+        "prompt": "Prompt",
+        "temperature": "Temperatura",
+        "notes": "Notas (opcional)",
+        "submit": "Salvar",
+        "cancel": "Cancelar"
       },
       "validation": {
         "temperatureRequired": "Temperature é obrigatória"
@@ -317,11 +318,11 @@
         "activated": "v{n} agora é a ativa"
       },
       "test": {
-        "title": "TESTE.",
+        "title": "Teste",
         "sample": "Nome do arquivo de amostra",
-        "run": "[ EXECUTAR →  ]",
-        "result": "RESULTADO.",
-        "duration": "DURAÇÃO: {ms}ms"
+        "run": "Executar",
+        "result": "Resultado",
+        "duration": "Duração: {ms}ms"
       }
     }
   }

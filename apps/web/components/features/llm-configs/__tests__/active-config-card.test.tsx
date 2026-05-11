@@ -37,18 +37,18 @@ function setup(config: LlmConfigDto | undefined) {
   return { onCloneFromActive, onTest, onCreateFirst };
 }
 
-describe('<ActiveConfigCard /> (brutalist)', () => {
-  it('renders the prompt body, version manchete, and exposes Fork + Test', () => {
+describe('<ActiveConfigCard />', () => {
+  it('renders the prompt body, version display, and exposes Bifurcar + Testar', () => {
     const { onCloneFromActive, onTest } = setup(BASE);
 
     // Prompt body is rendered
     const pre = screen.getByTestId('active-prompt');
     expect(pre.textContent).toContain('Prompt rendered into the card pre.');
 
-    // Brutalist version display (V12.) + metadata strip (v12)
-    expect(screen.getByTestId('active-version').textContent).toBe('V12.');
+    // Refined version display (v12) + metadata strip
+    expect(screen.getByTestId('active-version').textContent).toBe('v12');
     expect(screen.getByText('gpt-4o')).toBeInTheDocument();
-    // creator email surfaces inside the BY. {who} pattern
+    // creator email surfaces inside the "por {who}" pattern
     expect(screen.getByText(/admin@paggo.test/)).toBeInTheDocument();
 
     // Action buttons — selected by testid to remain resilient to copy/case changes
@@ -71,10 +71,11 @@ describe('<ActiveConfigCard /> (brutalist)', () => {
     expect(onCreateFirst).toHaveBeenCalledWith('EXTRACTOR');
   });
 
-  it('does NOT decorate hover with blurred shadows — uses shadow-brutal utility', () => {
+  it('uses refined styling — soft shadow + thin border with primary accent', () => {
     setup(BASE);
     const card = screen.getByTestId('active-config-card');
-    // Sanity check that brutalist shadow utility is present (no blur, hard offset)
-    expect(card.className).toMatch(/shadow-brutal/);
+    // Refined card: soft shadow + cobre border-left accent
+    expect(card.className).toMatch(/shadow-sm/);
+    expect(card.className).toMatch(/border-l-primary/);
   });
 });
