@@ -1,22 +1,11 @@
-import { PrismaClient, Role, LlmConfigKey } from '@prisma/client';
-import { readFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-// Polyfill __dirname para rodar sob ts-node ESM (em produção o entrypoint
-// invoca `prisma db seed` e ts-node interpreta este arquivo como ESM, onde
-// __dirname não existe). Em CJS o `typeof __dirname` já é 'string' e
-// caímos no fallback. `import.meta.url` é referenciado via `eval` para
-// evitar erro TS1470 quando o tsconfig resolve o módulo como CommonJS.
-const __dirname_esm: string =
-  typeof __dirname !== 'undefined'
-    ? __dirname
-    : dirname(fileURLToPath(eval('import.meta.url') as string));
+const { PrismaClient, Role, LlmConfigKey } = require('@prisma/client');
+const { readFileSync } = require('node:fs');
+const { resolve } = require('node:path');
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const promptPath = resolve(__dirname_esm, './extractor-prompt.txt');
+  const promptPath = resolve(__dirname, './extractor-prompt.txt');
   const prompt = readFileSync(promptPath, 'utf-8');
 
   const systemUser = await prisma.user.upsert({
