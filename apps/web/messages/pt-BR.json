@@ -66,7 +66,17 @@
   },
   "home": {
     "welcome": "Bem-vindo, {name}",
-    "placeholder": "Em breve, você vai conseguir enviar sua primeira nota fiscal aqui."
+    "placeholder": "Em breve, você vai conseguir enviar sua primeira nota fiscal aqui.",
+    "shortcuts": {
+      "documents": {
+        "title": "Minhas notas",
+        "description": "Acesse o histórico, status e detalhes dos documentos enviados."
+      },
+      "chat": {
+        "title": "Chat",
+        "description": "Converse com a IA sobre suas notas e encontre respostas rápidas."
+      }
+    }
   },
   "auth": {
     "errors": {
@@ -224,6 +234,13 @@
       "before": "antes",
       "after": "depois",
       "noFieldsChanged": "Sem alterações de campos"
+    },
+    "detail": {
+      "emptySummary": "Resumo ainda indisponível",
+      "total": "Total",
+      "issueDate": "Emissão",
+      "invoiceNumber": "Número",
+      "preview": "Pré-visualização do documento"
     }
   },
   "documents": {
@@ -339,7 +356,11 @@
     "suggestion_document_1": "Qual o valor total?",
     "suggestion_document_2": "Quem é o emitente?",
     "suggestion_document_3": "Qual a chave NF-e?",
-    "show_conversations": "Ver conversas"
+    "show_conversations": "Ver conversas",
+    "workspace_title": "Chat das notas",
+    "workspace_subtitle": "Pergunte sobre documentos, vencimentos e valores extraídos.",
+    "sidebar_title": "Conversas",
+    "sidebar_subtitle": "Histórico do workspace"
   },
   "admin": {
     "hub": {
