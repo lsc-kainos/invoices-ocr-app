@@ -11,6 +11,7 @@ export { DOCUMENT_STATUSES, ACTIVE_DOCUMENT_STATUSES } from './document-status.j
 export type { InvoiceCore, InvoiceItem, InvoiceExtra, InvoiceSummary } from './invoice-summary.js';
 export type { DocumentSummary } from './document-summary.js';
 export type { DocumentDetail } from './document-detail.js';
+export type { DocumentEditDto, DocumentEditEditor, DocumentEditSnapshot } from './document-edit.js';
 export * from './llm-config.js';
 export type {
   BenchmarkErrorCounts,

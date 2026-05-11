@@ -21,6 +21,7 @@ import { ListDocumentsQueryDto } from './dto/list-documents.query.dto';
 import { UpdateDocumentSummaryDto } from './dto/update-document-summary.dto';
 import type { DocumentSummaryDto } from './dto/document-summary.dto';
 import type { DocumentDetailDto } from './dto/document-detail.dto';
+import type { DocumentEditDto } from './dto/document-edit.dto';
 
 const TEN_MB = 10 * 1024 * 1024;
 
@@ -57,6 +58,16 @@ export class DocumentsController {
     @Param('id') id: string,
   ): Promise<DocumentDetailDto> {
     return this.docs.findOne(user.id, id);
+  }
+
+  @Get(':id/edits')
+  @Throttle({ default: { ttl: 60_000, limit: 600 } })
+  @SkipThrottle({ upload: true, ocr: true })
+  listEdits(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<DocumentEditDto[]> {
+    return this.docs.listEdits(user.id, id);
   }
 
   @Post(':id/retry')
