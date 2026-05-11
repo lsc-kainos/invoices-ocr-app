@@ -22,7 +22,6 @@ import {
   ConflictException,
   NotFoundException,
   PayloadTooLargeException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { createHmac } from 'node:crypto';
 import { DocumentsService } from './documents.service';

@@ -6,7 +6,6 @@ import {
   Logger,
   NotFoundException,
   PayloadTooLargeException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectQueue } from '@nestjs/bullmq';
