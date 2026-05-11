@@ -11,6 +11,7 @@ export interface DocumentSummaryDto {
   failureReason: string | null;
   retryCount: number;
   duplicateOfId: string | null;
+  duplicateReason: string | null;
   documentType: string | null;
   confidence: number | null;
   rejectionReason: string | null;
@@ -31,6 +32,7 @@ export function toSummaryDto(doc: Document): DocumentSummaryDto {
     failureReason: doc.failureReason,
     retryCount: doc.retryCount,
     duplicateOfId: doc.duplicateOfId ?? null,
+    duplicateReason: doc.duplicateReason ?? null,
     documentType: doc.documentType ?? null,
     confidence: doc.confidence ?? null,
     rejectionReason: doc.rejectionReason ?? null,
