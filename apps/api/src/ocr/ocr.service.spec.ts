@@ -1,8 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { OcrService, DOCUMENT_OPS } from './ocr.service';
+import { OcrService } from './ocr.service';
 import { OCR_PROVIDER } from './providers/ocr-provider.interface';
 import { STORAGE_SERVICE } from '../storage/storage.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { DocumentStatus } from '@prisma/client';
 import type { InvoiceSummaryResult } from './schemas/invoice-summary.schema';
 
 const happy: InvoiceSummaryResult = {
@@ -29,30 +31,28 @@ const happy: InvoiceSummaryResult = {
   extractedText: 'hi',
 };
 
+function createPrismaMock() {
+  return {
+    document: {
+      findFirst: jest.fn(),
+      update: jest.fn().mockResolvedValue({}),
+    },
+  };
+}
+
 describe('OcrService', () => {
   let svc: OcrService;
-  let docs: {
-    markRunning: jest.Mock;
-    markReady: jest.Mock;
-    markFailed: jest.Mock;
-    markRejected: jest.Mock;
-    findByIdInternal: jest.Mock;
-  };
+  let prisma: ReturnType<typeof createPrismaMock>;
   let storage: { read: jest.Mock };
   let provider: { extract: jest.Mock };
 
   beforeEach(async () => {
-    docs = {
-      markRunning: jest.fn().mockResolvedValue(undefined),
-      markReady: jest.fn().mockResolvedValue(undefined),
-      markFailed: jest.fn().mockResolvedValue(undefined),
-      markRejected: jest.fn().mockResolvedValue(undefined),
-      findByIdInternal: jest.fn().mockResolvedValue({
-        id: 'd1',
-        mime: 'image/jpeg',
-        storagePath: 'u/d1/o.jpg',
-      }),
-    };
+    prisma = createPrismaMock();
+    prisma.document.findFirst.mockResolvedValue({
+      id: 'd1',
+      mime: 'image/jpeg',
+      storagePath: 'u/d1/o.jpg',
+    });
     storage = {
       read: jest.fn().mockResolvedValue(Buffer.from([0xff, 0xd8, 0xff])),
     };
@@ -60,7 +60,7 @@ describe('OcrService', () => {
     const mod = await Test.createTestingModule({
       providers: [
         OcrService,
-        { provide: DOCUMENT_OPS, useValue: docs },
+        { provide: PrismaService, useValue: prisma },
         { provide: STORAGE_SERVICE, useValue: storage },
         { provide: OCR_PROVIDER, useValue: provider },
         {
@@ -75,15 +75,27 @@ describe('OcrService', () => {
   it('happy: markRunning → extract → markReady', async () => {
     provider.extract.mockResolvedValue(happy);
     await svc.process('d1', 'user1');
-    expect(docs.markRunning).toHaveBeenCalledWith('d1');
-    expect(docs.findByIdInternal).toHaveBeenCalledWith('d1', 'user1');
-    expect(provider.extract).toHaveBeenCalledTimes(1);
-    expect(docs.markReady).toHaveBeenCalledWith(
-      'd1',
-      happy.summary,
-      happy.extractedText,
+    expect(prisma.document.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'd1' },
+        data: expect.objectContaining({ status: DocumentStatus.OCR_RUNNING }),
+      }),
     );
-    expect(docs.markFailed).not.toHaveBeenCalled();
+    expect(prisma.document.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'd1', userId: 'user1' },
+      }),
+    );
+    expect(provider.extract).toHaveBeenCalledTimes(1);
+    expect(prisma.document.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        where: { id: 'd1' },
+        data: expect.objectContaining({
+          status: DocumentStatus.READY,
+          extractedText: happy.extractedText,
+        }),
+      }),
+    );
   });
 
   it('erro transiente → lança para BullMQ retry (sem markFailed interno)', async () => {
@@ -91,7 +103,11 @@ describe('OcrService', () => {
     err.status = 429;
     provider.extract.mockRejectedValue(err);
     await expect(svc.process('d1', 'user1')).rejects.toThrow('rl');
-    expect(docs.markFailed).not.toHaveBeenCalled();
+    // Apenas markRunning foi chamado; nenhum markFailed deve ser chamado
+    const failedCalls = prisma.document.update.mock.calls.filter(
+      (call: any[]) => call[0]?.data?.status === DocumentStatus.FAILED,
+    );
+    expect(failedCalls).toHaveLength(0);
   });
 
   it('erro não-transiente (ZodError) → FAILED imediato sem retry', async () => {
@@ -100,14 +116,34 @@ describe('OcrService', () => {
     provider.extract.mockRejectedValue(err);
     await svc.process('d1', 'user1');
     expect(provider.extract).toHaveBeenCalledTimes(1);
-    expect(docs.markFailed).toHaveBeenCalledWith('d1', 'parse_failure');
+    expect(prisma.document.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        where: { id: 'd1' },
+        data: expect.objectContaining({
+          status: DocumentStatus.FAILED,
+          failureReason: 'parse_failure',
+        }),
+      }),
+    );
   });
 
   it('doc não encontrado → markFailed("unknown")', async () => {
-    docs.findByIdInternal.mockResolvedValue(null);
+    prisma.document.findFirst.mockResolvedValue(null);
     await svc.process('d1', 'user1');
-    expect(docs.findByIdInternal).toHaveBeenCalledWith('d1', 'user1');
-    expect(docs.markFailed).toHaveBeenCalledWith('d1', 'unknown');
+    expect(prisma.document.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'd1', userId: 'user1' },
+      }),
+    );
+    expect(prisma.document.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        where: { id: 'd1' },
+        data: expect.objectContaining({
+          status: DocumentStatus.FAILED,
+          failureReason: 'unknown',
+        }),
+      }),
+    );
     expect(provider.extract).not.toHaveBeenCalled();
   });
 
@@ -125,12 +161,15 @@ describe('OcrService', () => {
     };
     provider.extract.mockResolvedValue(result);
     await svc.process('d1', 'user1');
-    expect(docs.markReady).toHaveBeenCalledWith(
-      'd1',
-      result.summary,
-      result.extractedText,
+    expect(prisma.document.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        where: { id: 'd1' },
+        data: expect.objectContaining({
+          status: DocumentStatus.READY,
+          extractedText: result.extractedText,
+        }),
+      }),
     );
-    expect(docs.markRejected).not.toHaveBeenCalled();
   });
 
   it('allowed type + low confidence → markRejected(low_confidence)', async () => {
@@ -141,12 +180,15 @@ describe('OcrService', () => {
     };
     provider.extract.mockResolvedValue(result);
     await svc.process('d1', 'user1');
-    expect(docs.markRejected).toHaveBeenCalledWith(
-      'd1',
-      'low_confidence',
-      result,
+    expect(prisma.document.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        where: { id: 'd1' },
+        data: expect.objectContaining({
+          status: DocumentStatus.REJECTED,
+          rejectionReason: 'low_confidence',
+        }),
+      }),
     );
-    expect(docs.markReady).not.toHaveBeenCalled();
   });
 
   it('unknown type → markRejected(unsupported_type)', async () => {
@@ -157,12 +199,15 @@ describe('OcrService', () => {
     };
     provider.extract.mockResolvedValue(result);
     await svc.process('d1', 'user1');
-    expect(docs.markRejected).toHaveBeenCalledWith(
-      'd1',
-      'unsupported_type',
-      result,
+    expect(prisma.document.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        where: { id: 'd1' },
+        data: expect.objectContaining({
+          status: DocumentStatus.REJECTED,
+          rejectionReason: 'unsupported_type',
+        }),
+      }),
     );
-    expect(docs.markReady).not.toHaveBeenCalled();
   });
 
   it('rejected: persists partial summary', async () => {
@@ -173,10 +218,14 @@ describe('OcrService', () => {
     };
     provider.extract.mockResolvedValue(result);
     await svc.process('d1', 'user1');
-    expect(docs.markRejected).toHaveBeenCalledWith(
-      'd1',
-      'unsupported_type',
-      result,
+    expect(prisma.document.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        where: { id: 'd1' },
+        data: expect.objectContaining({
+          status: DocumentStatus.REJECTED,
+          rejectionReason: 'unsupported_type',
+        }),
+      }),
     );
   });
 });

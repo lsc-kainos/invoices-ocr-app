@@ -1,5 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { DocumentStatus } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 import {
   OCR_PROVIDER,
   type OcrProvider,
@@ -17,45 +19,24 @@ import { isTransient } from './helpers/is-transient';
 import { classifyError } from './helpers/classify-error';
 import { pdfToImage } from './helpers/pdf-to-image';
 
-export const DOCUMENT_OPS = Symbol('DOCUMENT_OPS');
-
-export interface DocumentOps {
-  markRunning(id: string): Promise<void>;
-  markReady(
-    id: string,
-    summary: InvoiceSummary,
-    extractedText: string,
-  ): Promise<void>;
-  markFailed(id: string, reason: string): Promise<void>;
-  markRejected(
-    id: string,
-    reason: 'low_confidence' | 'unsupported_type',
-    partial: InvoiceSummaryResult,
-  ): Promise<void>;
-  findByIdInternal(
-    id: string,
-    userId: string,
-  ): Promise<{ id: string; mime: string; storagePath: string } | null>;
-}
-
 @Injectable()
 export class OcrService {
   private readonly logger = new Logger(OcrService.name);
 
   constructor(
-    @Inject(DOCUMENT_OPS) private readonly docs: DocumentOps,
+    private readonly prisma: PrismaService,
     @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
     @Inject(OCR_PROVIDER) private readonly provider: OcrProvider,
     private readonly config: ConfigService,
   ) {}
 
   async process(docId: string, userId: string): Promise<void> {
-    await this.docs.markRunning(docId);
+    await this.markRunning(docId);
 
     try {
-      const doc = await this.docs.findByIdInternal(docId, userId);
+      const doc = await this.findByIdInternal(docId, userId);
       if (!doc) {
-        await this.docs.markFailed(docId, 'unknown');
+        await this.markFailed(docId, 'unknown');
         return;
       }
       const buffer = await this.storage.read(doc.storagePath);
@@ -80,21 +61,21 @@ export class OcrService {
           parsed.documentType as (typeof ALLOWED_TYPES)[number],
         )
       ) {
-        await this.docs.markRejected(docId, 'unsupported_type', parsed);
+        await this.markRejected(docId, 'unsupported_type', parsed);
         this.logger.log(
           `OCR rejected docId=${docId} reason=unsupported_type type=${parsed.documentType}`,
         );
         return;
       }
       if (parsed.confidence < threshold) {
-        await this.docs.markRejected(docId, 'low_confidence', parsed);
+        await this.markRejected(docId, 'low_confidence', parsed);
         this.logger.log(
           `OCR rejected docId=${docId} reason=low_confidence confidence=${parsed.confidence}`,
         );
         return;
       }
 
-      await this.docs.markReady(docId, parsed.summary, parsed.extractedText);
+      await this.markReady(docId, parsed.summary, parsed.extractedText);
       this.logger.log(`OCR ok docId=${docId}`);
     } catch (err) {
       if (isTransient(err)) {
@@ -125,7 +106,75 @@ export class OcrService {
           `OCR stack docId=${docId}: ${e.stack.split('\n').slice(0, 6).join(' | ')}`,
         );
       }
-      await this.docs.markFailed(docId, code);
+      await this.markFailed(docId, code);
     }
+  }
+
+  private async markRunning(id: string): Promise<void> {
+    await this.prisma.document.update({
+      where: { id },
+      data: {
+        status: DocumentStatus.OCR_RUNNING,
+        ocrStartedAt: new Date(),
+      },
+    });
+  }
+
+  private async markReady(
+    id: string,
+    summary: InvoiceSummary,
+    extractedText: string,
+  ): Promise<void> {
+    await this.prisma.document.update({
+      where: { id },
+      data: {
+        status: DocumentStatus.READY,
+        summary: summary as never,
+        extractedText,
+        ocrCompletedAt: new Date(),
+        failureReason: null,
+      },
+    });
+  }
+
+  private async markFailed(id: string, reason: string): Promise<void> {
+    await this.prisma.document.update({
+      where: { id },
+      data: {
+        status: DocumentStatus.FAILED,
+        failureReason: reason,
+        retryCount: { increment: 1 },
+        ocrCompletedAt: new Date(),
+      },
+    });
+  }
+
+  private async markRejected(
+    id: string,
+    reason: 'low_confidence' | 'unsupported_type',
+    partial: InvoiceSummaryResult,
+  ): Promise<void> {
+    await this.prisma.document.update({
+      where: { id },
+      data: {
+        status: DocumentStatus.REJECTED,
+        documentType: partial.documentType,
+        confidence: partial.confidence,
+        rejectionReason: reason,
+        summary: partial.summary as never,
+        extractedText: partial.extractedText,
+        ocrCompletedAt: new Date(),
+      },
+    });
+  }
+
+  private async findByIdInternal(
+    id: string,
+    userId: string,
+  ): Promise<{ id: string; mime: string; storagePath: string } | null> {
+    return this.prisma.document.findFirst({
+      where: { id, userId },
+      select: { id: true, mime: true, storagePath: true },
+    });
   }
 }

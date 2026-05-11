@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { BullModule } from '@nestjs/bullmq';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { validateEnv } from './config/env.schema';
 import { AuthModule } from './auth/auth.module';
@@ -34,6 +35,7 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
         connection: { url: cfg.getOrThrow<string>('REDIS_URL') },
       }),
     }),
+    EventEmitterModule.forRoot(),
     ThrottlerModule.forRoot([
       // Limites generosos: proposito e cortar abuso de API, nao constranger
       // uso real. Valores calibrados para uso ostensivo confortavel.

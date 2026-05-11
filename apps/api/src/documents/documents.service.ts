@@ -8,8 +8,7 @@ import {
   PayloadTooLargeException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { DocumentStatus } from '@prisma/client';
 import { detectFileType } from './helpers/detect-file-type';
@@ -19,12 +18,7 @@ import {
   STORAGE_SERVICE,
   type StorageService,
 } from '../storage/storage.service';
-import type {
-  InvoiceSummary,
-  InvoiceSummaryResult,
-} from '../ocr/schemas/invoice-summary.schema';
-import type { DocumentOps } from '../ocr/ocr.service';
-import { OCR_QUEUE_NAME, type OcrJobData } from '../ocr/queues/ocr.queue';
+import type { InvoiceSummary } from '../ocr/schemas/invoice-summary.schema';
 import { sanitizeFilename } from './helpers/sanitize-filename';
 import { mimeToExt } from './helpers/mime-to-ext';
 import { maskFilename } from './helpers/mask-filename';
@@ -40,7 +34,7 @@ import type { ListDocumentsQueryDto } from './dto/list-documents.query.dto';
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'application/pdf'] as const;
 
 @Injectable()
-export class DocumentsService implements DocumentOps {
+export class DocumentsService {
   private readonly logger = new Logger(DocumentsService.name);
   private readonly urlSecret: string;
   private readonly maxBytes: number;
@@ -48,7 +42,7 @@ export class DocumentsService implements DocumentOps {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
-    @InjectQueue(OCR_QUEUE_NAME) private readonly ocrQueue: Queue<OcrJobData>,
+    private readonly events: EventEmitter2,
     cfg: ConfigService,
   ) {
     this.urlSecret = cfg.getOrThrow<string>('STORAGE_URL_SECRET');
@@ -101,17 +95,10 @@ export class DocumentsService implements DocumentOps {
       data: { storagePath },
     });
 
-    await this.ocrQueue.add(
-      'process',
-      { documentId: updated.id, userId },
-      {
-        jobId: updated.id,
-        attempts: 3,
-        backoff: { type: 'exponential', delay: 5000 },
-        removeOnComplete: { age: 86400, count: 1000 },
-        removeOnFail: { age: 7 * 86400 },
-      },
-    );
+    this.events.emit('document.created', {
+      documentId: updated.id,
+      userId,
+    });
     this.logger.log(
       `Document created docId=${updated.id} user=${userId} filename=${maskFilename(safeName)}`,
     );
@@ -162,18 +149,10 @@ export class DocumentsService implements DocumentOps {
     });
 
     try {
-      await this.ocrQueue.remove(id).catch(() => undefined);
-      await this.ocrQueue.add(
-        'process',
-        { documentId: updated.id, userId: doc.userId },
-        {
-          jobId: updated.id,
-          attempts: 3,
-          backoff: { type: 'exponential', delay: 5000 },
-          removeOnComplete: { age: 86400, count: 1000 },
-          removeOnFail: { age: 7 * 86400 },
-        },
-      );
+      this.events.emit('document.created', {
+        documentId: updated.id,
+        userId: doc.userId,
+      });
     } catch (err) {
       await this.prisma.document
         .update({
@@ -246,66 +225,6 @@ export class DocumentsService implements DocumentOps {
     );
     res.setHeader('Cache-Control', 'private, max-age=900');
     res.end(buffer);
-  }
-
-  // ---- DocumentOps (consumido pelo OcrService) ----
-
-  async markRunning(id: string): Promise<void> {
-    await this.prisma.document.update({
-      where: { id },
-      data: {
-        status: DocumentStatus.OCR_RUNNING,
-        ocrStartedAt: new Date(),
-      },
-    });
-  }
-
-  async markReady(
-    id: string,
-    summary: InvoiceSummary,
-    extractedText: string,
-  ): Promise<void> {
-    await this.prisma.document.update({
-      where: { id },
-      data: {
-        status: DocumentStatus.READY,
-        summary: summary as never,
-        extractedText,
-        ocrCompletedAt: new Date(),
-        failureReason: null,
-      },
-    });
-  }
-
-  async markFailed(id: string, reason: string): Promise<void> {
-    await this.prisma.document.update({
-      where: { id },
-      data: {
-        status: DocumentStatus.FAILED,
-        failureReason: reason,
-        retryCount: { increment: 1 },
-        ocrCompletedAt: new Date(),
-      },
-    });
-  }
-
-  async markRejected(
-    id: string,
-    reason: 'low_confidence' | 'unsupported_type',
-    partial: InvoiceSummaryResult,
-  ): Promise<void> {
-    await this.prisma.document.update({
-      where: { id },
-      data: {
-        status: DocumentStatus.REJECTED,
-        documentType: partial.documentType,
-        confidence: partial.confidence,
-        rejectionReason: reason,
-        summary: partial.summary as never,
-        extractedText: partial.extractedText,
-        ocrCompletedAt: new Date(),
-      },
-    });
   }
 
   async updateSummary(

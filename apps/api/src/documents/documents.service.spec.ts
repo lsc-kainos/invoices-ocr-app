@@ -16,7 +16,7 @@ jest.mock('./helpers/detect-file-type', () => ({
 
 import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { getQueueToken } from '@nestjs/bullmq';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   BadRequestException,
   ConflictException,
@@ -27,7 +27,6 @@ import { createHmac } from 'node:crypto';
 import { DocumentsService } from './documents.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { STORAGE_SERVICE } from '../storage/storage.service';
-import { OCR_QUEUE_NAME } from '../ocr/queues/ocr.queue';
 import type { Document } from '@prisma/client';
 import { DocumentStatus } from '@prisma/client';
 import type { InvoiceSummary } from '../ocr/schemas/invoice-summary.schema';
@@ -104,7 +103,7 @@ describe('DocumentsService', () => {
     $transaction: jest.Mock;
   };
   let storage: { put: jest.Mock; read: jest.Mock };
-  let ocrQueue: { add: jest.Mock; remove: jest.Mock };
+  let events: { emit: jest.Mock };
 
   beforeEach(async () => {
     prisma = {
@@ -144,9 +143,8 @@ describe('DocumentsService', () => {
       put: jest.fn().mockResolvedValue(undefined),
       read: jest.fn().mockResolvedValue(Buffer.from('x')),
     };
-    ocrQueue = {
-      add: jest.fn().mockResolvedValue(undefined),
-      remove: jest.fn().mockResolvedValue(undefined),
+    events = {
+      emit: jest.fn(),
     };
     const cfg = {
       getOrThrow: (k: string) =>
@@ -160,7 +158,7 @@ describe('DocumentsService', () => {
         DocumentsService,
         { provide: PrismaService, useValue: prisma },
         { provide: STORAGE_SERVICE, useValue: storage },
-        { provide: getQueueToken(OCR_QUEUE_NAME), useValue: ocrQueue },
+        { provide: EventEmitter2, useValue: events },
         { provide: ConfigService, useValue: cfg },
       ],
     }).compile();
@@ -173,11 +171,10 @@ describe('DocumentsService', () => {
       expect(storage.put).toHaveBeenCalled();
       expect(prisma.document.create).toHaveBeenCalled();
       expect(prisma.document.update).toHaveBeenCalled();
-      expect(ocrQueue.add).toHaveBeenCalledWith(
-        'process',
-        { documentId: dto.id, userId: 'user1' },
-        expect.objectContaining({ jobId: dto.id, attempts: 3 }),
-      );
+      expect(events.emit).toHaveBeenCalledWith('document.created', {
+        documentId: dto.id,
+        userId: 'user1',
+      });
       expect(dto.status).toBeDefined();
     });
 
@@ -202,7 +199,7 @@ describe('DocumentsService', () => {
           DocumentsService,
           { provide: PrismaService, useValue: prisma },
           { provide: STORAGE_SERVICE, useValue: storage },
-          { provide: getQueueToken(OCR_QUEUE_NAME), useValue: ocrQueue },
+          { provide: EventEmitter2, useValue: events },
           { provide: ConfigService, useValue: cfgHuge },
         ],
       }).compile();
@@ -325,48 +322,8 @@ describe('DocumentsService', () => {
     });
   });
 
-  describe('mark*', () => {
-    it('markRunning seta OCR_RUNNING + ocrStartedAt', async () => {
-      await svc.markRunning('d1');
-      expect(prisma.document.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { id: 'd1' },
-          data: expect.objectContaining({ status: 'OCR_RUNNING' }),
-        }),
-      );
-    });
-
-    it('markReady seta READY + summary + extractedText + ocrCompletedAt', async () => {
-      await svc.markReady(
-        'd1',
-        { core: {} as never, items: [], extras: [], narrative: '' },
-        'text',
-      );
-      expect(prisma.document.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            status: 'READY',
-            extractedText: 'text',
-          }),
-        }),
-      );
-    });
-
-    it('markFailed seta FAILED + failureReason + retryCount++', async () => {
-      await svc.markFailed('d1', 'rate_limit');
-      expect(prisma.document.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            status: 'FAILED',
-            failureReason: 'rate_limit',
-          }),
-        }),
-      );
-    });
-  });
-
   describe('retry', () => {
-    it('FAILED → QUEUED + emite document.uploaded', async () => {
+    it('FAILED → QUEUED + emite document.created', async () => {
       const doc = {
         id: 'doc1',
         userId: 'u1',
@@ -403,18 +360,17 @@ describe('DocumentsService', () => {
           ocrCompletedAt: null,
         },
       });
-      expect(ocrQueue.add).toHaveBeenCalledWith(
-        'process',
-        { documentId: 'doc1', userId: 'u1' },
-        expect.objectContaining({ jobId: 'doc1', attempts: 3 }),
-      );
+      expect(events.emit).toHaveBeenCalledWith('document.created', {
+        documentId: 'doc1',
+        userId: 'u1',
+      });
       expect(result.status).toBe('QUEUED');
     });
 
     it('doc inexistente ou de outro user → NotFoundException', async () => {
       prisma.document.findFirst.mockResolvedValue(null);
       await expect(svc.retry('u1', 'doc1')).rejects.toThrow(NotFoundException);
-      expect(ocrQueue.add).not.toHaveBeenCalled();
+      expect(events.emit).not.toHaveBeenCalled();
     });
 
     it('status ≠ FAILED → ConflictException', async () => {
@@ -424,10 +380,10 @@ describe('DocumentsService', () => {
         status: DocumentStatus.OCR_RUNNING,
       });
       await expect(svc.retry('u1', 'doc1')).rejects.toThrow(ConflictException);
-      expect(ocrQueue.add).not.toHaveBeenCalled();
+      expect(events.emit).not.toHaveBeenCalled();
     });
 
-    it('falha no enqueue Redis → restaura FAILED e relança erro', async () => {
+    it('falha no emit do evento → restaura FAILED e relança erro', async () => {
       const doc = {
         id: 'doc1',
         userId: 'u1',
@@ -457,11 +413,13 @@ describe('DocumentsService', () => {
           status: DocumentStatus.FAILED,
         });
 
-      const redisErr = new Error('Redis connection refused');
-      ocrQueue.add.mockRejectedValue(redisErr);
+      const emitErr = new Error('EventEmitter failure');
+      events.emit.mockImplementation(() => {
+        throw emitErr;
+      });
 
       await expect(svc.retry('u1', 'doc1')).rejects.toThrow(
-        'Redis connection refused',
+        'EventEmitter failure',
       );
 
       expect(prisma.document.update).toHaveBeenCalledTimes(2);

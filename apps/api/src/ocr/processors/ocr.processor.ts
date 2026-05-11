@@ -1,7 +1,9 @@
 import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
-import { Inject, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { OcrService, DOCUMENT_OPS, type DocumentOps } from '../ocr.service';
+import { DocumentStatus } from '@prisma/client';
+import { PrismaService } from '../../prisma/prisma.service';
+import { OcrService } from '../ocr.service';
 import type { OcrJobData } from '../queues/ocr.queue';
 import { OCR_QUEUE_NAME } from '../queues/ocr.queue';
 
@@ -11,7 +13,7 @@ export class OcrProcessor extends WorkerHost {
 
   constructor(
     private readonly ocr: OcrService,
-    @Inject(DOCUMENT_OPS) private readonly docs: DocumentOps,
+    private readonly prisma: PrismaService,
   ) {
     super();
   }
@@ -26,6 +28,14 @@ export class OcrProcessor extends WorkerHost {
       `OCR job esgotou tentativas docId=${job.data.documentId} attempts=${job.attemptsMade}`,
       err.message,
     );
-    await this.docs.markFailed(job.data.documentId, 'transient_exhausted');
+    await this.prisma.document.update({
+      where: { id: job.data.documentId },
+      data: {
+        status: DocumentStatus.FAILED,
+        failureReason: 'transient_exhausted',
+        retryCount: { increment: 1 },
+        ocrCompletedAt: new Date(),
+      },
+    });
   }
 }
