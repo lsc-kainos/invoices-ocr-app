@@ -10,6 +10,8 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const logger = new Logger('Bootstrap');
 
+  app.enableShutdownHooks();
+
   // Fingerprint pra comparar com o do web e provar igualdade do secret
   // sem expor o valor. Mesmo input → mesmo output em ambos os services.
   const fp = secretFingerprint(config.getOrThrow<string>('NEXTAUTH_SECRET'));

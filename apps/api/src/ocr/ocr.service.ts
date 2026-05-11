@@ -30,8 +30,6 @@ export interface DocumentOps {
   ): Promise<{ id: string; mime: string; storagePath: string } | null>;
 }
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
 @Injectable()
 export class OcrService {
   private readonly logger = new Logger(OcrService.name);
@@ -45,57 +43,50 @@ export class OcrService {
   async process(docId: string): Promise<void> {
     await this.docs.markRunning(docId);
 
-    let attempt = 0;
-    while (attempt < 2) {
-      try {
-        const doc = await this.docs.findByIdInternal(docId);
-        if (!doc) {
-          await this.docs.markFailed(docId, 'unknown');
-          return;
-        }
-        const buffer = await this.storage.read(doc.storagePath);
-        const isPdf = doc.mime === 'application/pdf';
-        const imageBuffer = isPdf ? await pdfToImage(buffer) : buffer;
-        const imageMime = isPdf ? 'image/png' : doc.mime;
-        const result = await this.provider.extract(imageBuffer, imageMime);
-        const parsed = invoiceSummarySchema.parse(result);
-        await this.docs.markReady(docId, parsed.summary, parsed.extractedText);
-        this.logger.log(`OCR ok docId=${docId} attempt=${attempt + 1}`);
-        return;
-      } catch (err) {
-        if (isTransient(err) && attempt === 0) {
-          this.logger.warn(
-            `OCR transient err docId=${docId} attempt=${attempt + 1}`,
-          );
-          attempt++;
-          await sleep(3000);
-          continue;
-        }
-        const code = classifyError(err);
-        const e = err as {
-          name?: string;
-          message?: string;
-          status?: number;
-          code?: string;
-          stack?: string;
-        };
-        const detail = [
-          e.name && `name=${e.name}`,
-          e.status && `status=${e.status}`,
-          e.code && `errCode=${e.code}`,
-          e.message && `message=${e.message.slice(0, 300)}`,
-        ]
-          .filter(Boolean)
-          .join(' ');
-        this.logger.warn(`OCR failed docId=${docId} reason=${code} ${detail}`);
-        if (code === 'unknown' && e.stack) {
-          this.logger.warn(
-            `OCR stack docId=${docId}: ${e.stack.split('\n').slice(0, 6).join(' | ')}`,
-          );
-        }
-        await this.docs.markFailed(docId, code);
+    try {
+      const doc = await this.docs.findByIdInternal(docId);
+      if (!doc) {
+        await this.docs.markFailed(docId, 'unknown');
         return;
       }
+      const buffer = await this.storage.read(doc.storagePath);
+      const isPdf = doc.mime === 'application/pdf';
+      const imageBuffer = isPdf ? await pdfToImage(buffer) : buffer;
+      const imageMime = isPdf ? 'image/png' : doc.mime;
+      const result = await this.provider.extract(imageBuffer, imageMime);
+      const parsed = invoiceSummarySchema.parse(result);
+      await this.docs.markReady(docId, parsed.summary, parsed.extractedText);
+      this.logger.log(`OCR ok docId=${docId}`);
+    } catch (err) {
+      if (isTransient(err)) {
+        this.logger.warn(
+          `OCR transient err docId=${docId} — propagando para BullMQ retry`,
+        );
+        throw err;
+      }
+      const code = classifyError(err);
+      const e = err as {
+        name?: string;
+        message?: string;
+        status?: number;
+        code?: string;
+        stack?: string;
+      };
+      const detail = [
+        e.name && `name=${e.name}`,
+        e.status && `status=${e.status}`,
+        e.code && `errCode=${e.code}`,
+        e.message && `message=${e.message.slice(0, 300)}`,
+      ]
+        .filter(Boolean)
+        .join(' ');
+      this.logger.warn(`OCR failed docId=${docId} reason=${code} ${detail}`);
+      if (code === 'unknown' && e.stack) {
+        this.logger.warn(
+          `OCR stack docId=${docId}: ${e.stack.split('\n').slice(0, 6).join(' | ')}`,
+        );
+      }
+      await this.docs.markFailed(docId, code);
     }
   }
 }

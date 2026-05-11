@@ -76,24 +76,13 @@ describe('OcrService', () => {
     expect(docs.markFailed).not.toHaveBeenCalled();
   });
 
-  it('erro transiente uma vez → retry → READY', async () => {
-    const err: Error & { status?: number } = new Error('rl');
-    err.status = 429;
-    provider.extract.mockRejectedValueOnce(err).mockResolvedValueOnce(happy);
-    await svc.process('d1');
-    expect(provider.extract).toHaveBeenCalledTimes(2);
-    expect(docs.markReady).toHaveBeenCalled();
-    expect(docs.markFailed).not.toHaveBeenCalled();
-  }, 10_000);
-
-  it('dois erros transientes → FAILED com rate_limit', async () => {
+  it('erro transiente → lança para BullMQ retry (sem markFailed interno)', async () => {
     const err: Error & { status?: number } = new Error('rl');
     err.status = 429;
     provider.extract.mockRejectedValue(err);
-    await svc.process('d1');
-    expect(provider.extract).toHaveBeenCalledTimes(2);
-    expect(docs.markFailed).toHaveBeenCalledWith('d1', 'rate_limit');
-  }, 10_000);
+    await expect(svc.process('d1')).rejects.toThrow('rl');
+    expect(docs.markFailed).not.toHaveBeenCalled();
+  });
 
   it('erro não-transiente (ZodError) → FAILED imediato sem retry', async () => {
     const err = new Error('bad');

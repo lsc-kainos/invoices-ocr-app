@@ -9,7 +9,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { DocumentStatus } from '@prisma/client';
 import { detectFileType } from './helpers/detect-file-type';
@@ -21,7 +22,7 @@ import {
 } from '../storage/storage.service';
 import type { InvoiceSummary } from '../ocr/schemas/invoice-summary.schema';
 import type { DocumentOps } from '../ocr/ocr.service';
-import { DocumentUploadedEvent } from './events/document-uploaded.event';
+import { OCR_QUEUE_NAME, type OcrJobData } from '../ocr/queues/ocr.queue';
 import { sanitizeFilename } from './helpers/sanitize-filename';
 import { mimeToExt } from './helpers/mime-to-ext';
 import { maskFilename } from './helpers/mask-filename';
@@ -44,7 +45,7 @@ export class DocumentsService implements DocumentOps {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
-    private readonly events: EventEmitter2,
+    @InjectQueue(OCR_QUEUE_NAME) private readonly ocrQueue: Queue<OcrJobData>,
     cfg: ConfigService,
   ) {
     this.urlSecret = cfg.getOrThrow<string>('STORAGE_URL_SECRET');
@@ -97,9 +98,16 @@ export class DocumentsService implements DocumentOps {
       data: { storagePath },
     });
 
-    this.events.emit(
-      DocumentUploadedEvent.NAME,
-      new DocumentUploadedEvent(updated.id),
+    await this.ocrQueue.add(
+      'process',
+      { documentId: updated.id },
+      {
+        jobId: updated.id,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 5000 },
+        removeOnComplete: { age: 86400, count: 1000 },
+        removeOnFail: { age: 7 * 86400 },
+      },
     );
     this.logger.log(
       `Document created docId=${updated.id} user=${userId} filename=${maskFilename(safeName)}`,
@@ -150,10 +158,28 @@ export class DocumentsService implements DocumentOps {
       },
     });
 
-    this.events.emit(
-      DocumentUploadedEvent.NAME,
-      new DocumentUploadedEvent(updated.id),
-    );
+    try {
+      await this.ocrQueue.remove(id).catch(() => undefined);
+      await this.ocrQueue.add(
+        'process',
+        { documentId: updated.id },
+        {
+          jobId: updated.id,
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 5000 },
+          removeOnComplete: { age: 86400, count: 1000 },
+          removeOnFail: { age: 7 * 86400 },
+        },
+      );
+    } catch (err) {
+      await this.prisma.document
+        .update({
+          where: { id },
+          data: { status: DocumentStatus.FAILED, failureReason: 'queue_error' },
+        })
+        .catch(() => undefined);
+      throw err;
+    }
     this.logger.log(`Document retry docId=${id} user=${userId}`);
     return toSummaryDto(updated);
   }
