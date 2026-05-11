@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Message } from './chat-panel';
 
@@ -12,10 +12,16 @@ export function useWorkspaceChat(activeSessionId?: string) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Lista de sessões busca apenas no mount. Para evitar pressão no throttle
-  // (chat: 15 req/min), NÃO refazer fetch em cada troca de sessão. O hook
-  // mantém a lista coerente via update otimista em createSession e refetch
-  // pontual em send (após resposta do LLM, que pode ter mudado o título).
+  // Cache de mensagens por sessão — evita re-fetch ao navegar entre sessões
+  // já visitadas. Map vive enquanto o hook estiver montado (rota /chat).
+  const messageCache = useRef<Map<string, Message[]>>(new Map());
+  // Controla fetches em voo para não disparar requests duplicados se o
+  // usuário clicar na mesma sessão enquanto ela ainda está carregando.
+  const inFlight = useRef<Set<string>>(new Set());
+
+  // Lista de sessões busca apenas no mount. Para evitar pressão no throttle,
+  // NÃO refazer fetch em cada troca de sessão. O hook mantém a lista coerente
+  // via update otimista em createSession e refetch pontual em send.
   useEffect(() => {
     let alive = true;
     fetch('/api/chat/sessions')
@@ -30,21 +36,31 @@ export function useWorkspaceChat(activeSessionId?: string) {
   }, []);
 
   useEffect(() => {
-    let alive = true;
     if (!activeSessionId) {
-      Promise.resolve([]).then((data) => {
-        if (alive) setMessages(data);
-      });
-      return () => {
-        alive = false;
-      };
+      setMessages([]);
+      return;
     }
+
+    const cached = messageCache.current.get(activeSessionId);
+    if (cached) {
+      setMessages(cached);
+      return;
+    }
+
+    if (inFlight.current.has(activeSessionId)) return;
+
+    let alive = true;
+    inFlight.current.add(activeSessionId);
     fetch(`/api/chat/sessions/${activeSessionId}/messages`)
       .then((r) => (r.ok ? r.json() : []))
-      .then((data) => {
+      .then((data: Message[]) => {
+        messageCache.current.set(activeSessionId, data);
+        inFlight.current.delete(activeSessionId);
         if (alive) setMessages(data);
       })
-      .catch(() => undefined);
+      .catch(() => {
+        inFlight.current.delete(activeSessionId);
+      });
     return () => {
       alive = false;
     };
@@ -72,7 +88,11 @@ export function useWorkspaceChat(activeSessionId?: string) {
       setError(null);
       setLoading(true);
       const userMsg: Message = { id: `tmp-${Date.now()}`, role: 'USER', content };
-      setMessages((prev) => [...prev, userMsg]);
+      setMessages((prev) => {
+        const updated = [...prev, userMsg];
+        messageCache.current.set(activeSessionId, updated);
+        return updated;
+      });
 
       try {
         const res = await fetch(`/api/chat/sessions/${activeSessionId}/messages`, {
@@ -82,10 +102,14 @@ export function useWorkspaceChat(activeSessionId?: string) {
         });
         if (!res.ok) throw new Error(`http_${res.status}`);
         const { content: asst } = await res.json();
-        setMessages((prev) => [
-          ...prev,
-          { id: `asst-${Date.now()}`, role: 'ASSISTANT', content: asst },
-        ]);
+        setMessages((prev) => {
+          const updated: Message[] = [
+            ...prev,
+            { id: `asst-${Date.now()}`, role: 'ASSISTANT', content: asst },
+          ];
+          messageCache.current.set(activeSessionId, updated);
+          return updated;
+        });
         fetch('/api/chat/sessions')
           .then((r) => (r.ok ? r.json() : []))
           .then(setSessions);
