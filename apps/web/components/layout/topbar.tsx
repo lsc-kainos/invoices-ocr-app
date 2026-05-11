@@ -20,6 +20,17 @@ export function Topbar({ user }: { user: NonNullable<Session['user']> }) {
     { key: 'home', label: t('nav.home'), href: '/', enabled: true },
     { key: 'list', label: t('nav.list'), href: '/documents', enabled: true },
     { key: 'chat', label: t('nav.chat'), href: '/chat', enabled: true },
+    ...(user.role === 'ADMIN'
+      ? [
+          {
+            key: 'admin',
+            label: t('nav.admin'),
+            href: '/admin',
+            enabled: true,
+            admin: true,
+          } satisfies NavItem,
+        ]
+      : []),
   ];
 
   return (

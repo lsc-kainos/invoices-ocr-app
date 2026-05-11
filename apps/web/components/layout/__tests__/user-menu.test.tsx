@@ -21,4 +21,15 @@ describe('<UserMenu />', () => {
     expect(screen.getByText('l@x.com')).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Sair' })).toBeInTheDocument();
   });
+
+  it('NÃO mostra mais seção de admin para role ADMIN (movida para topbar)', async () => {
+    render(
+      <NextIntlClientProvider locale="pt-BR" messages={messages}>
+        <UserMenu user={{ name: 'L', email: 'l@x.com', image: null, role: 'ADMIN' }} />
+      </NextIntlClientProvider>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: messages.topbar.user_menu_label }));
+    expect(screen.queryByRole('menuitem', { name: /Área Admin/i })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Admin/i })).toBeNull();
+  });
 });
