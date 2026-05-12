@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, apiJSON } from '@/lib/api';
 
 async function proxy(req: NextRequest, documentId: string, init: RequestInit) {
   const res = await apiFetch(`/api/v1/chat/documents/${documentId}/messages`, init, req);
@@ -25,7 +25,10 @@ export async function POST(
   return proxy(req, documentId, {
     method: 'POST',
     body: await req.text(),
-    headers: { Accept: req.headers.get('accept') ?? 'application/json' },
+    headers: {
+      Accept: req.headers.get('accept') ?? 'application/json',
+      'Content-Type': 'application/json',
+    },
   });
 }
 

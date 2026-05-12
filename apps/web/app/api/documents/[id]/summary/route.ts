@@ -1,14 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { apiFetch } from '@/lib/api';
+import { apiJSON } from '@/lib/api';
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   const body = await req.text();
-  const r = await apiFetch(
+  const r = await apiJSON(
     `/api/v1/documents/${id}/summary`,
     {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body,
     },
     req,

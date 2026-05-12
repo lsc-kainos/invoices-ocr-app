@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, apiJSON } from '@/lib/api';
 
 export async function GET(req: NextRequest) {
   const r = await apiFetch('/api/v1/admin/llm-configs', {}, req);
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
-  const r = await apiFetch('/api/v1/admin/llm-configs', { method: 'POST', body }, req);
+  const r = await apiJSON('/api/v1/admin/llm-configs', { method: 'POST', body }, req);
   const resBody = await r.text();
   return new NextResponse(resBody, {
     status: r.status,

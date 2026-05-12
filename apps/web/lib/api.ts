@@ -35,27 +35,35 @@ export async function apiFetch(
     headers: {
       ...(init.headers ?? {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      'Content-Type': 'application/json',
     },
     cache: 'no-store',
   });
 }
 
+export async function apiJSON(
+  path: string,
+  init: RequestInit = {},
+  req?: NextRequest,
+): Promise<Response> {
+  return apiFetch(
+    path,
+    {
+      ...init,
+      headers: {
+        ...(init.headers ?? {}),
+        'Content-Type': 'application/json',
+      },
+    },
+    req,
+  );
+}
+
 // Multipart proxy: NÃO setar Content-Type — o fetch determina automaticamente
-// com o boundary correto a partir do FormData. Override do header acima
-// quebraria o multipart parser do Nest.
+// com o boundary correto a partir do FormData.
 export async function apiUpload(
   path: string,
   formData: FormData,
   req?: NextRequest,
 ): Promise<Response> {
-  const token = await resolveToken(req);
-  return fetch(`${env.API_URL}${path}`, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    cache: 'no-store',
-  });
+  return apiFetch(path, { method: 'POST', body: formData }, req);
 }

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, apiJSON } from '@/lib/api';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const res = await apiFetch(
+  const res = await apiJSON(
     `/api/v1/chat/sessions/${id}/messages`,
     {
       method: 'POST',

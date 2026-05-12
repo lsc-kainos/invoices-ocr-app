@@ -59,17 +59,15 @@ describe('OcrService', () => {
     };
     provider = { extract: jest.fn() };
     const state = {
-      markRunning: jest
-        .fn()
-        .mockImplementation((id: string) =>
-          prisma.document.update({
-            where: { id },
-            data: {
-              status: DocumentStatus.OCR_RUNNING,
-              ocrStartedAt: new Date(),
-            },
-          }),
-        ),
+      markRunning: jest.fn().mockImplementation((id: string) =>
+        prisma.document.update({
+          where: { id },
+          data: {
+            status: DocumentStatus.OCR_RUNNING,
+            ocrStartedAt: new Date(),
+          },
+        }),
+      ),
       markReady: jest
         .fn()
         .mockImplementation(
@@ -85,19 +83,17 @@ describe('OcrService', () => {
               },
             }),
         ),
-      markFailed: jest
-        .fn()
-        .mockImplementation((id: string, reason: string) =>
-          prisma.document.update({
-            where: { id },
-            data: {
-              status: DocumentStatus.FAILED,
-              failureReason: reason,
-              retryCount: { increment: 1 },
-              ocrCompletedAt: new Date(),
-            },
-          }),
-        ),
+      markFailed: jest.fn().mockImplementation((id: string, reason: string) =>
+        prisma.document.update({
+          where: { id },
+          data: {
+            status: DocumentStatus.FAILED,
+            failureReason: reason,
+            retryCount: { increment: 1 },
+            ocrCompletedAt: new Date(),
+          },
+        }),
+      ),
       markRejected: jest
         .fn()
         .mockImplementation((id: string, reason: string, partial: unknown) =>

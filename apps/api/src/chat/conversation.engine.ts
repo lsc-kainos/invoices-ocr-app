@@ -8,7 +8,7 @@ import type {
   ChatCompletion,
   ChatCompletionMessageParam,
 } from 'openai/resources/chat/completions';
-import { ChatRole, type LlmConfig } from '@prisma/client';
+import { type LlmConfig } from '@prisma/client';
 import {
   LLM_PROVIDER,
   type LlmProvider,
