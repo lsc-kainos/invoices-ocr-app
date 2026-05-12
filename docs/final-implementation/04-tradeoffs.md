@@ -1,201 +1,344 @@
 # 4. Tradeoffs e Decisões
 
-> Escolhas arquiteturais conscientes e seus impactos. Baseadas na implementação real.
+> Como as decisões arquiteturais foram tomadas: **implementar simples primeiro, refinar conforme tempo permite**. Cada migração representa uma evolução do "mínimo viável" para uma solução mais robusta.
+
+---
+
+## Estratégia Central
+
+A regra de ouro do projeto: **protótipo funcional > tempo gasto**. Começamos sempre com a solução mais simples que entrega valor. Se sobra tempo (ou a dor se torna real), evoluímos.
 
 ---
 
 ## 4.1 Fila: EventEmitter → BullMQ + Redis
 
-### Decisão Original
+### v0: EventEmitter (in-process)
 
-Usar `@nestjs/event-emitter` in-process para OCR. Simples, sem infraestrutura extra.
+Inicialmente usamos `@nestjs/event-emitter` para OCR. Zero infraestrutura extra — o evento era disparado no mesmo processo do upload.
 
-### Implementação Real
+```
+Upload → DocumentsService.emit('ocr.process') → OcrListener.process()
+```
 
-Migração para **BullMQ + Redis** para processamento assíncrono.
+**Por que começou assim:**
 
-**Ganhos:**
+- Funcionava para um único container
+- Sem dependência de Redis
+- Menos código, menos configuração
 
-- Escalabilidade: múltiplas réplicas processam jobs
-- Resiliência: retry automático, dead letter queue
-- Observabilidade: Bull Board para monitoramento
+**Quando a dor apareceu:**
 
-**Custos:**
+- Se o container reiniciava durante OCR, o job morria
+- Sem visibilidade do que estava na fila
+- Sem retry automático
+- Múltiplas réplicas causavam race conditions
+
+### v1: BullMQ + Redis
+
+Migração para fila distribuída:
+
+```
+Upload → ocrQueue.add('process', { documentId }) → OcrProcessor (WorkerHost)
+```
+
+**O que ganhou:**
+
+- **Resiliência:** job sobrevive a restart do container
+- **Retry automático:** BullMQ reprocessa erros transientes
+- **Observabilidade:** Bull Board (`/admin/queues`) mostra jobs pendentes, falhos, ativos
+- **Escalabilidade:** múltiplos workers podem processar em paralelo
+
+**O que custou:**
 
 - Infraestrutura extra (Redis)
 - Complexidade de configuração
-- Latência adicional (job na fila)
+- Latência adicional (job na fila ao invés de imediato)
 
-**Veredito:** tradeoff válido. A fila foi implementada como melhoria de arquitetura.
+**Quando migrou:** após F2 (OCR funcional), antes de ir para produção com múltiplas réplicas.
+
+**Veredito:** migração necessária. O EventEmitter foi um ótimo MVP, mas BullMQ é essencial para produção.
 
 ---
 
 ## 4.2 Storage: Railway Volume → Cloudflare R2
 
-### Decisão Original
+### v0: Railway Volume (filesystem local)
 
-Armazenar documentos em volume local (Railway Volume) para simplicidade.
+Começamos com Railway Volume — um disco montado no container. Zero configuração de credenciais, funciona imediatamente.
 
-### Implementação Real
+```typescript
+// RailwayVolumeProvider
+async put(path: string, buffer: Buffer): Promise<void> {
+  await fs.writeFile(this.resolveSafe(path), buffer);
+}
+```
 
-Abstração dual: `RailwayVolumeProvider` (dev/test) e `CloudflareR2Provider` (prod).
+**Por que começou assim:**
 
-**Ganhos:**
+- Railway oferece Volume com um clique
+- Sem setup de credenciais de cloud
+- Dev/test funcionam identicamente
 
-- Dev/test rápido sem depender de serviço externo
-- Produção com storage persistente e escalável
-- Swap transparente via variável de ambiente
+**Quando a dor apareceu:**
 
-**Custos:**
+- Volume é efêmero em certos cenários de deploy
+- Não escala para múltiplas zonas/regiões
+- Railway Volume tem limitações de I/O
+
+### v1: Abstração Dual (Volume + R2)
+
+Implementamos `StorageService` como interface com dois providers:
+
+```typescript
+// apps/api/src/storage/storage.module.ts
+useFactory: (cfg: ConfigService) => {
+  const driver = cfg.get<string>('STORAGE_DRIVER') ?? 'volume';
+  return driver === 'r2' ? new CloudflareR2Provider(cfg) : new RailwayVolumeProvider(cfg);
+};
+```
+
+**O que ganhou:**
+
+- **Dev/test:** continua com Volume (rápido, sem credenciais)
+- **Produção:** R2 (persistent, escalável, compatível S3)
+- **Swap transparente:** mesma linha de código, variável de ambiente diferente
+
+**O que custou:**
 
 - Duas implementações para manter
-- Configuração extra de credenciais R2
+- Configuração extra de credenciais R2 em produção
 
-**Veredito:** tradeoff excelente. Isola ambientes sem complicar o código de produção.
+**Quando migrou:** após F2 (upload/OCR funcionando), antes do deploy em produção real.
+
+**Veredito:** abstração foi a decisão certa. Isola ambientes sem complicar o código de produção.
 
 ---
 
-## 4.3 OCR: GPT-4o Vision vs. Tesseract/AWS Textract
+## 4.3 IA: OpenAI SDK Direto → Vercel AI SDK (OCR)
 
-### Decisão
+### v0: OpenAI SDK nativo
 
-Usar **OpenAI GPT-4o Vision** para OCR via `ExtractorService`.
+O OCR começou chamando diretamente a API da OpenAI:
 
-**Ganhos:**
+```typescript
+// Conceitual — não é o código atual
+const response = await openai.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [{ role: 'user', content: imageBase64 }],
+});
+```
 
-- Uma SDK, uma chave, um billing
-- Qualidade superior em documentos brasileiros (layout complexo, CNPJ, chaves)
-- Saída estruturada nativa (JSON) com Zod validation
-- Simples de implementar e manter
+**Por que começou assim:**
 
-**Custos:**
+- SDK da OpenAI é familiar e bem documentado
+- Function calling nativo funciona bem
+- Zero abstração = controle total
 
-- Custo por requisição maior que Tesseract (gratuito)
-- Dependência de provider único
-- Latência variável
+**Quando a dor apareceu:**
 
-**Veredito:** tradeoff aceitável para protótipo. "Protótipo funcional > tempo gasto."
+- Structured output (JSON válido) era frágil — parsing manual de strings
+- Sem schema validation integrado
+- Acoplamento forte com API da OpenAI
+- Diffícil trocar de provider sem refatorar todo o OCR
+
+### v1: Vercel AI SDK (`generateObject`)
+
+Migração para `ai` SDK (Vercel AI SDK) com Zod:
+
+```typescript
+// apps/api/src/ai-runtime/ai-runtime.service.ts
+const result = await generateObject({
+  model: modelFor(modelId), // ← agnóstico ao provider
+  schema: opts.schema, // ← Zod schema
+  messages,
+  ...params,
+});
+```
+
+**O que ganhou:**
+
+- **Saída estruturada garantida:** Zod valida antes de retornar
+- **Framework-agnóstico:** `modelFor()` pode retornar OpenAI, Anthropic, Google...
+- **Menos código boilerplate:** `generateObject` lida com streaming, parsing, retry
+- **Prompt versionável:** via `LlmConfig` no banco
+
+**O que custou:**
+
+- Dependência extra (`ai` + `@ai-sdk/openai`)
+- Curva de aprendizado da nova API
+- Chat ainda usa OpenAI SDK nativo (migração parcial)
+
+**Status atual:**
+
+- **OCR (Extractor):** usa Vercel AI SDK ✅
+- **Chat:** ainda usa OpenAI SDK nativo (débito técnico BT-04)
+
+**Quando migrou:** durante F3.1 (AI Runtime), quando implementamos `LlmConfig` e precisávamos de saída estruturada confiável.
+
+**Veredito:** migração valeu a pena para OCR. O chat ainda precisa ser migrado.
 
 ---
 
 ## 4.4 Chat: Contexto por Registros vs. RAG/pgvector
 
-### Decisão
+### Decisão (ainda em v0)
 
 Enviar resumos estruturados dos documentos como contexto + function calling `get_full_document(id)`.
 
-**Ganhos:**
+```
+Contexto no prompt:
+Documento A: { filename: "NF-e-123.pdf", summary: { total: "R$ 1.500", ... } }
+Documento B: { filename: "Boleto-456.pdf", summary: { total: "R$ 890", ... } }
+```
 
-- Implementação simples, sem infraestrutura de vector database
-- Funciona bem para quantidade moderada de documentos
-- Controle total sobre o que entra no contexto
+**Por que não RAG desde o início:**
 
-**Custos:**
+- RAG exige: embeddings + vector database (pgvector) + chunking + semantic search
+- Muito mais infraestrutura e código para um protótipo
+- Com < 50 documentos por usuário, enviar resumos é suficiente
 
-- Maior uso de tokens por requisição
-- Não escala para milhares de documentos
-- Sem semantic search
+**Quando a dor vai aparecer:**
 
-**Veredito:** tradeoff deliberado. RAG/pgvector está no backlog.
+- Usuário com 1000+ documentos → contexto excede limite de tokens
+- Precisa de busca semântica ("encontre NF-e do fornecedor X")
+
+**Veredito:** tradeoff deliberado. RAG/pgvector está no backlog como evolução pós-core.
 
 ---
 
-## 4.5 Streaming de Chat: SSE Simulado
+## 4.5 Streaming de Chat: SSE "Fake"
 
-### Implementação Real
+### v0: Resposta completa
 
-O controller verifica header `Accept: text/event-stream`, mas **espera a resposta inteira do LLM antes de enviar** ao cliente. O SSE envia tudo de uma vez.
+O controller espera a resposta inteira do LLM antes de enviar ao cliente.
 
-**Ganhos:**
+```typescript
+// apps/api/src/chat/chat.controller.ts
+const result = await this.chat.sendWorkspaceMessage(user.id, sessionId, body.content);
+res.write(`data: ${JSON.stringify({ delta: result.content })}\n\n`);
+res.write(`data: [DONE]\n\n`);
+```
 
-- Interface de streaming mantida (fácil evoluir para real)
-- Menor complexidade de implementação
+**Por que começou assim:**
 
-**Custos:**
+- Streaming real com OpenAI SDK exige `AsyncIterable` + SSE
+- Mais complexidade de estado e erro
+- "Fake streaming" entrega a mesma UX visual (usuário vê texto aparecendo)
 
-- Latência percebida alta pelo usuário
-- Não aproveita benefícios psicológicos do streaming real
+**Quando vai migrar:**
 
-**Veredito:** tradeoff temporário. Streaming real está no backlog (BT-02).
+- Streaming real reduz latência percebida
+- Essencial para respostas longas (evita timeout de 30s)
+
+**Veredito:** tradeoff temporário. Interface SSE mantida, fácil evoluir. Débito técnico BT-02.
 
 ---
 
 ## 4.6 Rate Limiting: In-Memory
 
-### Decisão
+### v0: In-Memory (Throttler do NestJS)
 
-Usar `@nestjs/throttler` (in-memory) no backend.
+```typescript
+ThrottlerModule.forRoot([
+  { name: 'default', ttl: 60_000, limit: 600 },
+  { name: 'upload', ttl: 60_000, limit: 120 },
+  // ...
+]),
+```
 
-**Ganhos:**
+**Por que começou assim:**
 
-- Simples de configurar
-- Protege contra abusos básicos
+- `@nestjs/throttler` funciona out-of-the-box
+- Sem infraestrutura extra
+- Suficiente para protótipo com poucos usuários
 
-**Custos:**
+**Limitação:** com múltiplos containers, cada um tem seu próprio contador. Um usuário pode fazer `n × containers` requisições.
 
-- Não escala com múltiplos containers
+**Quando vai migrar:** quando escalar para múltiplas réplicas em produção.
 
-**Veredito:** tradeoff temporário. Para produção real, migrar para Redis.
+**Veredito:** tradeoff temporário. Para produção real, migrar para Redis/Upstash Ratelimit.
 
 ---
 
 ## 4.7 Auth: NextAuth vs. Auth0/Clerk
 
-### Decisão
+### Decisão (não houve migração)
 
 Usar **NextAuth** com OAuth nativo (Google + GitHub).
 
-**Ganhos:**
+**Por que não Auth0/Clerk:**
 
-- Open source, sem custo de licença
-- Controle total sobre o fluxo
-- JWT compartilhado entre web e api funciona bem
+- Auth0/Clerk tem custo e complexidade de setup
+- NextAuth entrega o mesmo valor para o escopo (OAuth + JWT)
+- JWT compartilhado entre web e API funciona bem
+- Menos vendor lock-in
 
-**Custos:**
+**O que custou:**
 
-- Mais código para manter que soluções managed
+- Mais código para manter (callback de sync, JWT strategy)
+- Responsabilidade de segurança do JWT
 
-**Veredito:** tradeoff adequado para o escopo.
+**Veredito:** tradeoff adequado. Não justifica custo de solução managed em protótipo.
 
 ---
 
 ## 4.8 Monorepo vs. Repositórios Separados
 
-### Decisão
+### Decisão (não houve migração)
 
 Monorepo com npm workspaces + Turborepo.
 
-**Ganhos:**
+**Por que monorepo:**
 
-- Shared types sem publicação de pacotes
-- Scripts unificados
+- Shared types (`packages/shared-types`) sem publicação de pacotes
+- Scripts unificados (`npm run dev` sobe ambos)
 - CI/CD simplificado
+- Refatorações cross-repo fáceis
 
-**Custos:**
+**O que custou:**
 
 - Maior complexidade inicial
+- Todos os devs precisam entender o workspace
 
-**Veredito:** tradeoff positivo.
+**Veredito:** tradeoff positivo. A produtividade ganha supera a curva de aprendizado.
 
 ---
 
 ## 4.9 shadcn/ui vs. MUI/Chakra
 
-### Decisão
+### Decisão (não houve migração)
 
-Usar **shadcn/ui** (componentes copiados).
+Usar **shadcn/ui** (componentes copiados, não instalados via npm).
 
-**Ganhos:**
+**Por que shadcn:**
 
-- Controle total sobre o código
-- Sem dependência de lib de UI
-- Fácil customizar para o tema Paggo
+- Controle total sobre o código dos componentes
+- Sem dependência de lib de UI que pode mudar
+- Fácil customizar para o tema Paggo (preto + cobre/conhaque)
+- Funciona com Tailwind v4
 
-**Custos:**
+**O que custou:**
 
 - Mais código no repositório
+- Responsabilidade de manter os componentes
 
-**Veredito:** tradeoff positivo.
+**Veredito:** tradeoff positivo para um projeto com identidade visual própria.
+
+---
+
+## Resumo das Migrações
+
+| Componente       | v0 (MVP)                | v1 (Refinado)       | Gatilho da Migração            |
+| ---------------- | ----------------------- | ------------------- | ------------------------------ |
+| **Fila**         | EventEmitter in-process | BullMQ + Redis      | Container restart matando jobs |
+| **Storage**      | Railway Volume          | Volume + R2 dual    | Volume efêmero em produção     |
+| **IA (OCR)**     | OpenAI SDK nativo       | Vercel AI SDK + Zod | Saída estruturada frágil       |
+| **IA (Chat)**    | OpenAI SDK nativo       | _Ainda em v0_       | Débito técnico BT-04           |
+| **Contexto LLM** | Resumos no prompt       | _Ainda em v0_       | RAG no backlog                 |
+| **Streaming**    | SSE "fake"              | _Ainda em v0_       | Débito técnico BT-02           |
+| **Rate Limit**   | In-memory               | _Ainda em v0_       | Migra quando escalar réplicas  |
+
+**Lição:** a estratégia de "simples primeiro" funcionou. Cada migração foi motivada por dor real, não por especulação. O que não doeu, ficou em v0.
 
 ---
 
