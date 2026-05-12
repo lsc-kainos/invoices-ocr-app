@@ -9,6 +9,7 @@ const FIXTURES: InvoiceSummaryResult[] = [
     confidence: 0.95,
     summary: {
       core: {
+        accessKey: '35260412345678000190550010000231171123456789',
         invoiceNumber: '0023117',
         invoiceDate: '2026-04-22',
         dueDate: null,
@@ -77,6 +78,7 @@ const FIXTURES: InvoiceSummaryResult[] = [
     confidence: 0.92,
     summary: {
       core: {
+        accessKey: null,
         invoiceNumber: '0007789',
         invoiceDate: '2026-04-15',
         dueDate: null,
@@ -130,6 +132,7 @@ const FIXTURES: InvoiceSummaryResult[] = [
     confidence: 0.88,
     summary: {
       core: {
+        accessKey: null,
         invoiceNumber: '042',
         invoiceDate: '2026-03-30',
         dueDate: null,
