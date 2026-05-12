@@ -1,0 +1,145 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Infográfico da arquitetura do Invoices OCR App</title>
+  <desc id="desc">Fluxo visual mostrando upload de invoices, autenticação, web Next.js, API NestJS, OCR com OpenAI, fila BullMQ, PostgreSQL, storage, chat e painel admin.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#080604"/>
+      <stop offset="0.54" stop-color="#16100B"/>
+      <stop offset="1" stop-color="#2A160B"/>
+    </linearGradient>
+    <linearGradient id="copper" x1="120" y1="92" x2="1160" y2="650" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7C873"/>
+      <stop offset="0.42" stop-color="#C87533"/>
+      <stop offset="1" stop-color="#7A3D1B"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#2B2118"/>
+      <stop offset="1" stop-color="#15100C"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.38"/>
+    </filter>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="9" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0.95 0 0.55 0 0 0.44 0 0 0.22 0 0.12 0 0 0 0.8 0"/>
+      <feBlend in="SourceGraphic" mode="screen"/>
+    </filter>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2L12 7L2 12" stroke="#E6A15A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .title { font: 800 42px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #FFF7EA; letter-spacing: -0.03em; }
+      .subtitle { font: 500 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #D9C4AF; }
+      .section { font: 800 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #FFF3DF; letter-spacing: -0.01em; }
+      .label { font: 700 15px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #FFF3DF; }
+      .small { font: 500 12px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #CDB9A4; }
+      .tiny { font: 700 11px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1B120B; }
+      .mono { font: 700 12px "SFMono-Regular", Consolas, monospace; fill: #F7C873; }
+      .card { fill: url(#panel); stroke: rgba(247, 200, 115, 0.26); stroke-width: 1.5; filter: url(#shadow); }
+      .mini { fill: rgba(255,255,255,0.055); stroke: rgba(255,255,255,0.12); stroke-width: 1; }
+      .line { stroke: #E6A15A; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
+      .line-muted { stroke: rgba(230,161,90,0.44); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 5 7; marker-end: url(#arrow); }
+      .chip { fill: #F7C873; }
+      .chip2 { fill: #B96932; }
+      .icon { stroke: #F7C873; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="720" rx="34" fill="url(#bg)"/>
+  <circle cx="1040" cy="122" r="230" fill="#9A4E22" opacity="0.18" filter="url(#glow)"/>
+  <circle cx="175" cy="628" r="260" fill="#F7C873" opacity="0.08" filter="url(#glow)"/>
+  <path d="M70 643C232 543 407 715 584 614C732 529 817 390 961 428C1067 456 1136 536 1210 488" stroke="url(#copper)" stroke-width="2" opacity="0.2"/>
+
+  <text x="64" y="70" class="title">Invoices OCR App</text>
+  <text x="64" y="102" class="subtitle">Upload de notas fiscais → OCR estruturado → chat com LLM → gestão e benchmark</text>
+  <rect x="998" y="54" width="218" height="42" rx="21" fill="rgba(247,200,115,0.12)" stroke="rgba(247,200,115,0.34)"/>
+  <text x="1022" y="80" class="mono">Next.js + NestJS + GPT-4o</text>
+
+  <!-- User and Web -->
+  <rect x="58" y="152" width="250" height="168" rx="28" class="card"/>
+  <circle cx="104" cy="201" r="25" fill="rgba(247,200,115,0.14)" stroke="rgba(247,200,115,0.42)"/>
+  <path d="M104 196a10 10 0 1 0 0-20a10 10 0 0 0 0 20ZM84 224c5-15 35-15 40 0" class="icon"/>
+  <text x="142" y="194" class="section">Usuário</text>
+  <text x="142" y="219" class="small">OAuth Google/GitHub</text>
+  <rect x="88" y="252" width="190" height="38" rx="19" class="mini"/>
+  <text x="110" y="276" class="label">PDF • PNG • JPG</text>
+
+  <rect x="374" y="134" width="270" height="204" rx="30" class="card"/>
+  <rect x="407" y="171" width="76" height="56" rx="10" fill="rgba(247,200,115,0.12)" stroke="rgba(247,200,115,0.38)"/>
+  <path d="M425 190h40M425 204h32M425 218h24" class="icon"/>
+  <text x="508" y="182" class="section">Web App</text>
+  <text x="508" y="207" class="small">Next.js 16 + Tailwind</text>
+  <text x="508" y="228" class="small">SSR auto-proxy + sessão</text>
+  <rect x="407" y="263" width="204" height="40" rx="20" fill="rgba(255,255,255,0.055)"/>
+  <text x="428" y="288" class="label">Dashboard • Detalhe • Chat</text>
+
+  <!-- API Core -->
+  <rect x="710" y="128" width="300" height="216" rx="32" class="card"/>
+  <text x="746" y="180" class="section">NestJS API</text>
+  <text x="746" y="205" class="small">Auth JWT • DTOs • validação</text>
+  <g transform="translate(746 233)">
+    <rect width="92" height="32" rx="16" class="mini"/><text x="18" y="21" class="small">Upload</text>
+    <rect x="104" width="92" height="32" rx="16" class="mini"/><text x="124" y="21" class="small">Chat</text>
+    <rect x="0" y="44" width="92" height="32" rx="16" class="mini"/><text x="20" y="65" class="small">Admin</text>
+    <rect x="104" y="44" width="128" height="32" rx="16" class="mini"/><text x="122" y="65" class="small">Download ZIP</text>
+  </g>
+  <path d="M938 166c20 10 34 30 34 54s-14 44-34 54M918 190c10 7 17 18 17 30s-7 23-17 30" class="icon" opacity="0.9"/>
+
+  <!-- OCR pipeline -->
+  <rect x="84" y="406" width="438" height="210" rx="32" class="card"/>
+  <text x="126" y="456" class="section">Pipeline OCR assíncrono</text>
+  <text x="126" y="481" class="small">Valida arquivo, armazena, enfileira e extrai dados estruturados.</text>
+  <g transform="translate(126 516)">
+    <rect width="92" height="42" rx="21" class="chip"/><text x="22" y="27" class="tiny">Magic bytes</text>
+    <rect x="112" width="82" height="42" rx="21" class="chip2"/><text x="133" y="27" class="tiny" fill="#FFF3DF">Storage</text>
+    <rect x="214" width="82" height="42" rx="21" class="chip"/><text x="237" y="27" class="tiny">BullMQ</text>
+    <rect x="316" width="82" height="42" rx="21" class="chip2"/><text x="341" y="27" class="tiny" fill="#FFF3DF">OCR</text>
+  </g>
+
+  <rect x="586" y="424" width="212" height="174" rx="30" class="card"/>
+  <text x="622" y="471" class="section">OpenAI GPT-4o</text>
+  <text x="622" y="496" class="small">Vision OCR</text>
+  <text x="622" y="517" class="small">Zod structured output</text>
+  <text x="622" y="538" class="small">Classificação + confiança</text>
+  <path d="M676 556c16 10 33 10 49 0M652 556c17-36 90-36 107 0" class="icon" opacity="0.75"/>
+
+  <rect x="858" y="410" width="338" height="208" rx="32" class="card"/>
+  <text x="902" y="459" class="section">Dados e inteligência</text>
+  <text x="902" y="484" class="small">Prisma/PostgreSQL guarda usuários, documentos,</text>
+  <text x="902" y="505" class="small">resumos, sessões de chat e histórico de benchmark.</text>
+  <g transform="translate(902 532)">
+    <rect width="90" height="34" rx="17" class="mini"/><text x="17" y="22" class="small">READY</text>
+    <rect x="104" width="104" height="34" rx="17" class="mini"/><text x="123" y="22" class="small">REJECTED</text>
+    <rect x="222" width="92" height="34" rx="17" class="mini"/><text x="238" y="22" class="small">DUPLICATE</text>
+  </g>
+
+  <!-- Connections -->
+  <path d="M308 236H360" class="line"/>
+  <path d="M644 236H696" class="line"/>
+  <path d="M860 344C846 382 804 414 764 439" class="line"/>
+  <path d="M710 514H810" class="line"/>
+  <path d="M522 510H572" class="line"/>
+  <path d="M308 290C330 377 372 403 428 426" class="line-muted"/>
+  <path d="M1010 230C1102 240 1142 304 1115 395" class="line-muted"/>
+  <path d="M1040 410C1047 366 1021 338 986 320" class="line"/>
+
+  <!-- Chat/Admin callout -->
+  <rect x="1018" y="150" width="174" height="162" rx="26" fill="rgba(247,200,115,0.1)" stroke="rgba(247,200,115,0.32)" filter="url(#shadow)"/>
+  <text x="1048" y="193" class="section">Chat + Admin</text>
+  <text x="1048" y="219" class="small">Function calling</text>
+  <text x="1048" y="240" class="small">Métricas de uso</text>
+  <text x="1048" y="261" class="small">Benchmark OCR</text>
+  <text x="1048" y="282" class="small">Prompts versionáveis</text>
+
+  <!-- Footer badges -->
+  <g transform="translate(64 650)">
+    <rect width="162" height="36" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
+    <text x="22" y="23" class="small">Railway deploy</text>
+    <rect x="178" width="170" height="36" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
+    <text x="200" y="23" class="small">Volume local / R2</text>
+    <rect x="364" width="170" height="36" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
+    <text x="386" y="23" class="small">Dedup semântica</text>
+    <rect x="550" width="180" height="36" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
+    <text x="572" y="23" class="small">Monorepo Turbo</text>
+  </g>
+</svg>

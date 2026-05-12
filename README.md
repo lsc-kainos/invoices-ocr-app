@@ -2,6 +2,8 @@
 
 OCR + LLM chat sobre invoices — case técnico Paggo.
 
+![Infográfico da arquitetura do Invoices OCR App](./docs/assets/invoices-ocr-app-infographic.svg)
+
 ---
 
 ## Documentação da Implementação
