@@ -4,7 +4,7 @@ OCR + LLM chat sobre invoices — case técnico Paggo.
 
 ---
 
-## 📚 Documentação Final da Implementação
+## Documentação da Implementação
 
 > A documentação completa da solução está em [`docs/final-implementation/`](./docs/final-implementation/).
 > Baseada 100% na implementação real do código. Inclui arquitetura, tradeoffs, segurança, requisitos principais e roadmap.
