@@ -11,7 +11,7 @@ export default function ChatIndex() {
   const hasSessions = sessions.length > 0;
 
   return (
-    <div className="flex h-[calc(100vh-56px)]">
+    <div className="flex h-[calc(100dvh-56px)]">
       <WorkspaceSidebar sessions={sessions} onCreate={createSession} />
       <main
         className="relative flex flex-1 flex-col"
