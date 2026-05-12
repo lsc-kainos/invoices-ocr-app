@@ -171,6 +171,11 @@ estiver vazio (resolve para `../../samples/invoice-dataset`).
 
 ## Deploy
 
+A aplicação está deployada em:
+
+- **Frontend:** https://invoices-ocrweb-production.up.railway.app/
+- **API:** https://invoices-ocrweb-production.up.railway.app/api
+
 Containers via Dockerfile multi-stage (`apps/web/Dockerfile`, `apps/api/Dockerfile`). `railway.json` declara os 2 services para Railway com healthcheck em `/` (web) e `/health` (api). O api roda `prisma migrate deploy` no startup do container.
 
 ## Documentação
