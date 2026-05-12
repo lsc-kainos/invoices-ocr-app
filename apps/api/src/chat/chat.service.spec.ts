@@ -1,6 +1,7 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { LlmConfigKey } from '@prisma/client';
 import { ChatService } from './chat.service';
+import { ConversationEngine } from './conversation.engine';
 import { MockLlmProvider } from './providers/mock-llm.provider';
 
 const mockLlmConfig = {
@@ -22,7 +23,7 @@ const makeLlmConfigService = (cfg: unknown = mockLlmConfig) =>
     findActive: jest.fn().mockResolvedValue(cfg),
   }) as any;
 
-describe('ChatService.runConversation (sem tool)', () => {
+describe('ConversationEngine.run (sem tool)', () => {
   it('persiste assistant e retorna content quando LLM responde direto', async () => {
     const persisted: any[] = [];
     const persist = jest.fn(async (m) => {
@@ -34,17 +35,11 @@ describe('ChatService.runConversation (sem tool)', () => {
       getOpenAiSchemas: () => [],
       getHandler: () => null,
     } as any;
-    const service = new ChatService(
-      {} as any,
-      llm,
-      registry,
-      {
-        get: (k: string) => (({ CHAT_MAX_TOOL_ITERATIONS: 3 }) as any)[k],
-      } as any,
-      makeLlmConfigService(),
-    );
+    const engine = new ConversationEngine(llm, registry, {
+      get: (k: string) => (({ CHAT_MAX_TOOL_ITERATIONS: 3 }) as any)[k],
+    } as any);
 
-    const result = await (service as any).runConversation({
+    const result = await engine.run({
       userId: 'u1',
       llmConfig: mockLlmConfig,
       systemPrompt: 'sys',
@@ -79,15 +74,11 @@ describe('ChatService.runConversation (sem tool)', () => {
       model: 'gpt-4-custom',
       params: { temperature: 0.42 },
     };
-    const service = new ChatService(
-      {} as any,
-      llm,
-      registry,
-      { get: () => 3 } as any,
-      makeLlmConfigService(cfg),
-    );
+    const engine = new ConversationEngine(llm, registry, {
+      get: () => 3,
+    } as any);
 
-    await (service as any).runConversation({
+    await engine.run({
       userId: 'u1',
       llmConfig: cfg,
       systemPrompt: 'sys',
@@ -104,7 +95,7 @@ describe('ChatService.runConversation (sem tool)', () => {
   });
 });
 
-describe('ChatService.runConversation (com tool)', () => {
+describe('ConversationEngine.run (com tool)', () => {
   it('persiste assistant(toolCallId) + tool + assistant final', async () => {
     const persisted: any[] = [];
     const persist = jest.fn(async (m) => {
@@ -124,15 +115,11 @@ describe('ChatService.runConversation (com tool)', () => {
         extractedText: 'Texto X',
       }),
     } as any;
-    const service = new ChatService(
-      {} as any,
-      llm,
-      registry,
-      { get: () => 3 } as any,
-      makeLlmConfigService(),
-    );
+    const engine = new ConversationEngine(llm, registry, {
+      get: () => 3,
+    } as any);
 
-    const result = await (service as any).runConversation({
+    const result = await engine.run({
       userId: 'u1',
       llmConfig: mockLlmConfig,
       systemPrompt: '<document id="abc"></document>',
@@ -180,16 +167,12 @@ describe('ChatService.runConversation (com tool)', () => {
       getOpenAiSchemas: () => [],
       getHandler: () => async () => ({ extractedText: 'x' }),
     } as any;
-    const service = new ChatService(
-      {} as any,
-      llm,
-      registry,
-      { get: () => 3 } as any,
-      makeLlmConfigService(),
-    );
+    const engine = new ConversationEngine(llm, registry, {
+      get: () => 3,
+    } as any);
 
     await expect(
-      (service as any).runConversation({
+      engine.run({
         userId: 'u1',
         llmConfig: mockLlmConfig,
         systemPrompt: 'sys',
@@ -224,12 +207,16 @@ describe('ChatService LlmConfig.CHAT consumption', () => {
     prisma.document.findMany.mockResolvedValue([]);
 
     const llmConfigService = makeLlmConfigService(null);
-    const svc = new ChatService(
-      prisma,
+    const engine = new ConversationEngine(
       new MockLlmProvider(),
       { getOpenAiSchemas: () => [], getHandler: () => null } as any,
       { get: () => 20 } as any,
+    );
+    const svc = new ChatService(
+      prisma,
+      { get: () => 20 } as any,
       llmConfigService,
+      engine,
     );
 
     await expect(svc.sendWorkspaceMessage('u1', 's1', 'oi')).rejects.toThrow(
@@ -262,12 +249,16 @@ describe('ChatService LlmConfig.CHAT consumption', () => {
     const customPrompt = 'CUSTOM_CHAT_PROMPT_FROM_DB';
     const cfg = { ...mockLlmConfig, prompt: customPrompt };
 
-    const svc = new ChatService(
-      prisma,
+    const engine = new ConversationEngine(
       llm,
       { getOpenAiSchemas: () => [], getHandler: () => null } as any,
       { get: () => 20 } as any,
+    );
+    const svc = new ChatService(
+      prisma,
+      { get: () => 20 } as any,
       makeLlmConfigService(cfg),
+      engine,
     );
     await svc.sendDocumentMessage('u1', 'd1', 'oi');
 
@@ -301,10 +292,9 @@ describe('ChatService session ops', () => {
     });
     const svc = new ChatService(
       prisma as any,
-      {} as any,
-      {} as any,
       { get: () => 20 } as any,
       makeLlmConfigService(),
+      { run: jest.fn() } as any,
     );
     const r = await svc.createSession('u1');
     expect(prisma.chatSession.create).toHaveBeenCalledWith({
@@ -319,10 +309,9 @@ describe('ChatService session ops', () => {
     prisma.chatSession.findFirst.mockResolvedValue(null);
     const svc = new ChatService(
       prisma as any,
-      {} as any,
-      {} as any,
       { get: () => 20 } as any,
       makeLlmConfigService(),
+      { run: jest.fn() } as any,
     );
     await expect(svc.listMessages('u1', 's1', false)).rejects.toThrow(
       'Not Found',
@@ -352,10 +341,9 @@ describe('ChatService document ops', () => {
       .mockResolvedValue({ id: 'd1', status: 'OCR_RUNNING' });
     const svc = new ChatService(
       prisma,
-      {} as any,
-      {} as any,
       { get: () => 20 } as any,
       makeLlmConfigService(),
+      { run: jest.fn() } as any,
     );
     await expect(
       svc.sendDocumentMessage('u1', 'd1', 'oi'),
@@ -381,12 +369,14 @@ describe('ChatService document ops', () => {
       getHandler: () => null,
     } as any;
 
+    const engine = new ConversationEngine(llm, registry, {
+      get: () => 20,
+    } as any);
     const svc = new ChatService(
       prisma,
-      llm,
-      registry,
       { get: () => 20 } as any,
       makeLlmConfigService(),
+      engine,
     );
     await svc.sendDocumentMessage('u1', 'd1', 'oi');
 
@@ -404,10 +394,9 @@ describe('ChatService document ops', () => {
     prisma.chatMessage.deleteMany = jest.fn();
     const svc = new ChatService(
       prisma,
-      {} as any,
-      {} as any,
       { get: () => 20 } as any,
       makeLlmConfigService(),
+      { run: jest.fn() } as any,
     );
     await svc.clearDocumentMessages('u1', 'd1');
     expect(prisma.chatMessage.deleteMany).not.toHaveBeenCalled();
