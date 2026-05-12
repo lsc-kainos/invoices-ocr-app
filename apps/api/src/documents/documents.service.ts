@@ -9,10 +9,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { createHmac, timingSafeEqual } from 'node:crypto';
 import { DocumentStatus } from '@prisma/client';
 import { detectFileType } from './helpers/detect-file-type';
-import type { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   STORAGE_SERVICE,
@@ -22,7 +20,7 @@ import type { InvoiceSummary } from '../ocr/schemas/invoice-summary.schema';
 import { sanitizeFilename } from './helpers/sanitize-filename';
 import { mimeToExt } from './helpers/mime-to-ext';
 import { maskFilename } from './helpers/mask-filename';
-import { encodeRFC5987 } from './helpers/encode-rfc5987';
+import { FileDeliveryService } from './file-delivery.service';
 import {
   type DocumentSummaryDto,
   toSummaryDto,
@@ -36,16 +34,15 @@ const ALLOWED_MIME = ['image/jpeg', 'image/png', 'application/pdf'] as const;
 @Injectable()
 export class DocumentsService {
   private readonly logger = new Logger(DocumentsService.name);
-  private readonly urlSecret: string;
   private readonly maxBytes: number;
 
   constructor(
     private readonly prisma: PrismaService,
     @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
     private readonly events: EventEmitter2,
+    private readonly fileDelivery: FileDeliveryService,
     cfg: ConfigService,
   ) {
-    this.urlSecret = cfg.getOrThrow<string>('STORAGE_URL_SECRET');
     this.maxBytes = cfg.getOrThrow<number>('UPLOAD_MAX_BYTES');
   }
 
@@ -128,7 +125,7 @@ export class DocumentsService {
       where: { id, userId },
     });
     if (!doc) throw new NotFoundException();
-    return toDetailDto(doc, this.signFileUrl(doc.id, userId));
+    return toDetailDto(doc, this.fileDelivery.signUrl(doc.id, userId));
   }
 
   async retry(userId: string, id: string): Promise<DocumentSummaryDto> {
@@ -166,67 +163,6 @@ export class DocumentsService {
     return toSummaryDto(updated);
   }
 
-  signFileUrl(docId: string, userId: string): string {
-    const exp = Math.floor(Date.now() / 1000) + 15 * 60;
-    const sig = createHmac('sha256', this.urlSecret)
-      .update(`${docId}.${userId}.${exp}`)
-      .digest('hex');
-    return `/api/v1/documents/${docId}/file?token=${exp}.${sig}`;
-  }
-
-  async streamFile(id: string, token: string, res: Response): Promise<void> {
-    const [expStr, sig] = (token ?? '').split('.');
-    const exp = Number(expStr);
-
-    // Validação do token PRIMEIRO, antes de tocar no banco.
-    // Qualquer falha retorna 404 genérico para evitar enumeração de IDs.
-    if (!exp || exp < Math.floor(Date.now() / 1000)) {
-      throw new NotFoundException();
-    }
-
-    const doc = await this.prisma.document.findUnique({ where: { id } });
-    if (!doc) throw new NotFoundException();
-
-    const expected = createHmac('sha256', this.urlSecret)
-      .update(`${id}.${doc.userId}.${exp}`)
-      .digest('hex');
-    const sigBuf = Buffer.from(sig ?? '', 'hex');
-    const expBuf = Buffer.from(expected, 'hex');
-    if (sigBuf.length !== expBuf.length || !timingSafeEqual(sigBuf, expBuf)) {
-      throw new NotFoundException();
-    }
-
-    let buffer: Buffer;
-    try {
-      buffer = await this.storage.read(doc.storagePath);
-    } catch (err) {
-      // Arquivo físico sumiu (volume recriado, perdido em redeploy sem volume,
-      // etc.). Marca como FAILED para a UI parar de tentar ler e oferecer retry.
-      const code = (err as NodeJS.ErrnoException)?.code;
-      if (code === 'ENOENT') {
-        await this.prisma.document.update({
-          where: { id },
-          data: {
-            status: DocumentStatus.FAILED,
-            failureReason: 'storage_missing',
-          },
-        });
-        this.logger.warn(
-          `Document file missing on disk docId=${id} path=${doc.storagePath} → marked FAILED`,
-        );
-        throw new NotFoundException({ code: 'storage_missing' });
-      }
-      throw err;
-    }
-    res.setHeader('Content-Type', doc.mime);
-    res.setHeader(
-      'Content-Disposition',
-      `inline; filename="${encodeRFC5987(doc.filename)}"`,
-    );
-    res.setHeader('Cache-Control', 'private, max-age=900');
-    res.end(buffer);
-  }
-
   async updateSummary(
     userId: string,
     id: string,
@@ -257,7 +193,7 @@ export class DocumentsService {
       });
     });
 
-    return toDetailDto(updated, this.signFileUrl(id, userId));
+    return toDetailDto(updated, this.fileDelivery.signUrl(id, userId));
   }
 
   async listEdits(

@@ -3,6 +3,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
 import { StorageModule } from '../storage/storage.module';
+import { DocumentsModule } from '../documents/documents.module';
 import { AiRuntimeModule } from '../ai-runtime/ai-runtime.module';
 import { OcrService } from './ocr.service';
 import { OcrProcessor } from './processors/ocr.processor';
@@ -18,6 +19,7 @@ import { MockOcrProvider } from './providers/mock-ocr.provider';
     ConfigModule,
     PrismaModule,
     StorageModule,
+    DocumentsModule,
     AiRuntimeModule,
   ],
   providers: [

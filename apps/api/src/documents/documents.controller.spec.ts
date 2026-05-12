@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import type { User } from '@prisma/client';
 import { DocumentsController } from './documents.controller';
 import { DocumentsService } from './documents.service';
+import { FileDeliveryService } from './file-delivery.service';
 import type { UpdateDocumentSummaryDto } from './dto/update-document-summary.dto';
 
 describe('DocumentsController', () => {
@@ -10,25 +11,31 @@ describe('DocumentsController', () => {
     create: jest.Mock;
     list: jest.Mock;
     findOne: jest.Mock;
-    streamFile: jest.Mock;
     retry: jest.Mock;
     updateSummary: jest.Mock;
     listEdits: jest.Mock;
   };
+  let fileDelivery: { streamFile: jest.Mock; signUrl: jest.Mock };
 
   beforeEach(async () => {
     svc = {
       create: jest.fn(),
       list: jest.fn(),
       findOne: jest.fn(),
-      streamFile: jest.fn(),
       retry: jest.fn(),
       updateSummary: jest.fn(),
       listEdits: jest.fn(),
     };
+    fileDelivery = {
+      streamFile: jest.fn(),
+      signUrl: jest.fn(),
+    };
     const mod = await Test.createTestingModule({
       controllers: [DocumentsController],
-      providers: [{ provide: DocumentsService, useValue: svc }],
+      providers: [
+        { provide: DocumentsService, useValue: svc },
+        { provide: FileDeliveryService, useValue: fileDelivery },
+      ],
     }).compile();
     ctrl = mod.get(DocumentsController);
   });
@@ -61,9 +68,9 @@ describe('DocumentsController', () => {
 
   it('GET :id/file chama streamFile (rota Public)', async () => {
     const res = {} as never;
-    svc.streamFile.mockResolvedValue(undefined);
+    fileDelivery.streamFile.mockResolvedValue(undefined);
     await ctrl.getFile('d1', 'token', res);
-    expect(svc.streamFile).toHaveBeenCalledWith('d1', 'token', res);
+    expect(fileDelivery.streamFile).toHaveBeenCalledWith('d1', 'token', res);
   });
 
   describe('POST :id/retry', () => {

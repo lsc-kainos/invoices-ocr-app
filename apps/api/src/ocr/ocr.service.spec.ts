@@ -5,6 +5,7 @@ import { OCR_PROVIDER } from './providers/ocr-provider.interface';
 import { STORAGE_SERVICE } from '../storage/storage.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { DocumentStatus } from '@prisma/client';
+import { DocumentStateService } from '../documents/document-state.service';
 import type { InvoiceSummaryResult } from './schemas/invoice-summary.schema';
 
 const happy: InvoiceSummaryResult = {
@@ -57,10 +58,67 @@ describe('OcrService', () => {
       read: jest.fn().mockResolvedValue(Buffer.from([0xff, 0xd8, 0xff])),
     };
     provider = { extract: jest.fn() };
+    const state = {
+      markRunning: jest
+        .fn()
+        .mockImplementation((id: string) =>
+          prisma.document.update({
+            where: { id },
+            data: {
+              status: DocumentStatus.OCR_RUNNING,
+              ocrStartedAt: new Date(),
+            },
+          }),
+        ),
+      markReady: jest
+        .fn()
+        .mockImplementation(
+          (id: string, summary: unknown, extractedText: string) =>
+            prisma.document.update({
+              where: { id },
+              data: {
+                status: DocumentStatus.READY,
+                summary: summary as never,
+                extractedText,
+                ocrCompletedAt: new Date(),
+                failureReason: null,
+              },
+            }),
+        ),
+      markFailed: jest
+        .fn()
+        .mockImplementation((id: string, reason: string) =>
+          prisma.document.update({
+            where: { id },
+            data: {
+              status: DocumentStatus.FAILED,
+              failureReason: reason,
+              retryCount: { increment: 1 },
+              ocrCompletedAt: new Date(),
+            },
+          }),
+        ),
+      markRejected: jest
+        .fn()
+        .mockImplementation((id: string, reason: string, partial: unknown) =>
+          prisma.document.update({
+            where: { id },
+            data: {
+              status: DocumentStatus.REJECTED,
+              rejectionReason: reason,
+              summary: (partial as { summary: unknown }).summary as never,
+              extractedText: (partial as { extractedText: string })
+                .extractedText,
+              ocrCompletedAt: new Date(),
+            },
+          }),
+        ),
+    };
     const mod = await Test.createTestingModule({
       providers: [
         OcrService,
         { provide: PrismaService, useValue: prisma },
+        { provide: DocumentStateService, useValue: state },
         { provide: STORAGE_SERVICE, useValue: storage },
         { provide: OCR_PROVIDER, useValue: provider },
         {

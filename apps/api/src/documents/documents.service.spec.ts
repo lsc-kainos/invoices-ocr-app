@@ -25,6 +25,7 @@ import {
 } from '@nestjs/common';
 import { createHmac } from 'node:crypto';
 import { DocumentsService } from './documents.service';
+import { FileDeliveryService } from './file-delivery.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { STORAGE_SERVICE } from '../storage/storage.service';
 import type { Document } from '@prisma/client';
@@ -156,6 +157,7 @@ describe('DocumentsService', () => {
     const mod = await Test.createTestingModule({
       providers: [
         DocumentsService,
+        FileDeliveryService,
         { provide: PrismaService, useValue: prisma },
         { provide: STORAGE_SERVICE, useValue: storage },
         { provide: EventEmitter2, useValue: events },
@@ -197,6 +199,7 @@ describe('DocumentsService', () => {
       const mod = await Test.createTestingModule({
         providers: [
           DocumentsService,
+          FileDeliveryService,
           { provide: PrismaService, useValue: prisma },
           { provide: STORAGE_SERVICE, useValue: storage },
           { provide: EventEmitter2, useValue: events },
@@ -263,62 +266,6 @@ describe('DocumentsService', () => {
       expect(dto.fileUrl).toMatch(
         /^\/api\/v1\/documents\/d1\/file\?token=\d+\.[0-9a-f]+$/,
       );
-    });
-  });
-
-  describe('streamFile', () => {
-    it('token inválido → NotFound (evita enumeração)', async () => {
-      prisma.document.findUnique.mockResolvedValue(
-        baseDoc({ id: 'd1', userId: 'user1' }),
-      );
-      const exp = Math.floor(Date.now() / 1000) + 600;
-      const res = makeRes();
-      await expect(
-        svc.streamFile('d1', `${exp}.deadbeef`, res as never),
-      ).rejects.toBeInstanceOf(NotFoundException);
-    });
-
-    it('token expirado → NotFound (evita enumeração)', async () => {
-      prisma.document.findUnique.mockResolvedValue(
-        baseDoc({ id: 'd1', userId: 'user1' }),
-      );
-      const expiredExp = Math.floor(Date.now() / 1000) - 1;
-      const sig = createHmac('sha256', SECRET)
-        .update(`d1.user1.${expiredExp}`)
-        .digest('hex');
-      const res = makeRes();
-      await expect(
-        svc.streamFile('d1', `${expiredExp}.${sig}`, res as never),
-      ).rejects.toBeInstanceOf(NotFoundException);
-    });
-
-    it('token válido: stream do volume com mime correto', async () => {
-      prisma.document.findUnique.mockResolvedValue(
-        baseDoc({ id: 'd1', userId: 'user1' }),
-      );
-      const exp = Math.floor(Date.now() / 1000) + 600;
-      const sig = createHmac('sha256', SECRET)
-        .update(`d1.user1.${exp}`)
-        .digest('hex');
-      const res = makeRes();
-      await svc.streamFile('d1', `${exp}.${sig}`, res as never);
-      expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'image/jpeg');
-      expect(res.end).toHaveBeenCalled();
-    });
-
-    it('token de outro user → NotFound (evita enumeração)', async () => {
-      prisma.document.findUnique.mockResolvedValue(
-        baseDoc({ id: 'd1', userId: 'realOwner' }),
-      );
-      const exp = Math.floor(Date.now() / 1000) + 600;
-      // token forjado para usuário diferente
-      const sig = createHmac('sha256', SECRET)
-        .update(`d1.attacker.${exp}`)
-        .digest('hex');
-      const res = makeRes();
-      await expect(
-        svc.streamFile('d1', `${exp}.${sig}`, res as never),
-      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 

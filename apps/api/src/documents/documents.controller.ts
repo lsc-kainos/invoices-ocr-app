@@ -17,6 +17,7 @@ import type { User } from '@prisma/client';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Public } from '../auth/decorators/public.decorator';
 import { DocumentsService } from './documents.service';
+import { FileDeliveryService } from './file-delivery.service';
 import { ListDocumentsQueryDto } from './dto/list-documents.query.dto';
 import { UpdateDocumentSummaryDto } from './dto/update-document-summary.dto';
 import type { DocumentSummaryDto } from './dto/document-summary.dto';
@@ -28,7 +29,10 @@ const TEN_MB = 10 * 1024 * 1024;
 @Controller('api/v1/documents')
 @SkipThrottle({ benchmark: true })
 export class DocumentsController {
-  constructor(private readonly docs: DocumentsService) {}
+  constructor(
+    private readonly docs: DocumentsService,
+    private readonly fileDelivery: FileDeliveryService,
+  ) {}
 
   @Post()
   @Throttle({ upload: { ttl: 60_000, limit: 30 } })
@@ -98,6 +102,6 @@ export class DocumentsController {
     @Query('token') token: string,
     @Res({ passthrough: false }) res: Response,
   ): Promise<void> {
-    return this.docs.streamFile(id, token, res);
+    return this.fileDelivery.streamFile(id, token, res);
   }
 }
