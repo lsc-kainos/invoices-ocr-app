@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { apiFetch, apiJSON } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 
 async function proxy(req: NextRequest, documentId: string, init: RequestInit) {
   const res = await apiFetch(`/api/v1/chat/documents/${documentId}/messages`, init, req);
