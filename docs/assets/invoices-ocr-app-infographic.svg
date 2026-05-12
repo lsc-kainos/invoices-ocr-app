@@ -1,145 +1,149 @@
-<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">Infográfico da arquitetura do Invoices OCR App</title>
-  <desc id="desc">Fluxo visual mostrando upload de invoices, autenticação, web Next.js, API NestJS, OCR com OpenAI, fila BullMQ, PostgreSQL, storage, chat e painel admin.</desc>
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Infográfico minimalista da arquitetura do Invoices OCR App</title>
+  <desc id="desc">Diagrama em fundo preto com detalhes em branco, cinza e cobre mostrando o fluxo da aplicação: usuário, web Next.js, API NestJS, OCR assíncrono, OpenAI, dados, storage, chat e admin.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="720" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#080604"/>
-      <stop offset="0.54" stop-color="#16100B"/>
-      <stop offset="1" stop-color="#2A160B"/>
+    <linearGradient id="copperLine" x1="90" y1="0" x2="1190" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8A421D"/>
+      <stop offset="0.52" stop-color="#B4612A"/>
+      <stop offset="1" stop-color="#6F3519"/>
     </linearGradient>
-    <linearGradient id="copper" x1="120" y1="92" x2="1160" y2="650" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#F7C873"/>
-      <stop offset="0.42" stop-color="#C87533"/>
-      <stop offset="1" stop-color="#7A3D1B"/>
-    </linearGradient>
-    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
-      <stop stop-color="#2B2118"/>
-      <stop offset="1" stop-color="#15100C"/>
-    </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.38"/>
+    <radialGradient id="copperGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1030 96) rotate(138) scale(475 222)">
+      <stop stop-color="#9A4E22" stop-opacity="0.26"/>
+      <stop offset="0.48" stop-color="#9A4E22" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-12%" y="-18%" width="124%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000000" flood-opacity="0.5"/>
     </filter>
-    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="9" result="blur"/>
-      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0.95 0 0.55 0 0 0.44 0 0 0.22 0 0.12 0 0 0 0.8 0"/>
-      <feBlend in="SourceGraphic" mode="screen"/>
-    </filter>
-    <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
-      <path d="M2 2L12 7L2 12" stroke="#E6A15A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <marker id="arrow" markerWidth="13" markerHeight="13" refX="10" refY="6.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2L10 6.5L2 11" stroke="#9A4E22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </marker>
     <style>
-      .title { font: 800 42px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #FFF7EA; letter-spacing: -0.03em; }
-      .subtitle { font: 500 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #D9C4AF; }
-      .section { font: 800 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #FFF3DF; letter-spacing: -0.01em; }
-      .label { font: 700 15px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #FFF3DF; }
-      .small { font: 500 12px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #CDB9A4; }
-      .tiny { font: 700 11px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1B120B; }
-      .mono { font: 700 12px "SFMono-Regular", Consolas, monospace; fill: #F7C873; }
-      .card { fill: url(#panel); stroke: rgba(247, 200, 115, 0.26); stroke-width: 1.5; filter: url(#shadow); }
-      .mini { fill: rgba(255,255,255,0.055); stroke: rgba(255,255,255,0.12); stroke-width: 1; }
-      .line { stroke: #E6A15A; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
-      .line-muted { stroke: rgba(230,161,90,0.44); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 5 7; marker-end: url(#arrow); }
-      .chip { fill: #F7C873; }
-      .chip2 { fill: #B96932; }
-      .icon { stroke: #F7C873; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+      .bg { fill: #000; }
+      .grid { stroke: #ffffff; stroke-opacity: 0.035; stroke-width: 1; }
+      .eyebrow { font: 700 12px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0.2em; text-transform: uppercase; fill: #9A4E22; }
+      .title { font: 650 42px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: -0.04em; fill: #F2EEE8; }
+      .subtitle { font: 400 16px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #9A948C; }
+      .cardTitle { font: 650 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: -0.02em; fill: #F2EEE8; }
+      .cardText { font: 400 13px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #9A948C; }
+      .tiny { font: 600 11px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0.02em; fill: #D8D1C8; }
+      .mono { font: 600 11px "SFMono-Regular", Consolas, monospace; fill: #9A948C; }
+      .panel { fill: #080808; stroke: #2D2A27; stroke-width: 1.2; filter: url(#softShadow); }
+      .panelAccent { stroke: #9A4E22; stroke-opacity: 0.85; }
+      .chip { fill: #111; stroke: #2D2A27; stroke-width: 1; }
+      .chipAccent { fill: #9A4E22; }
+      .wire { stroke: #9A4E22; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
+      .wireMuted { stroke: #5C544D; stroke-width: 1.4; stroke-linecap: round; stroke-dasharray: 4 8; marker-end: url(#arrow); }
+      .icon { stroke: #D8D1C8; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+      .iconAccent { stroke: #9A4E22; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     </style>
   </defs>
 
-  <rect width="1280" height="720" rx="34" fill="url(#bg)"/>
-  <circle cx="1040" cy="122" r="230" fill="#9A4E22" opacity="0.18" filter="url(#glow)"/>
-  <circle cx="175" cy="628" r="260" fill="#F7C873" opacity="0.08" filter="url(#glow)"/>
-  <path d="M70 643C232 543 407 715 584 614C732 529 817 390 961 428C1067 456 1136 536 1210 488" stroke="url(#copper)" stroke-width="2" opacity="0.2"/>
+  <rect class="bg" width="1280" height="640" rx="28"/>
+  <rect width="1280" height="640" rx="28" fill="url(#copperGlow)"/>
+  <path class="grid" d="M80 0V640M240 0V640M400 0V640M560 0V640M720 0V640M880 0V640M1040 0V640M1200 0V640M0 120H1280M0 280H1280M0 440H1280M0 600H1280"/>
 
-  <text x="64" y="70" class="title">Invoices OCR App</text>
-  <text x="64" y="102" class="subtitle">Upload de notas fiscais → OCR estruturado → chat com LLM → gestão e benchmark</text>
-  <rect x="998" y="54" width="218" height="42" rx="21" fill="rgba(247,200,115,0.12)" stroke="rgba(247,200,115,0.34)"/>
-  <text x="1022" y="80" class="mono">Next.js + NestJS + GPT-4o</text>
+  <text class="eyebrow" x="72" y="72">Invoices OCR App</text>
+  <text class="title" x="72" y="120">Da nota fiscal ao insight conversável</text>
+  <text class="subtitle" x="72" y="151">Arquitetura enxuta para upload, OCR estruturado, busca, chat com LLM e operação administrativa.</text>
+  <path d="M72 184H1208" stroke="url(#copperLine)" stroke-width="1.4" opacity="0.9"/>
 
-  <!-- User and Web -->
-  <rect x="58" y="152" width="250" height="168" rx="28" class="card"/>
-  <circle cx="104" cy="201" r="25" fill="rgba(247,200,115,0.14)" stroke="rgba(247,200,115,0.42)"/>
-  <path d="M104 196a10 10 0 1 0 0-20a10 10 0 0 0 0 20ZM84 224c5-15 35-15 40 0" class="icon"/>
-  <text x="142" y="194" class="section">Usuário</text>
-  <text x="142" y="219" class="small">OAuth Google/GitHub</text>
-  <rect x="88" y="252" width="190" height="38" rx="19" class="mini"/>
-  <text x="110" y="276" class="label">PDF • PNG • JPG</text>
-
-  <rect x="374" y="134" width="270" height="204" rx="30" class="card"/>
-  <rect x="407" y="171" width="76" height="56" rx="10" fill="rgba(247,200,115,0.12)" stroke="rgba(247,200,115,0.38)"/>
-  <path d="M425 190h40M425 204h32M425 218h24" class="icon"/>
-  <text x="508" y="182" class="section">Web App</text>
-  <text x="508" y="207" class="small">Next.js 16 + Tailwind</text>
-  <text x="508" y="228" class="small">SSR auto-proxy + sessão</text>
-  <rect x="407" y="263" width="204" height="40" rx="20" fill="rgba(255,255,255,0.055)"/>
-  <text x="428" y="288" class="label">Dashboard • Detalhe • Chat</text>
-
-  <!-- API Core -->
-  <rect x="710" y="128" width="300" height="216" rx="32" class="card"/>
-  <text x="746" y="180" class="section">NestJS API</text>
-  <text x="746" y="205" class="small">Auth JWT • DTOs • validação</text>
-  <g transform="translate(746 233)">
-    <rect width="92" height="32" rx="16" class="mini"/><text x="18" y="21" class="small">Upload</text>
-    <rect x="104" width="92" height="32" rx="16" class="mini"/><text x="124" y="21" class="small">Chat</text>
-    <rect x="0" y="44" width="92" height="32" rx="16" class="mini"/><text x="20" y="65" class="small">Admin</text>
-    <rect x="104" y="44" width="128" height="32" rx="16" class="mini"/><text x="122" y="65" class="small">Download ZIP</text>
-  </g>
-  <path d="M938 166c20 10 34 30 34 54s-14 44-34 54M918 190c10 7 17 18 17 30s-7 23-17 30" class="icon" opacity="0.9"/>
-
-  <!-- OCR pipeline -->
-  <rect x="84" y="406" width="438" height="210" rx="32" class="card"/>
-  <text x="126" y="456" class="section">Pipeline OCR assíncrono</text>
-  <text x="126" y="481" class="small">Valida arquivo, armazena, enfileira e extrai dados estruturados.</text>
-  <g transform="translate(126 516)">
-    <rect width="92" height="42" rx="21" class="chip"/><text x="22" y="27" class="tiny">Magic bytes</text>
-    <rect x="112" width="82" height="42" rx="21" class="chip2"/><text x="133" y="27" class="tiny" fill="#FFF3DF">Storage</text>
-    <rect x="214" width="82" height="42" rx="21" class="chip"/><text x="237" y="27" class="tiny">BullMQ</text>
-    <rect x="316" width="82" height="42" rx="21" class="chip2"/><text x="341" y="27" class="tiny" fill="#FFF3DF">OCR</text>
+  <!-- Main flow cards -->
+  <g transform="translate(72 230)">
+    <rect class="panel panelAccent" width="198" height="132" rx="18"/>
+    <path class="iconAccent" d="M48 43v44M32 59l16-16l16 16"/>
+    <path class="icon" d="M116 42h36M116 62h52M116 82h42"/>
+    <text class="cardTitle" x="24" y="104">Upload</text>
+    <text class="cardText" x="24" y="124">PDF, PNG ou JPG</text>
   </g>
 
-  <rect x="586" y="424" width="212" height="174" rx="30" class="card"/>
-  <text x="622" y="471" class="section">OpenAI GPT-4o</text>
-  <text x="622" y="496" class="small">Vision OCR</text>
-  <text x="622" y="517" class="small">Zod structured output</text>
-  <text x="622" y="538" class="small">Classificação + confiança</text>
-  <path d="M676 556c16 10 33 10 49 0M652 556c17-36 90-36 107 0" class="icon" opacity="0.75"/>
-
-  <rect x="858" y="410" width="338" height="208" rx="32" class="card"/>
-  <text x="902" y="459" class="section">Dados e inteligência</text>
-  <text x="902" y="484" class="small">Prisma/PostgreSQL guarda usuários, documentos,</text>
-  <text x="902" y="505" class="small">resumos, sessões de chat e histórico de benchmark.</text>
-  <g transform="translate(902 532)">
-    <rect width="90" height="34" rx="17" class="mini"/><text x="17" y="22" class="small">READY</text>
-    <rect x="104" width="104" height="34" rx="17" class="mini"/><text x="123" y="22" class="small">REJECTED</text>
-    <rect x="222" width="92" height="34" rx="17" class="mini"/><text x="238" y="22" class="small">DUPLICATE</text>
+  <g transform="translate(326 230)">
+    <rect class="panel" width="198" height="132" rx="18"/>
+    <path class="icon" d="M40 48h118v58H40zM40 70h118"/>
+    <circle cx="59" cy="59" r="3" fill="#9A4E22"/>
+    <circle cx="73" cy="59" r="3" fill="#5C544D"/>
+    <text class="cardTitle" x="24" y="104">Web</text>
+    <text class="cardText" x="24" y="124">Next.js + sessão</text>
   </g>
 
-  <!-- Connections -->
-  <path d="M308 236H360" class="line"/>
-  <path d="M644 236H696" class="line"/>
-  <path d="M860 344C846 382 804 414 764 439" class="line"/>
-  <path d="M710 514H810" class="line"/>
-  <path d="M522 510H572" class="line"/>
-  <path d="M308 290C330 377 372 403 428 426" class="line-muted"/>
-  <path d="M1010 230C1102 240 1142 304 1115 395" class="line-muted"/>
-  <path d="M1040 410C1047 366 1021 338 986 320" class="line"/>
-
-  <!-- Chat/Admin callout -->
-  <rect x="1018" y="150" width="174" height="162" rx="26" fill="rgba(247,200,115,0.1)" stroke="rgba(247,200,115,0.32)" filter="url(#shadow)"/>
-  <text x="1048" y="193" class="section">Chat + Admin</text>
-  <text x="1048" y="219" class="small">Function calling</text>
-  <text x="1048" y="240" class="small">Métricas de uso</text>
-  <text x="1048" y="261" class="small">Benchmark OCR</text>
-  <text x="1048" y="282" class="small">Prompts versionáveis</text>
-
-  <!-- Footer badges -->
-  <g transform="translate(64 650)">
-    <rect width="162" height="36" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
-    <text x="22" y="23" class="small">Railway deploy</text>
-    <rect x="178" width="170" height="36" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
-    <text x="200" y="23" class="small">Volume local / R2</text>
-    <rect x="364" width="170" height="36" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
-    <text x="386" y="23" class="small">Dedup semântica</text>
-    <rect x="550" width="180" height="36" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
-    <text x="572" y="23" class="small">Monorepo Turbo</text>
+  <g transform="translate(580 230)">
+    <rect class="panel" width="198" height="132" rx="18"/>
+    <path class="icon" d="M46 52h106M46 74h106M46 96h74"/>
+    <path class="iconAccent" d="M133 91l13 13l24-29"/>
+    <text class="cardTitle" x="24" y="104">API</text>
+    <text class="cardText" x="24" y="124">NestJS + DTOs</text>
   </g>
+
+  <g transform="translate(834 230)">
+    <rect class="panel" width="198" height="132" rx="18"/>
+    <path class="icon" d="M55 44h88M55 96h88M55 44c-20 14-20 38 0 52M143 44c20 14 20 38 0 52"/>
+    <path class="iconAccent" d="M99 40v60"/>
+    <text class="cardTitle" x="24" y="104">OCR</text>
+    <text class="cardText" x="24" y="124">BullMQ + GPT-4o</text>
+  </g>
+
+  <g transform="translate(1088 230)">
+    <rect class="panel" width="120" height="132" rx="18"/>
+    <path class="icon" d="M32 52c0-11 56-11 56 0v43c0 11-56 11-56 0V52z"/>
+    <path class="icon" d="M32 52c0 11 56 11 56 0M32 74c0 11 56 11 56 0"/>
+    <text class="cardTitle" x="24" y="104">Dados</text>
+    <text class="cardText" x="24" y="124">Prisma</text>
+  </g>
+
+  <path class="wire" d="M270 296H314"/>
+  <path class="wire" d="M524 296H568"/>
+  <path class="wire" d="M778 296H822"/>
+  <path class="wire" d="M1032 296H1076"/>
+
+  <!-- Supporting layer -->
+  <g transform="translate(158 438)">
+    <rect class="chip" width="168" height="52" rx="26"/>
+    <circle cx="31" cy="26" r="7" fill="#9A4E22"/>
+    <text class="tiny" x="52" y="24">OAuth</text>
+    <text class="mono" x="52" y="39">Google/GitHub</text>
+  </g>
+
+  <g transform="translate(396 438)">
+    <rect class="chip" width="168" height="52" rx="26"/>
+    <path class="iconAccent" d="M28 33l11-14l11 14"/>
+    <text class="tiny" x="62" y="24">Storage</text>
+    <text class="mono" x="62" y="39">Volume / R2</text>
+  </g>
+
+  <g transform="translate(634 438)">
+    <rect class="chip" width="168" height="52" rx="26"/>
+    <path class="iconAccent" d="M27 26h26M40 13v26"/>
+    <text class="tiny" x="62" y="24">Dedup</text>
+    <text class="mono" x="62" y="39">exata + semântica</text>
+  </g>
+
+  <g transform="translate(872 438)">
+    <rect class="chip" width="168" height="52" rx="26"/>
+    <path class="iconAccent" d="M25 20h31v21H25zM32 27h17"/>
+    <text class="tiny" x="72" y="24">Chat</text>
+    <text class="mono" x="72" y="39">function calls</text>
+  </g>
+
+  <g transform="translate(1110 438)">
+    <rect class="chip" width="98" height="52" rx="26"/>
+    <path class="iconAccent" d="M25 35h9V22h-9v13ZM43 35h9V15h-9v20ZM61 35h9V27h-9v8Z"/>
+    <text class="tiny" x="24" y="48">Admin</text>
+  </g>
+
+  <path class="wireMuted" d="M243 438C290 393 377 377 432 368"/>
+  <path class="wireMuted" d="M480 438C505 396 569 375 640 362"/>
+  <path class="wireMuted" d="M718 438C748 392 838 374 934 362"/>
+  <path class="wireMuted" d="M956 438C935 398 932 382 932 362"/>
+  <path class="wireMuted" d="M1158 438C1119 392 1095 372 1032 348"/>
+
+  <!-- Status footer -->
+  <g transform="translate(72 558)">
+    <rect class="chipAccent" width="82" height="26" rx="13"/>
+    <text class="tiny" x="20" y="18" fill="#F2EEE8">READY</text>
+    <rect class="chip" x="96" width="104" height="26" rx="13"/>
+    <text class="tiny" x="115" y="18">REJECTED</text>
+    <rect class="chip" x="214" width="112" height="26" rx="13"/>
+    <text class="tiny" x="233" y="18">DUPLICATE</text>
+  </g>
+  <text class="mono" x="984" y="577">monorepo • Railway • PostgreSQL • Redis</text>
 </svg>
