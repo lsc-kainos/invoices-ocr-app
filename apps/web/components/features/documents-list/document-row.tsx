@@ -17,10 +17,10 @@ const STATUS_DOT: Record<DocumentSummary['status'], string> = {
 
 const STATUS_TONE: Record<DocumentSummary['status'], string> = {
   QUEUED: 'bg-muted text-muted-foreground',
-  OCR_RUNNING: 'bg-warning-muted text-warning-foreground',
-  READY: 'bg-success-muted text-success-foreground',
+  OCR_RUNNING: 'bg-warning-muted text-warning-muted-foreground',
+  READY: 'bg-success-muted text-success-muted-foreground',
   FAILED: 'bg-destructive/15 text-destructive',
-  REJECTED: 'bg-warning-muted text-warning-foreground',
+  REJECTED: 'bg-warning-muted text-warning-muted-foreground',
   DUPLICATE: 'bg-muted text-muted-foreground',
 };
 
