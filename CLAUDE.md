@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Core funcional.** As fases F0 (monorepo bootstrap) até F4 (listagem + download) estão implementadas e operacionais. Além do core, foram entregues funcionalidades do backlog: painel de admin, benchmark de OCR, gerenciamento de configs LLM, fila distribuída (BullMQ + Redis), storage dual (Railway Volume + Cloudflare R2), verificação e edição de documentos, e rejeição automática de documentos fora do escopo.
 
-A **spec original** em `docs/paggo-ocr-case-spec.md` continua sendo a fonte de verdade para decisões de stack, estrutura e arquitetura do **core**. Funcionalidades adicionadas após a spec base (admin, benchmark, ai-runtime) seguem as convenções do projeto mas podem ser tratadas como evoluções — confirmar com o usuário antes de remover ou arquitetar alterações profundas nelas.
+A **spec original** em `docs/invoices-ocr-case-spec.md` continua sendo a fonte de verdade para decisões de stack, estrutura e arquitetura do **core**. Funcionalidades adicionadas após a spec base (admin, benchmark, ai-runtime) seguem as convenções do projeto mas podem ser tratadas como evoluções — confirmar com o usuário antes de remover ou arquitetar alterações profundas nelas.
 
 ## Contexto do projeto
 
-Case técnico da Paggo (fintech BR que serve construtoras/incorporadoras). Objetivo: web app que faz upload de invoices, extrai texto via OCR e permite chat com LLM sobre o conteúdo extraído. Critério da empresa: **protótipo funcional > tempo gasto** — features críticas primeiro, polimento depois.
+Case técnico de OCR (fintech BR que serve construtoras/incorporadoras). Objetivo: web app que faz upload de invoices, extrai texto via OCR e permite chat com LLM sobre o conteúdo extraído. Critério da empresa: **protótipo funcional > tempo gasto** — features críticas primeiro, polimento depois.
 
 ## Stack e estrutura
 
@@ -62,7 +62,7 @@ Sem email/senha. O web faz upsert do usuário via Prisma direto no `signIn` call
 
 Componentes ficam em `apps/web/components/ui/`, não em `node_modules`. MCP server `shadcn` está habilitado em `.claude/settings.local.json` para auxiliar.
 
-### Tema customizado Paggo (preto + cobre/conhaque)
+### Tema customizado do produto (preto + cobre/conhaque)
 
 Paleta OKLCH definida na spec, dark mode default. Light mode mantém família. Fica em `apps/web/app/globals.css`. **Não alterar paleta sem confirmar** — é parte da identidade do projeto.
 

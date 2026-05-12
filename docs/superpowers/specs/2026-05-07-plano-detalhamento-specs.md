@@ -1,7 +1,7 @@
 # Plano-mestre — Detalhamento das specs
 
 **Data:** 2026-05-07
-**Fonte de verdade:** `docs/paggo-ocr-case-spec.md`
+**Fonte de verdade:** `docs/invoices-ocr-case-spec.md`
 **Escopo deste documento:** índice ordenado das fases de desenvolvimento. Cada fase vai gerar um doc de spec próprio, escrito **antes** da implementação da fase, em sessão dedicada.
 
 ## Decisões fundacionais que guiam o plano
@@ -33,7 +33,7 @@ Escopo (entregue por esse plano, não por uma spec separada):
 - GitHub Actions: lint, typecheck, build em PRs.
 - Repositório no GitHub, push inicial, CI verde.
 
-**Não entrega** (vai pra F0.5): shadcn, NextAuth, Prisma, helmet, throttler, class-validator, next-themes, next-intl, tema Paggo, Railway/deploy.
+**Não entrega** (vai pra F0.5): shadcn, NextAuth, Prisma, helmet, throttler, class-validator, next-themes, next-intl, tema do produto, Railway/deploy.
 
 ## F0.5 — Skeleton (frontend + backend base)
 
@@ -153,7 +153,7 @@ Escopo:
 - README final: setup local, variáveis, comandos de teste/E2E, link do app deployado.
 - Suite Playwright cobrindo as 5 jornadas principais (login, upload, ver, chat, download).
 - Deploy final + smoke test em produção.
-- Checklist contra os entregáveis obrigatórios da spec Paggo (repo, instruções, link deploy).
+- Checklist contra os entregáveis obrigatórios da spec Invoice OCR (repo, instruções, link deploy).
 - História de commits com conventional commits + squash and merge confirmados.
 
 ---

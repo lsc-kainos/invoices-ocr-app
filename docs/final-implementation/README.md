@@ -1,6 +1,6 @@
-# Documentação Final da Implementação — Paggo OCR Case
+# Documentação Final da Implementação — Invoice OCR Case
 
-> Documentação técnica completa da solução desenvolvida para o case técnico da Paggo. Baseada na **implementação real do código**, não na spec original.
+> Documentação técnica completa da solução desenvolvida para o case técnico de OCR. Baseada na **implementação real do código**, não na spec original.
 
 ---
 
@@ -26,7 +26,7 @@
 
 ## 🎯 Contexto
 
-Este projeto é um case técnico para a Paggo, fintech brasileira que atua no setor da construção civil. O objetivo era construir um protótipo funcional que permita:
+Este projeto é um case técnico de OCR para documentos financeiros. O objetivo era construir um protótipo funcional que permita:
 
 - Upload de documentos (invoices, NF-e, NFS-e, boletos)
 - Extração de texto via OCR

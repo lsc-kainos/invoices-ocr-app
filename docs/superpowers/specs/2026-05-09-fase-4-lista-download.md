@@ -8,7 +8,7 @@
 
 ## 1. Objetivo
 
-Entregar a última peça de produto do core do case Paggo:
+Entregar a última peça de produto do core do case técnico de OCR:
 
 - **Página `/documents`**: listagem de todos os documentos do usuário, ordem `updatedAt desc`, com badge de status, navegação para detalhe e ação de download por linha.
 - **Botão `Download` na página `/documents/[id]`**: mesma ação, no header.
@@ -19,7 +19,7 @@ Entregar a última peça de produto do core do case Paggo:
 
 Ao fim da F4 a app tem o ciclo completo do case: login → upload → OCR → chat (workspace e por doc) → listagem → download com transcript.
 
-> **Origem do escopo.** O plano-mestre §132–142 (`2026-05-07-plano-detalhamento-specs.md`) descreve em alto nível. As decisões pendentes desse plano (formato do download, pendência do transcript, paginação, escopo da listagem, posicionamento do botão) foram fechadas no brainstorm de 2026-05-09 — registradas em §3 desta spec. O requisito do case Paggo ("Provide an option for users to download the uploaded documents with the appended extracted text and LLM interactions") foi a âncora do desenho.
+> **Origem do escopo.** O plano-mestre §132–142 (`2026-05-07-plano-detalhamento-specs.md`) descreve em alto nível. As decisões pendentes desse plano (formato do download, pendência do transcript, paginação, escopo da listagem, posicionamento do botão) foram fechadas no brainstorm de 2026-05-09 — registradas em §3 desta spec. O requisito do case técnico de OCR ("Provide an option for users to download the uploaded documents with the appended extracted text and LLM interactions") foi a âncora do desenho.
 
 ---
 
@@ -49,7 +49,7 @@ Se algum desses pontos não estiver pronto, **F4 está bloqueada** e o gap volta
 
 | #   | Decisão                          | Escolha                                                                                                                                                                                                                                         |
 | --- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| D1  | Transcript no download           | Sim — chat-de-doc persiste (F3 corrigida) e F4 lê do DB. Origem: requisito Paggo "appended extracted text and LLM interactions".                                                                                                                |
+| D1  | Transcript no download           | Sim — chat-de-doc persiste (F3 corrigida) e F4 lê do DB. Origem: requisito Invoice OCR "appended extracted text and LLM interactions".                                                                                                          |
 | D2  | Formato do artefato              | **ZIP** com 3-4 arquivos: `original.<ext>` + `extracted-text.txt` + `narrative.txt` (se presente, F2.5) + `chat-transcript.md`. PDF único (combinando tudo) é polish — backlog F5.                                                              |
 | D3  | Paginação de `/documents`        | **Sem paginação** na F4. Lista limita em `take: 100` por user. Cursor/offset entram no backlog se demanda surgir.                                                                                                                               |
 | D4  | Filtros e busca                  | **Nenhum**. Lista crua ordenada por `updatedAt desc`. Filtro de status / busca por filename são backlog.                                                                                                                                        |
@@ -744,7 +744,7 @@ Override por env: testes E2E rodam com `LLM_PROVIDER=mock` + `OCR_PROVIDER=mock`
 | R1  | ZIP grande (~10 MB original + transcript longo) trava memória do browser via `res.blob()` | Limite de upload F2 já é 10 MB; transcript dificilmente passa de 1 MB                                                                                                                    | Se aparecer doc grande, F5 migra para streaming via Service Worker |
 | R2  | `archiver` lança erro mid-stream após response 200                                        | Pre-flight (D16) cobre os casos comuns (`storage_unavailable`); raros casos remanescentes propagam e cliente vê EOF                                                                      | Toast genérico `error_generic`; usuário tenta de novo              |
 | R3  | Filename Unicode quebra `Content-Disposition` em browsers antigos                         | `sanitizeFilenameForZip` normaliza NFKD + remove combining marks → ASCII safe. O atributo `download` no `<a>` cliente também passa o filename como hint                                  | Filename vira algo legível mesmo sem UTF-8                         |
-| R4  | Throttle 10/min insuficiente em demos (revisor da Paggo testando rapido)                  | 10/min por user é folgado para uso humano normal; 503 vira mensagem clara                                                                                                                | Aumentar para 20/min via env se necessário; backlog                |
+| R4  | Throttle 10/min insuficiente em demos (revisor da Invoice OCR testando rapido)            | 10/min por user é folgado para uso humano normal; 503 vira mensagem clara                                                                                                                | Aumentar para 20/min via env se necessário; backlog                |
 | R5  | Race entre mudança de `status` (OCR_RUNNING → READY) e click do botão                     | Frontend não re-checa status antes de baixar — backend já valida e retorna 409                                                                                                           | Toast `error_not_ready` instrui usuário                            |
 | R6  | F4 desconhece eventos de F2 (OCR concluído invalidando cache)                             | Sem cache no F4 — sempre lê do DB no momento do download                                                                                                                                 | N/A                                                                |
 | R7  | Transcript em pt-BR fixo desagrada quando habilitarmos en-US (D11)                        | Documentado no spec; backlog: parametrizar via header `Accept-Language` ou query param                                                                                                   | F-futura                                                           |
@@ -783,7 +783,7 @@ Override por env: testes E2E rodam com `LLM_PROVIDER=mock` + `OCR_PROVIDER=mock`
 
 Backlog explícito — não implementar antes do core fechar:
 
-- **PDF único combinando original + texto + transcript.** Polish; F5 ou backlog Paggo.
+- **PDF único combinando original + texto + transcript.** Polish; F5 ou backlog Invoice OCR.
 - **Paginação real** (cursor/offset). Lista limitada em 100 docs cobre o demo.
 - **Filtros por status, busca por filename.** Backlog F5.
 - **Bulk download** (zip de N docs selecionados). Backlog.
@@ -793,7 +793,7 @@ Backlog explícito — não implementar antes do core fechar:
 - **Signed URL via R2/S3.** Volume Railway é o storage atual; a interface `StorageService` (F2) já abstrai a troca.
 - **Checksum / verificação de integridade do ZIP no cliente.** Backlog.
 - **Rate-limit per-document** (mais granular que per-user). Backlog.
-- **Audit log** (quem baixou, quando, qual doc). Backlog spec Paggo.
+- **Audit log** (quem baixou, quando, qual doc). Backlog spec Invoice OCR.
 
 ---
 

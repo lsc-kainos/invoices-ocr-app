@@ -6,7 +6,7 @@
 
 ## 1.1 Especificação Clara dos Requisitos
 
-Antes de escrever qualquer linha de código, foi produzida uma especificação técnica completa (`docs/paggo-ocr-case-spec.md`) contendo:
+Antes de escrever qualquer linha de código, foi produzida uma especificação técnica completa (`docs/invoices-ocr-case-spec.md`) contendo:
 
 - **Decomposição em fases (F0-F4):** cada fase representa um marco entregável
 - **Decisões de stack justificadas:** por que Next.js + NestJS, por que PostgreSQL, por que OpenAI
