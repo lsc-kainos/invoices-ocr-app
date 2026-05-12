@@ -132,6 +132,12 @@ export class BenchmarkService {
         };
       } catch (err) {
         const errKey = classifyError(err);
+        const errMsg = err instanceof Error ? err.message : String(err);
+        const errStack = err instanceof Error ? err.stack : '';
+        // [DEBUG-benchmark] Temporary instrumentation to diagnose failures
+        console.error(
+          `[DEBUG-benchmark] sample=${sample.filename} errorKey=${errKey} message=${errMsg} stack=${errStack}`,
+        );
         errorCounts[errKey] = (errorCounts[errKey] ?? 0) + 1;
         collectedResults.push({ filename: sample.filename, error: errKey });
 
