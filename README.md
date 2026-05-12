@@ -2,6 +2,27 @@
 
 OCR + LLM chat sobre invoices — case técnico Paggo.
 
+---
+
+## Documentação da Implementação
+
+> A documentação completa da solução está em [`docs/final-implementation/`](./docs/final-implementation/).
+> Baseada 100% na implementação real do código. Inclui arquitetura, tradeoffs, segurança, requisitos principais e roadmap.
+
+- [Visão Geral e Índice](./docs/final-implementation/README.md)
+- [Metodologia e Forma de Agir](./docs/final-implementation/01-methodology.md)
+- [AI Workflow](./docs/final-implementation/02-ai-workflow.md)
+- [Arquitetura da Solução](./docs/final-implementation/03-architecture.md)
+- [Autenticação em Detalhe](./docs/final-implementation/03.1-authentication.md)
+- [Segurança](./docs/final-implementation/03.2-security.md)
+- [Tradeoffs e Evolução v0 → v1](./docs/final-implementation/04-tradeoffs.md)
+- [Requisitos Principais](./docs/final-implementation/04.1-upload.md) (Upload, OCR, Chat, Listagem, Download)
+- [Incrementos e Melhorias](./docs/final-implementation/05-increments.md)
+- [Débito Técnico](./docs/final-implementation/06-technical-debt.md)
+- [Features Futuras](./docs/final-implementation/07-future-features.md)
+
+---
+
 ## Stack
 
 - Monorepo: npm workspaces + Turborepo
@@ -174,6 +195,30 @@ estiver vazio (resolve para `../../samples/invoice-dataset`).
 Containers via Dockerfile multi-stage (`apps/web/Dockerfile`, `apps/api/Dockerfile`). `railway.json` declara os 2 services para Railway com healthcheck em `/` (web) e `/health` (api). O api roda `prisma migrate deploy` no startup do container.
 
 ## Documentação
+
+### Documentação Final da Implementação (recomendada)
+
+Documentação técnica completa baseada no código real:
+
+| Documento                                                                      | Descrição                                                    |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`README.md`](./docs/final-implementation/README.md)                           | Índice e visão geral                                         |
+| [`01-methodology.md`](./docs/final-implementation/01-methodology.md)           | Metodologia, SDD, deploy dia 0, monorepo                     |
+| [`02-ai-workflow.md`](./docs/final-implementation/02-ai-workflow.md)           | Como a IA foi integrada ao desenvolvimento                   |
+| [`03-architecture.md`](./docs/final-implementation/03-architecture.md)         | Arquitetura geral, pipeline, storage, fila                   |
+| [`03.1-authentication.md`](./docs/final-implementation/03.1-authentication.md) | OAuth, JWT, S2S, RBAC, secret fingerprint                    |
+| [`03.2-security.md`](./docs/final-implementation/03.2-security.md)             | Ownership, upload validation, LGPD, prompt injection         |
+| [`04-tradeoffs.md`](./docs/final-implementation/04-tradeoffs.md)               | Evolução v0 → v1: EventEmitter→BullMQ, Volume→R2, SDK→AI SDK |
+| [`04.1-upload.md`](./docs/final-implementation/04.1-upload.md)                 | Upload: XHR progress, magic bytes, fila                      |
+| [`04.2-ocr.md`](./docs/final-implementation/04.2-ocr.md)                       | OCR: GPT-4o Vision, Zod, classificação, deduplicação         |
+| [`04.3-chat.md`](./docs/final-implementation/04.3-chat.md)                     | Chat: function calling, tool loop, prompts versionáveis      |
+| [`04.4-list-view.md`](./docs/final-implementation/04.4-list-view.md)           | Listagem: SSR, polling, preview, edição                      |
+| [`04.5-download.md`](./docs/final-implementation/04.5-download.md)             | Download: ZIP com original + OCR + narrativa + chat          |
+| [`05-increments.md`](./docs/final-implementation/05-increments.md)             | Benchmark, admin, deduplicação, versionamento de prompts     |
+| [`06-technical-debt.md`](./docs/final-implementation/06-technical-debt.md)     | 27 débitos técnicos identificados                            |
+| [`07-future-features.md`](./docs/final-implementation/07-future-features.md)   | Roadmap: RAG, multi-provider, streaming real, WhatsApp       |
+
+### Specs e Planejamento (histórico)
 
 - Spec original do case: `docs/paggo-ocr-case-spec.md`
 - Plano-mestre das fases: `docs/superpowers/specs/2026-05-07-plano-detalhamento-specs.md`
