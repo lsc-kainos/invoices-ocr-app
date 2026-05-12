@@ -2,6 +2,7 @@
 import { useTranslations } from 'next-intl';
 import { signOut } from 'next-auth/react';
 import { useTheme } from 'next-themes';
+import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -54,6 +55,11 @@ export function UserMenu({
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/privacy" className="cursor-pointer">
+            {t('privacy')}
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/login' })}>
           {t('logout')}
         </DropdownMenuItem>

@@ -61,6 +61,7 @@
       "theme_light": "Claro",
       "theme_dark": "Escuro",
       "theme_system": "Sistema",
+      "privacy": "Privacidade",
       "logout": "Sair"
     }
   },
@@ -487,5 +488,19 @@
         "duration": "Duração: {ms}ms"
       }
     }
+  },
+  "privacy": {
+    "title": "Política de Privacidade",
+    "intro": "Esta política descreve como coletamos, usamos e protegemos seus dados.",
+    "data_collected_title": "Dados Coletados",
+    "data_collected": "Coletamos apenas nome, e-mail e foto de perfil via autenticação OAuth (Google/GitHub). Documentos enviados são processados via OCR e armazenados criptografados.",
+    "purpose_title": "Finalidade",
+    "purpose": "Seus dados são usados exclusivamente para: (1) autenticação, (2) processamento OCR dos documentos enviados, (3) chat com LLM sobre o conteúdo extraído.",
+    "retention_title": "Retenção",
+    "retention": "Documentos e dados são mantidos enquanto sua conta existir. Ao excluir sua conta, todos os dados são removidos em cascata (LGPD).",
+    "rights_title": "Seus Direitos",
+    "rights": "Você tem direito a: acessar, corrigir, excluir e portar seus dados. Para exercer esses direitos, entre em contato.",
+    "contact_title": "Contato",
+    "contact": "Para questões sobre privacidade, entre em contato através do e-mail de suporte."
   }
 }
