@@ -37,15 +37,15 @@ export class AiRuntimeService {
       ...(opts.overrides?.params ?? {}),
     };
 
-    const messages: ModelMessage[] = [
-      { role: 'system', content: prompt },
-      ...opts.messages.filter((m) => m.role !== 'system'),
-    ];
+    const messages: ModelMessage[] = opts.messages.filter(
+      (m) => m.role !== 'system',
+    );
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const result = await generateObject({
       model: modelFor(modelId),
       schema: opts.schema,
+      system: prompt,
       messages,
       ...params,
     } as any);
