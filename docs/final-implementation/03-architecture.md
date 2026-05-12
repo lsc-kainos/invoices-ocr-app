@@ -74,7 +74,7 @@ components/
 - **shadcn/ui:** componentes copiados (não instalados via npm), customizáveis
 - **Tailwind v4:** estilização utilitária
 - **next-intl:** i18n desde o dia 0 (pt-BR ativo, en-US no backlog)
-- **next-themes:** dark mode default (tema Paggo: preto + cobre/conhaque)
+- **next-themes:** dark mode default (tema do produto: preto + cobre/conhaque)
 - **Vitest + Testing Library:** testes unitários de componentes e hooks
 
 ### Páginas Principais

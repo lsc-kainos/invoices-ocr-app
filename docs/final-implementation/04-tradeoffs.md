@@ -314,7 +314,7 @@ Usar **shadcn/ui** (componentes copiados, não instalados via npm).
 
 - Controle total sobre o código dos componentes
 - Sem dependência de lib de UI que pode mudar
-- Fácil customizar para o tema Paggo (preto + cobre/conhaque)
+- Fácil customizar para o tema do produto (preto + cobre/conhaque)
 - Funciona com Tailwind v4
 
 **O que custou:**

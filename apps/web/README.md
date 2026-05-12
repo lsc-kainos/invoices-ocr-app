@@ -1,6 +1,6 @@
 # @invoices-ocr/web
 
-Frontend Next.js 16 do case técnico Paggo — OCR + LLM chat sobre invoices.
+Frontend Next.js 16 do case técnico de OCR — OCR + LLM chat sobre invoices.
 
 ## Stack
 
@@ -31,7 +31,7 @@ app/
 │   ├── chat/
 │   └── auth/[...nextauth]/
 ├── layout.tsx          # root layout (fonts, providers)
-└── globals.css         # paleta OKLCH Paggo + tokens Tailwind
+└── globals.css         # paleta OKLCH Invoice OCR + tokens Tailwind
 
 components/
 ├── ui/                 # primitivos shadcn

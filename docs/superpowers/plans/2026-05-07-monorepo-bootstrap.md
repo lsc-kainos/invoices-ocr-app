@@ -10,14 +10,14 @@
 
 **Out of scope (próximos planos):**
 
-- shadcn/ui, NextAuth, next-intl, next-themes, tema Paggo
+- shadcn/ui, NextAuth, next-intl, next-themes, tema do produto
 - Prisma schema + módulos de domínio do Nest (auth/users/ocr/documents/chat)
 - helmet, @nestjs/throttler, class-validator
 - OpenAI SDK e pipeline OCR/chat
 - Dockerfile / Railway config / deploy
 - Sample data brasileira (NF-e, NFS-e, boletos)
 
-**Repo path note:** o working directory contém espaços (`Kainos Labs/Projetos/invoices-ocr-app`). Sempre executar comandos a partir desse diretório com aspas duplas em `cd` quando necessário, e nunca passar o path inteiro pra subcomandos sem quoting.
+**Repo path note:** o working directory original podia conter espaços (`Example Labs/Projetos/invoices-ocr-app`). Sempre executar comandos a partir desse diretório com aspas duplas em `cd` quando necessário, e nunca passar o path inteiro pra subcomandos sem quoting.
 
 **Pré-requisito adicional:** `gh` CLI instalado e autenticado (`gh auth status` deve retornar OK). Caso contrário, Task 13 fica bloqueada — instalar via gerenciador de pacote do SO e rodar `gh auth login`.
 
@@ -118,7 +118,7 @@ Push final agrupa os 4 commits no remote criado.
   "name": "invoices-ocr-app",
   "version": "0.0.0",
   "private": true,
-  "description": "OCR + LLM chat sobre invoices — case Paggo",
+  "description": "OCR + LLM chat sobre invoices — projeto Invoice OCR",
   "engines": {
     "node": ">=22.0.0",
     "npm": ">=10.0.0"
@@ -252,7 +252,7 @@ indent_style = tab
 ````markdown
 # invoices-ocr-app
 
-OCR + LLM chat sobre invoices — case técnico Paggo.
+OCR + LLM chat sobre invoices — case técnico de OCR.
 
 ## Stack
 
@@ -270,7 +270,7 @@ npm run dev        # sobe web (3000) e api (3001) em paralelo
 ```
 ````
 
-Documentação completa do case: `docs/paggo-ocr-case-spec.md`.
+Documentação completa do case: `docs/invoices-ocr-case-spec.md`.
 
 ````
 
@@ -729,7 +729,7 @@ Expected: `Initialized empty Git repository in .../invoices-ocr-app/.git/`. Bran
 Run:
 
 ```bash
-git config user.email >/dev/null 2>&1 || git config user.email "lsc@kainos-labs.com.br"
+git config user.email >/dev/null 2>&1 || git config user.email "admin@invoices-ocr.local"
 git config user.name >/dev/null 2>&1 || git config user.name "Lucas Comandulli"
 ```
 
@@ -1319,7 +1319,7 @@ gh repo create <owner>/invoices-ocr-app \
   --source=. \
   --remote=origin \
   --push \
-  --description "OCR + LLM chat sobre invoices — case técnico Paggo"
+  --description "OCR + LLM chat sobre invoices — case técnico de OCR"
 ```
 
 Expected:
@@ -1445,7 +1445,7 @@ Expected: status `completed success` no último run de `CI`.
 
 Decidir em conjunto com o usuário antes de iniciar:
 
-1. **Frontend skeleton:** shadcn/ui init, NextAuth (Google + GitHub) com providers funcionais, next-themes, next-intl com pt-BR, tema Paggo aplicado em `globals.css` + componentes base (header, theme-toggle).
+1. **Frontend skeleton:** shadcn/ui init, NextAuth (Google + GitHub) com providers funcionais, next-themes, next-intl com pt-BR, tema do produto aplicado em `globals.css` + componentes base (header, theme-toggle).
 2. **Backend skeleton:** Prisma init com schema inicial (User, Account, Session, Document, Message), módulos (auth, users, ocr, documents, chat), helmet + @nestjs/throttler + class-validator pipe global.
 3. **Pipeline OCR + chat:** OpenAI SDK, vision call no upload, function calling com `get_full_document`, persistência de Document e Message.
 4. **Sample data:** pasta `samples/` com NF-e/NFS-e/boletos anonimizados pra testar pipeline OCR.

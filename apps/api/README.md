@@ -1,6 +1,6 @@
 # @invoices-ocr/api
 
-Backend NestJS 11 do case técnico Paggo — OCR + LLM chat sobre invoices.
+Backend NestJS 11 do case técnico de OCR — OCR + LLM chat sobre invoices.
 
 ## Módulos
 

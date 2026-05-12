@@ -1,26 +1,28 @@
-# Invoice Dataset — Kaggle (Benchmark OCR)
+# Invoice Dataset — synthetic benchmark fixtures
 
-**Fonte:** [High Quality Invoice Images for OCR](https://www.kaggle.com/datasets/osamahosamabdellatif/high-quality-invoice-images-for-ocr) — Osama Hosam Abdellatif, Kaggle.
+This directory intentionally contains a **small synthetic dataset** for local
+benchmark smoke tests. The previous third-party Kaggle sample was replaced so
+this repository can be published without redistributing external dataset files.
 
-**Uso:** dataset de referência para o benchmark automatizado do pipeline OCR (`/admin/benchmark`). As imagens são invoices internacionais sintéticas com dados estruturados já mapeados nos CSVs (ground truth).
+## Contents
 
-## Conteúdo
+| File                                | Description                                                              |
+| ----------------------------------- | ------------------------------------------------------------------------ |
+| `batch1-0001.jpg`–`batch1-0003.jpg` | Synthetic invoice images copied from the repository-owned sample fixture |
+| `index.csv`                         | Ground truth consumed by the benchmark loader                            |
+| `batch1_1.csv`–`batch1_3.csv`       | Compatibility split files for older docs/scripts                         |
 
-| Arquivo           | Descrição                           |
-| ----------------- | ----------------------------------- |
-| `batch1-XXXX.jpg` | 30 imagens de invoice (JPG)         |
-| `batch1_1.csv`    | Ground truth para imagens 0001–0010 |
-| `batch1_2.csv`    | Ground truth para imagens 0500–0510 |
-| `batch1_3.csv`    | Ground truth para imagens 1001–1010 |
+## CSV structure
 
-## Estrutura dos CSVs
+Each row contains:
 
-Cada linha contém:
+- `File Name` — image filename
+- `Json Data` — structured synthetic invoice fields (`client_name`, `seller_name`, `invoice_number`, dates, `items[]`, `subtotal`)
+- `OCRed Text` — synthetic reference text
 
-- `File Name` — nome da imagem correspondente
-- `Json Data` — campos estruturados: `client_name`, `seller_name`, `invoice_number`, `invoice_date`, `items[]`, `subtotal` (tax, discount, total)
-- `OCRed Text` — texto bruto extraído da imagem (referência textual)
+## Using an external dataset
 
-## Licença
-
-Dataset disponível publicamente no Kaggle para fins de pesquisa e desenvolvimento.
+For larger/private benchmark runs, download a licensed dataset outside the git
+repository and point `BENCHMARK_DATASET_DIR` to that local directory. Do not
+commit third-party or real invoice images unless their license and privacy terms
+explicitly allow public redistribution.

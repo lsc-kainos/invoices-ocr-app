@@ -1,6 +1,6 @@
 # invoices-ocr-app
 
-OCR + LLM chat sobre invoices — case técnico Paggo.
+OCR + LLM chat sobre invoices — case técnico de OCR.
 
 ---
 
@@ -220,7 +220,7 @@ Documentação técnica completa baseada no código real:
 
 ### Specs e Planejamento (histórico)
 
-- Spec original do case: `docs/paggo-ocr-case-spec.md`
+- Spec original do case: `docs/invoices-ocr-case-spec.md`
 - Plano-mestre das fases: `docs/superpowers/specs/2026-05-07-plano-detalhamento-specs.md`
 - Spec F0.5 (Skeleton): `docs/superpowers/specs/2026-05-07-fase-0.5-skeleton.md`
 - Spec F1 (Auth): `docs/superpowers/specs/2026-05-07-fase-1-auth.md`

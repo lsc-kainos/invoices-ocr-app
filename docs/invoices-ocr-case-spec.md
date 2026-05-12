@@ -1,8 +1,8 @@
-# Paggo — OCR Case
+# Invoice OCR Case
 
 ## Contexto
 
-Case técnico enviado pela Paggo como etapa do processo seletivo. O candidato tem em média **5 dias** para entregar a solução, mas a empresa explicita que **um protótipo funcional é mais valorizado do que o tempo gasto** na entrega.
+Case técnico de OCR como etapa do processo seletivo. O candidato tem em média **5 dias** para entregar a solução, mas a empresa explicita que **um protótipo funcional é mais valorizado do que o tempo gasto** na entrega.
 
 ## Objetivo
 
@@ -81,7 +81,7 @@ Projetar e implementar uma solução que permita ao usuário:
 
 - **Next.js** (App Router) — exigido pelo case
 - **shadcn/ui + Tailwind** — componentes acessíveis com customização total
-- **Tema customizado** inspirado na identidade visual da Paggo (preto sólido, branco quente, acentos marrom)
+- **Tema customizado** inspirado na identidade visual do produto (preto sólido, branco quente, acentos marrom)
 - **NextAuth.js** — autenticação OAuth (Google + GitHub)
 - **next-themes** — multi-tema (claro/escuro/sistema), persistência via localStorage
 - **next-intl** — internacionalização configurada com pt-BR no momento, en-US no backlog
@@ -145,7 +145,7 @@ Para o escopo de um teste técnico, manter storage na mesma plataforma do deploy
 
 ### Railway para tudo em vez de Vercel split
 
-A recomendação da Paggo de usar Vercel é orientação, não requisito. NestJS roda como serviço Node de longa duração, encaixa naturalmente no Railway sem adaptação para serverless. Postgres co-localizado elimina latência de rede e simplifica configuração. Frontend Next.js também funciona bem em Railway. Trade-off: Vercel teria edge network mais ampla e CI/CD nativo para Next, mas para o escopo do case isso não justifica a complexidade de duas plataformas.
+A recomendação original de usar Vercel é orientação, não requisito. NestJS roda como serviço Node de longa duração, encaixa naturalmente no Railway sem adaptação para serverless. Postgres co-localizado elimina latência de rede e simplifica configuração. Frontend Next.js também funciona bem em Railway. Trade-off: Vercel teria edge network mais ampla e CI/CD nativo para Next, mas para o escopo do case isso não justifica a complexidade de duas plataformas.
 
 ### NextAuth com Google + GitHub
 
@@ -155,7 +155,7 @@ Dois providers cobrem a maior parte dos usuários técnicos. GitHub sinaliza ali
 
 Componentes copiados para o projeto (não importados como dependência), permitindo customização total e bundle menor. Acessibilidade nativa via Radix UI por baixo. Visual moderno alinhado com o que se espera de uma fintech.
 
-### Tema customizado inspirado na identidade Paggo
+### Tema customizado inspirado na identidade do produto
 
 Paleta sóbria de fintech premium em estética **café/conhaque sobre preto**: fundo preto absoluto, tipografia em branco cremoso (com leve tom amarelado), primary em laranja-cobre quente. Estética próxima a marcas de luxo (Hermès, leather goods) — sinaliza maturidade visual e atenção ao contexto da empresa avaliadora.
 
@@ -310,13 +310,13 @@ Estratégia em duas camadas para validar o pipeline OCR:
 
 Para garantir que o pipeline funciona end-to-end (upload → vision → texto → chat):
 
-- **Kaggle — High Quality Invoice Images for OCR** (Osama Hosam Abdellatif): invoices sintéticas de alta qualidade, variedade de layouts.
+- **Fixtures sintéticas locais**: invoices geradas/anonimizadas para smoke tests sem dependência de dados terceiros.
 - **SROIE 2019** (`priyank-m/SROIE_2019_text_recognition`): 973 recibos escaneados reais em inglês. Bom para testar robustez com imagens "sujas".
 - **Hugging Face: `mychen76/invoices-and-receipts_ocr_v1`**: invoices + recibos com anotações para validação.
 
 ### Camada 2 — Foco brasileiro (peso na avaliação)
 
-Notas brasileiras têm estrutura própria (CNPJ, CFOP, valor total, data emissão, chave NF-e de 44 dígitos). A Paggo serve construtoras e incorporadoras brasileiras — domínio do avaliador.
+Notas brasileiras têm estrutura própria (CNPJ, CFOP, valor total, data emissão, chave NF-e de 44 dígitos). O domínio alvo envolve documentos fiscais brasileiros, especialmente notas usadas por empresas de construção e incorporação.
 
 - 3–5 NF-e reais (anonimizadas, removendo CPF/dados pessoais)
 - 2–3 NFS-e (notas de serviço de prefeituras)
@@ -422,7 +422,7 @@ A partir das imagens, via `img2pdf` (Python) ou `pdf-lib` (Node). Não há neces
 
 #### Anonimização para treinamento
 
-- Caso a Paggo decida usar dados para fine-tuning, pipeline de anonimização (PII removido) antes da exportação
+- Caso o produto decida usar dados para fine-tuning, pipeline de anonimização (PII removido) antes da exportação
 
 #### Compliance LGPD avançada
 
