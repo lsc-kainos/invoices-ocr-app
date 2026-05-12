@@ -45,10 +45,8 @@ describe('AiRuntimeService', () => {
         model: { id: 'gpt-4o', _isMock: true },
         schema,
         temperature: 0,
-        messages: [
-          { role: 'system', content: 'system prompt aqui' },
-          { role: 'user', content: 'hi' },
-        ],
+        system: 'system prompt aqui',
+        messages: [{ role: 'user', content: 'hi' }],
       }),
     );
   });
@@ -74,7 +72,8 @@ describe('AiRuntimeService', () => {
       expect.objectContaining({
         model: { id: 'gpt-4o-mini', _isMock: true },
         temperature: 0.7,
-        messages: [{ role: 'system', content: 'custom' }],
+        system: 'custom',
+        messages: [],
       }),
     );
   });
