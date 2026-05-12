@@ -25,6 +25,7 @@ function makeFixture(): InvoiceSummaryResult {
     confidence: 1,
     summary: {
       core: {
+        accessKey: null,
         invoiceNumber: null,
         invoiceDate: null,
         dueDate: null,

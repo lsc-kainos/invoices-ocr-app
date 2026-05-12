@@ -12,7 +12,10 @@ export const documentTypeSchema = z.enum([
 export type DocumentType = z.infer<typeof documentTypeSchema>;
 
 export const invoiceCoreSchema = z.object({
-  accessKey: z.string().nullable().optional(),
+  // Keep this field required (nullable when absent) for OpenAI Structured
+  // Outputs strict JSON Schema compatibility: every object property must be
+  // listed in `required`, otherwise the API rejects the response_format schema.
+  accessKey: z.string().nullable(),
   invoiceNumber: z.string().nullable(),
   invoiceDate: z.string().nullable(),
   dueDate: z.string().nullable(),
