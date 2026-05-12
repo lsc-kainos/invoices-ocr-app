@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { resolve } from 'node:path';
+import { existsSync } from 'node:fs';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { Role, type User } from '@prisma/client';
@@ -20,6 +21,27 @@ import type {
   BenchmarkRunDetailDto,
   BenchmarkRunDto,
 } from '@invoices-ocr/shared-types';
+
+function findSamplesDir(configured?: string): string {
+  if (configured) {
+    return resolve(configured);
+  }
+
+  const candidates = [
+    resolve(process.cwd(), 'samples/invoice-dataset'),
+    resolve(process.cwd(), '../../samples/invoice-dataset'),
+  ];
+
+  for (const dir of candidates) {
+    if (existsSync(dir)) {
+      return dir;
+    }
+  }
+
+  // Fallback para o primeiro candidato mesmo que não exista,
+  // para que o erro ENOENT seja claro nos logs.
+  return candidates[0];
+}
 
 @Controller('api/v1/admin')
 @Roles(Role.ADMIN)
@@ -39,9 +61,7 @@ export class BenchmarkController {
     res.setHeader('X-Accel-Buffering', 'no');
 
     const configured = this.config.get<string>('BENCHMARK_DATASET_DIR');
-    const samplesDir = configured
-      ? resolve(configured)
-      : resolve(process.cwd(), '../../samples/invoice-dataset');
+    const samplesDir = findSamplesDir(configured);
 
     for await (const event of this.benchmark.runStream(samplesDir, user.id)) {
       res.write(`data: ${JSON.stringify(event)}\n\n`);
