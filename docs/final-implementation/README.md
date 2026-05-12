@@ -9,6 +9,8 @@
 1. **[Metodologia e Forma de Agir](./01-methodology.md)** — Como o projeto foi conduzido, desde a especificação até o deploy.
 2. **[AI Workflow](./02-ai-workflow.md)** — Como a inteligência artificial foi integrada ao fluxo de desenvolvimento.
 3. **[Arquitetura da Solução](./03-architecture.md)** — Visão geral, autenticação, frontend, backend e providers.
+   - **[Autenticação em Detalhe](./03.1-authentication.md)** — Fluxo OAuth, JWT, S2S, RBAC, fingerprint.
+   - **[Segurança](./03.2-security.md)** — Ownership, upload validation, LGPD, prompt injection, rate limiting.
 4. **[Tradeoffs e Decisões](./04-tradeoffs.md)** — Escolhas arquiteturais e seus impactos.
 5. **[Incrementos e Melhorias](./05-increments.md)** — Funcionalidades entregues além do core.
 6. **[Débito Técnico](./06-technical-debt.md)** — Pontos identificados para refinamento futuro.
