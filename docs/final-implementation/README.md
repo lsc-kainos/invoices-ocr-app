@@ -12,9 +12,15 @@
    - **[Autenticação em Detalhe](./03.1-authentication.md)** — Fluxo OAuth, JWT, S2S, RBAC, fingerprint.
    - **[Segurança](./03.2-security.md)** — Ownership, upload validation, LGPD, prompt injection, rate limiting.
 4. **[Tradeoffs e Decisões](./04-tradeoffs.md)** — Escolhas arquiteturais e seus impactos.
-5. **[Incrementos e Melhorias](./05-increments.md)** — Funcionalidades entregues além do core.
-6. **[Débito Técnico](./06-technical-debt.md)** — Pontos identificados para refinamento futuro.
-7. **[Features Futuras](./07-future-features.md)** — Roadmap e próximos passos.
+5. **[Requisitos Principais (por feature)](./04.1-upload.md)** — Documentação técnica de cada requisito do case:
+   - **[R1: Upload de Documentos](./04.1-upload.md)** — Fluxo de upload, validação, progresso.
+   - **[R2: OCR (Extração de Texto)](./04.2-ocr.md)** — Pipeline OCR, GPT-4o Vision, Zod, deduplicação.
+   - **[R3: Chat com LLM](./04.3-chat.md)** — Conversação, function calling, contexto, persistência.
+   - **[R4: Listagem e Visualização](./04.4-list-view.md)** — Lista SSR, detalhe, preview, edição.
+   - **[R5: Download](./04.5-download.md)** — Geração de ZIP com original + OCR + chat.
+6. **[Incrementos e Melhorias](./05-increments.md)** — Funcionalidades entregues além do core.
+7. **[Débito Técnico](./06-technical-debt.md)** — Pontos identificados para refinamento futuro.
+8. **[Features Futuras](./07-future-features.md)** — Roadmap e próximos passos.
 
 ---
 
