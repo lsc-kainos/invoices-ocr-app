@@ -24,7 +24,7 @@ import type {
   InvoiceSummary,
   InvoiceSummaryResult,
 } from '../ocr/schemas/invoice-summary.schema';
-import type { DocumentOps } from '../ocr/ocr.service';
+import type { DocumentOps, ReadyDuplicateSuggestion } from '../ocr/ocr.service';
 import { OCR_QUEUE_NAME, type OcrJobData } from '../ocr/queues/ocr.queue';
 import { sanitizeFilename } from './helpers/sanitize-filename';
 import { mimeToExt } from './helpers/mime-to-ext';
@@ -209,6 +209,9 @@ export class DocumentsService implements DocumentOps {
         storagePath: `duplicate:${duplicateOfId}`,
         contentHash: args.contentHash,
         duplicateOfId,
+        duplicateReason: 'content_hash',
+        possibleDuplicateOfId: null,
+        duplicateMatchStrength: 'strong',
         status: DocumentStatus.DUPLICATE,
       },
     });
@@ -413,6 +416,8 @@ export class DocumentsService implements DocumentOps {
     id: string,
     summary: InvoiceSummary,
     extractedText: string,
+    semanticHash: string | null = null,
+    duplicateSuggestion: ReadyDuplicateSuggestion | null = null,
   ): Promise<void> {
     await this.prisma.document.update({
       where: { id },
@@ -420,8 +425,64 @@ export class DocumentsService implements DocumentOps {
         status: DocumentStatus.READY,
         summary: summary as never,
         extractedText,
+        semanticHash,
         ocrCompletedAt: new Date(),
         failureReason: null,
+        duplicateOfId: null,
+        duplicateReason: duplicateSuggestion?.duplicateReason ?? null,
+        possibleDuplicateOfId:
+          duplicateSuggestion?.possibleDuplicateOfId ?? null,
+        duplicateMatchStrength:
+          duplicateSuggestion?.duplicateMatchStrength ?? null,
+      },
+    });
+  }
+
+  async findReadySemanticDuplicate(
+    id: string,
+    semanticHash: string,
+  ): Promise<{ id: string } | null> {
+    const doc = await this.prisma.document.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+    if (!doc) return null;
+
+    return this.prisma.document.findFirst({
+      where: {
+        userId: doc.userId,
+        semanticHash,
+        status: DocumentStatus.READY,
+        id: { not: id },
+      },
+      select: { id: true },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  async markDuplicate(
+    id: string,
+    duplicateOfId: string,
+    reason: string,
+    partial: InvoiceSummaryResult,
+    semanticHash: string,
+  ): Promise<void> {
+    await this.prisma.document.update({
+      where: { id },
+      data: {
+        status: DocumentStatus.DUPLICATE,
+        duplicateOfId,
+        duplicateReason: reason,
+        possibleDuplicateOfId: null,
+        duplicateMatchStrength: 'strong',
+        semanticHash,
+        documentType: partial.documentType,
+        confidence: partial.confidence,
+        summary: partial.summary as never,
+        extractedText: partial.extractedText,
+        failureReason: null,
+        rejectionReason: null,
+        ocrCompletedAt: new Date(),
       },
     });
   }

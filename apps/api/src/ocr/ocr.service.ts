@@ -16,8 +16,18 @@ import {
 import { isTransient } from './helpers/is-transient';
 import { classifyError } from './helpers/classify-error';
 import { pdfToImage } from './helpers/pdf-to-image';
+import {
+  DocumentSemanticDuplicateService,
+  type DuplicateMatchStrength,
+} from '../documents/document-semantic-duplicate.service';
 
 export const DOCUMENT_OPS = Symbol('DOCUMENT_OPS');
+
+export interface ReadyDuplicateSuggestion {
+  possibleDuplicateOfId: string;
+  duplicateMatchStrength: DuplicateMatchStrength;
+  duplicateReason: string;
+}
 
 export interface DocumentOps {
   markRunning(id: string): Promise<void>;
@@ -25,12 +35,25 @@ export interface DocumentOps {
     id: string,
     summary: InvoiceSummary,
     extractedText: string,
+    semanticHash?: string | null,
+    duplicateSuggestion?: ReadyDuplicateSuggestion | null,
   ): Promise<void>;
   markFailed(id: string, reason: string): Promise<void>;
   markRejected(
     id: string,
     reason: 'low_confidence' | 'unsupported_type',
     partial: InvoiceSummaryResult,
+  ): Promise<void>;
+  findReadySemanticDuplicate(
+    id: string,
+    semanticHash: string,
+  ): Promise<{ id: string } | null>;
+  markDuplicate(
+    id: string,
+    duplicateOfId: string,
+    reason: string,
+    partial: InvoiceSummaryResult,
+    semanticHash: string,
   ): Promise<void>;
   findByIdInternal(
     id: string,
@@ -46,6 +69,7 @@ export class OcrService {
     @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
     @Inject(OCR_PROVIDER) private readonly provider: OcrProvider,
     private readonly config: ConfigService,
+    private readonly semanticDuplicates: DocumentSemanticDuplicateService,
   ) {}
 
   async process(docId: string): Promise<void> {
@@ -93,7 +117,51 @@ export class OcrService {
         return;
       }
 
-      await this.docs.markReady(docId, parsed.summary, parsed.extractedText);
+      const semanticSignature =
+        this.semanticDuplicates.computeSignature(parsed);
+      if (semanticSignature) {
+        const duplicate = await this.docs.findReadySemanticDuplicate(
+          docId,
+          semanticSignature.semanticHash,
+        );
+        if (duplicate && semanticSignature.matchStrength === 'strong') {
+          await this.docs.markDuplicate(
+            docId,
+            duplicate.id,
+            semanticSignature.reason,
+            parsed,
+            semanticSignature.semanticHash,
+          );
+          this.logger.log(
+            `OCR duplicate docId=${docId} duplicateOf=${duplicate.id} reason=${semanticSignature.reason}`,
+          );
+          return;
+        }
+        if (duplicate) {
+          await this.docs.markReady(
+            docId,
+            parsed.summary,
+            parsed.extractedText,
+            semanticSignature.semanticHash,
+            {
+              possibleDuplicateOfId: duplicate.id,
+              duplicateMatchStrength: semanticSignature.matchStrength,
+              duplicateReason: semanticSignature.reason,
+            },
+          );
+          this.logger.log(
+            `OCR possible duplicate docId=${docId} possibleDuplicateOf=${duplicate.id} reason=${semanticSignature.reason}`,
+          );
+          return;
+        }
+      }
+
+      await this.docs.markReady(
+        docId,
+        parsed.summary,
+        parsed.extractedText,
+        semanticSignature?.semanticHash ?? null,
+      );
       this.logger.log(`OCR ok docId=${docId}`);
     } catch (err) {
       if (isTransient(err)) {

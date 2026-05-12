@@ -4,6 +4,7 @@ import { OcrService, DOCUMENT_OPS } from './ocr.service';
 import { OCR_PROVIDER } from './providers/ocr-provider.interface';
 import { STORAGE_SERVICE } from '../storage/storage.service';
 import type { InvoiceSummaryResult } from './schemas/invoice-summary.schema';
+import { DocumentSemanticDuplicateService } from '../documents/document-semantic-duplicate.service';
 
 const happy: InvoiceSummaryResult = {
   documentType: 'invoice',
@@ -11,6 +12,7 @@ const happy: InvoiceSummaryResult = {
   summary: {
     core: {
       invoiceNumber: null,
+      accessKey: null,
       invoiceDate: null,
       dueDate: null,
       sellerName: null,
@@ -36,6 +38,8 @@ describe('OcrService', () => {
     markReady: jest.Mock;
     markFailed: jest.Mock;
     markRejected: jest.Mock;
+    findReadySemanticDuplicate: jest.Mock;
+    markDuplicate: jest.Mock;
     findByIdInternal: jest.Mock;
   };
   let storage: { read: jest.Mock };
@@ -47,6 +51,8 @@ describe('OcrService', () => {
       markReady: jest.fn().mockResolvedValue(undefined),
       markFailed: jest.fn().mockResolvedValue(undefined),
       markRejected: jest.fn().mockResolvedValue(undefined),
+      findReadySemanticDuplicate: jest.fn().mockResolvedValue(null),
+      markDuplicate: jest.fn().mockResolvedValue(undefined),
       findByIdInternal: jest.fn().mockResolvedValue({
         id: 'd1',
         mime: 'image/jpeg',
@@ -63,6 +69,7 @@ describe('OcrService', () => {
         { provide: DOCUMENT_OPS, useValue: docs },
         { provide: STORAGE_SERVICE, useValue: storage },
         { provide: OCR_PROVIDER, useValue: provider },
+        DocumentSemanticDuplicateService,
         {
           provide: ConfigService,
           useValue: { get: jest.fn().mockReturnValue(0.6) },
@@ -81,6 +88,7 @@ describe('OcrService', () => {
       'd1',
       happy.summary,
       happy.extractedText,
+      null,
     );
     expect(docs.markFailed).not.toHaveBeenCalled();
   });
@@ -127,6 +135,7 @@ describe('OcrService', () => {
       'd1',
       result.summary,
       result.extractedText,
+      null,
     );
     expect(docs.markRejected).not.toHaveBeenCalled();
   });
@@ -144,7 +153,173 @@ describe('OcrService', () => {
       'low_confidence',
       result,
     );
+    expect(docs.findReadySemanticDuplicate).not.toHaveBeenCalled();
     expect(docs.markReady).not.toHaveBeenCalled();
+  });
+
+  it('NF-e nova vira READY com semanticHash', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'nf-e',
+      summary: {
+        ...happy.summary,
+        core: {
+          ...happy.summary.core,
+          accessKey: '35260412345678000190550010000231171123456789',
+        },
+      },
+    };
+    provider.extract.mockResolvedValue(result);
+    await svc.process('d1');
+    expect(docs.findReadySemanticDuplicate).toHaveBeenCalledWith(
+      'd1',
+      'NFKEY:35260412345678000190550010000231171123456789',
+    );
+    expect(docs.markReady).toHaveBeenCalledWith(
+      'd1',
+      result.summary,
+      result.extractedText,
+      'NFKEY:35260412345678000190550010000231171123456789',
+    );
+  });
+
+  it('NF-e com chave já existente vira DUPLICATE', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'nf-e',
+      summary: {
+        ...happy.summary,
+        core: {
+          ...happy.summary.core,
+          accessKey: '35260412345678000190550010000231171123456789',
+        },
+      },
+    };
+    docs.findReadySemanticDuplicate.mockResolvedValue({ id: 'original-doc' });
+    provider.extract.mockResolvedValue(result);
+    await svc.process('d1');
+    expect(docs.markDuplicate).toHaveBeenCalledWith(
+      'd1',
+      'original-doc',
+      'nfe_access_key',
+      result,
+      'NFKEY:35260412345678000190550010000231171123456789',
+    );
+    expect(docs.markReady).not.toHaveBeenCalled();
+  });
+
+  it('invoice com IDs fiscais iguais a documento READY vira DUPLICATE', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'invoice',
+      summary: {
+        ...happy.summary,
+        core: {
+          ...happy.summary.core,
+          invoiceDate: '11/05/2026',
+          sellerName: 'ACME Ltda',
+          clientName: 'Kainos Labs',
+          total: 'R$ 1.234,56',
+        },
+        extras: [
+          { label: 'CNPJ emitente', value: '12.345.678/0001-90', mono: true },
+          {
+            label: 'CNPJ destinatario',
+            value: '98.765.432/0001-10',
+            mono: true,
+          },
+        ],
+      },
+    };
+    docs.findReadySemanticDuplicate.mockResolvedValue({ id: 'original-doc' });
+    provider.extract.mockResolvedValue(result);
+
+    await svc.process('d1');
+
+    const semanticHash = docs.findReadySemanticDuplicate.mock.calls[0][1];
+    expect(semanticHash).toMatch(/^DOCID:v1:[0-9a-f]{64}$/);
+    expect(docs.markDuplicate).toHaveBeenCalledWith(
+      'd1',
+      'original-doc',
+      'document_identity',
+      result,
+      semanticHash,
+    );
+    expect(docs.markReady).not.toHaveBeenCalled();
+  });
+
+  it('invoice com nomes livres igual a READY fica READY com possibleDuplicateOfId', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'invoice',
+      summary: {
+        ...happy.summary,
+        core: {
+          ...happy.summary.core,
+          invoiceDate: '11/05/2026',
+          sellerName: 'ACME Ltda',
+          clientName: 'Kainos Labs',
+          total: 'R$ 1.234,56',
+        },
+      },
+    };
+    docs.findReadySemanticDuplicate.mockResolvedValue({ id: 'candidate-doc' });
+    provider.extract.mockResolvedValue(result);
+
+    await svc.process('d1');
+
+    const semanticHash = docs.findReadySemanticDuplicate.mock.calls[0][1];
+    expect(docs.markDuplicate).not.toHaveBeenCalled();
+    expect(docs.markReady).toHaveBeenCalledWith(
+      'd1',
+      result.summary,
+      result.extractedText,
+      semanticHash,
+      {
+        possibleDuplicateOfId: 'candidate-doc',
+        duplicateMatchStrength: 'needs_confirmation',
+        duplicateReason: 'document_identity',
+      },
+    );
+  });
+
+  it('boleto com identificador forte igual a READY vira DUPLICATE', async () => {
+    const result: InvoiceSummaryResult = {
+      ...happy,
+      documentType: 'boleto',
+      summary: {
+        ...happy.summary,
+        core: {
+          ...happy.summary.core,
+          dueDate: '11/05/2026',
+          sellerName: 'Banco Exemplo',
+          clientName: 'Kainos Labs',
+          total: '250,00',
+        },
+        extras: [
+          {
+            label: 'Linha digitável',
+            value: '00190.00009 01234.567890 12345.678901 1 12345678901234',
+            mono: true,
+          },
+        ],
+      },
+    };
+    docs.findReadySemanticDuplicate.mockResolvedValue({
+      id: 'boleto-original',
+    });
+    provider.extract.mockResolvedValue(result);
+
+    await svc.process('d1');
+
+    const semanticHash = docs.findReadySemanticDuplicate.mock.calls[0][1];
+    expect(docs.markDuplicate).toHaveBeenCalledWith(
+      'd1',
+      'boleto-original',
+      'boleto_identifier',
+      result,
+      semanticHash,
+    );
   });
 
   it('unknown type → markRejected(unsupported_type)', async () => {
@@ -160,6 +335,7 @@ describe('OcrService', () => {
       'unsupported_type',
       result,
     );
+    expect(docs.findReadySemanticDuplicate).not.toHaveBeenCalled();
     expect(docs.markReady).not.toHaveBeenCalled();
   });
 

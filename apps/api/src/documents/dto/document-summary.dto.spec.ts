@@ -9,7 +9,11 @@ describe('toSummaryDto', () => {
     size: 1024,
     storagePath: 'u1/doc1/original.pdf',
     contentHash: null,
+    semanticHash: null,
     duplicateOfId: null,
+    duplicateReason: null,
+    possibleDuplicateOfId: null,
+    duplicateMatchStrength: null,
     status: 'FAILED' as const,
     failureReason: 'rate_limit',
     retryCount: 2,
@@ -32,8 +36,27 @@ describe('toSummaryDto', () => {
   });
 
   it('mapeia vínculo com documento original quando é duplicado', () => {
-    const dto = toSummaryDto({ ...baseDoc, duplicateOfId: 'doc-original' });
+    const dto = toSummaryDto({
+      ...baseDoc,
+      duplicateOfId: 'doc-original',
+      duplicateReason: 'nfe_access_key',
+    });
     expect(dto.duplicateOfId).toBe('doc-original');
+    expect(dto.duplicateReason).toBe('nfe_access_key');
+  });
+
+  it('mapeia sugestão de duplicata sem alterar status', () => {
+    const dto = toSummaryDto({
+      ...baseDoc,
+      status: 'READY',
+      possibleDuplicateOfId: 'doc-original',
+      duplicateReason: 'document_identity',
+      duplicateMatchStrength: 'needs_confirmation',
+    });
+    expect(dto.status).toBe('READY');
+    expect(dto.possibleDuplicateOfId).toBe('doc-original');
+    expect(dto.duplicateReason).toBe('document_identity');
+    expect(dto.duplicateMatchStrength).toBe('needs_confirmation');
   });
 
   it('mantém retryCount=0 em doc novo', () => {

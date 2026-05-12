@@ -1,4 +1,5 @@
 export interface InvoiceCore {
+  accessKey?: string | null;
   invoiceNumber: string | null;
   invoiceDate: string | null;
   dueDate: string | null;
